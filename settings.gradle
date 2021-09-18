@@ -1,2 +1,0 @@
-rootProject.name = 'variED'
-include 'client', 'server', 'kernel'

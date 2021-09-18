@@ -1,1 +1,0 @@
-web: cd build; . variED.sh --port $PORT
