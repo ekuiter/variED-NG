@@ -4,7 +4,7 @@ let logLevel: LogLevel = defaultLogLevel;
 type LogEntry = () => any;
 type ConsoleFunction = (...args: any[]) => void;
 
-const mapStateToPropsCache = {},
+const mapStateToPropsCache: any = {},
     
     truncate = (string: string, length = 80): string =>
         string.substr(0, length - 1) + (string.length > length ? '…' : ''),
@@ -58,7 +58,7 @@ const logger = {
     infoColored: coloredWrapper(consoleInfo, LogLevel.info),
     isLoggingInfo: () => logLevel >= LogLevel.info,
 
-    mapStateToProps(containerName: string, mapStateToProps: (state: object, ownProps?: object) => object, passOwnProps?: boolean) {
+    mapStateToProps(containerName: string, mapStateToProps: (state: any, ownProps?: object) => any, passOwnProps?: boolean) {
         return (state: object, ownProps?: object): object => {
             const newProps = passOwnProps ? mapStateToProps(state, ownProps) : mapStateToProps(state);
             if (logLevel >= LogLevel.info && mapStateToPropsCache[containerName] &&

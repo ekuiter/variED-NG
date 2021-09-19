@@ -10,7 +10,7 @@ import {FeatureDiagramLayoutType} from '../../../types';
 import {FeatureNode} from '../../../modeling/types';
 
 export default class extends AbstractTreeLayout {
-    widestTextOnLayer = {};
+    widestTextOnLayer: any = {};
 
     constructor(props: AbstractTreeLayoutProps) {
         super(props, HorizontalTreeNode, HorizontalTreeLink);

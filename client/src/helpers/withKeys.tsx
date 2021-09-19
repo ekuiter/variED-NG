@@ -29,11 +29,11 @@ export default (...keyBindings: KeyBinding[]) =>
     (WrappedComponent: React.ComponentClass): React.ComponentClass =>
         class extends React.Component {
             componentDidMount() {
-                document.addEventListener('keydown', this.handleKey);
+                document.addEventListener('keydown', this.handleKey as any);
             }
 
             componentWillUnmount() {
-                document.removeEventListener('keydown', this.handleKey);
+                document.removeEventListener('keydown', this.handleKey as any);
             }
 
             handleKey = (event: ExtendedKeyboardEvent) => {

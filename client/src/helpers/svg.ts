@@ -50,8 +50,8 @@ export function appendCross(selection: D3Selection, style?: Style): void {
         stroke: 'red',
         'stroke-width': '1.5px'
     };
-    selection.append('path').attr('d', toD(MOVE, -4, -4, LINE, 4, 4)).attrs(style);
-    selection.append('path').attr('d', toD(MOVE, -4, 4, LINE, 4, -4)).attrs(style);
+    (selection.append('path').attr('d', toD(MOVE, -4, -4, LINE, 4, 4)) as any)["attrs"](style);
+    (selection.append('path').attr('d', toD(MOVE, -4, 4, LINE, 4, -4)) as any)["attrs"](style);
 }
 
 export function updateRect(selection: D3Selection, {x, y, klass, width, height, style, fn}:
@@ -145,8 +145,8 @@ export function addStyle(selection: D3Selection, ...styleDescriptors: StyleDescr
             Object.keys(styles).forEach(key =>
                 selection
                     .filter((node: FeatureNode) => node.feature().getPropertyString(property!) === key)
-                    .call(selection => selection.attrs(styles[key])));
+                    .call(selection => (selection as any)["attrs"](styles[key])));
         else
-            selection.attrs(styleDescriptor);
+            (selection as any)["attrs"](styleDescriptor);
     });
 }

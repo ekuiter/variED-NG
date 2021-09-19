@@ -4,7 +4,7 @@ import FeatureCallout from './FeatureCallout';
 import FeatureModel from '../../modeling/FeatureModel';
 import {validFeatureModel} from '../../fixtures';
 import {defaultSettings} from '../../store/settings';
-import {Callout, DirectionalHint} from 'office-ui-fabric-react/lib/Callout';
+import {Callout, DirectionalHint} from '@fluentui/react';
 import {FeatureDiagramLayoutType} from '../../types';
 
 describe('FeatureCallout', () => {

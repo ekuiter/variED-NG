@@ -2,14 +2,14 @@
  * Helpers and wrappers for Fabric dialogs.
  */
 
-import {Dialog, DialogFooter, IDialogProps} from 'office-ui-fabric-react/lib/Dialog';
-import {DefaultButton, PrimaryButton} from 'office-ui-fabric-react/lib/Button';
+import {Dialog, DialogFooter, IDialogProps} from '@fluentui/react';
+import {DefaultButton, PrimaryButton} from '@fluentui/react';
 import i18n from '../i18n';
 import React, {RefObject} from 'react';
 import deferred from './deferred';
-import {TextField, ITextFieldProps, ITextField} from 'office-ui-fabric-react/lib/TextField';
-import {IContextualMenuItem} from 'office-ui-fabric-react/lib/ContextualMenu';
-import {IIconProps} from 'office-ui-fabric-react/lib/Icon';
+import {TextField, ITextFieldProps, ITextField} from '@fluentui/react';
+import {IContextualMenuItem} from '@fluentui/react';
+import {IIconProps} from '@fluentui/react';
 
 export const largeDialogStyle = {
     main: {
@@ -71,13 +71,15 @@ export class DialogContextualMenu extends React.Component<DialogContextualMenuPr
                             ({...option, onClick: this.onDialogOpen(option)}))
                     }}/>
                 {this.state.option &&
-                <DialogWrapper
-                    label={this.state.option!.text!}
-                    isOpen={!!this.state.option}
-                    onDismiss={this.onDialogDismiss}
-                    onApply={this.onApply}>
-                    {this.props.children}
-                </DialogWrapper>}
+                null
+                // <DialogWrapper
+                //     label={this.state.option!.text!}
+                //     isOpen={!!this.state.option}
+                //     onDismiss={this.onDialogDismiss}
+                //     onApply={this.onApply}>
+                //     {this.props.children}
+                // </DialogWrapper>
+                }
             </div>
         );
     }

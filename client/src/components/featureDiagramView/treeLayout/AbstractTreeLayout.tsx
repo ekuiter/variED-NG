@@ -5,7 +5,7 @@
 
 import React, {CSSProperties} from 'react';
 import {tree as d3Tree} from 'd3-hierarchy';
-import {event as d3Event, select as d3Select} from 'd3-selection';
+import {select as d3Select} from 'd3-selection';
 import {zoom as d3Zoom} from 'd3-zoom';
 import 'd3-transition';
 import {Settings} from '../../../store/settings';
@@ -46,7 +46,7 @@ export interface AbstractTreeLayoutProps {
     onToggleFeatureOptional: OnToggleFeatureOptionalFunction
 };
 
-export default class extends React.Component<AbstractTreeLayoutProps> {
+export default class extends React.Component<any>{ //<AbstractTreeLayoutProps> {
     static defaultProps: Partial<AbstractTreeLayoutProps> = {fitOnResize: false};
     svgRef = React.createRef<SVGSVGElement>();
     currentCoordinates = {};
@@ -77,7 +77,7 @@ export default class extends React.Component<AbstractTreeLayoutProps> {
         this.renderD3();
     }
 
-    componentDidUpdate(prevProps: AbstractTreeLayoutProps): void {
+    componentDidUpdate(prevProps: any): void { // AbstractTreeLayoutProps): void {
         const updateD3OnPropChange = ['featureModel', 'width', 'height', 'fitOnResize', 'settings'];
         this.treeNode.settings = this.treeLink.settings = this.props.settings;
         this.treeNode.isSelectMultipleFeatures = this.props.isSelectMultipleFeatures;
@@ -93,7 +93,7 @@ export default class extends React.Component<AbstractTreeLayoutProps> {
             this.updateSelection();
     }
 
-    render(): JSX.Element {
+    render() {
         return (
             <svg className={'treeLayout' + (this.props.className ? ` ${this.props.className}` : '')}
                 style={this.props.style}
@@ -135,17 +135,17 @@ export default class extends React.Component<AbstractTreeLayoutProps> {
     }
 
     updateCoordinates(key: string, nodes: FeatureNode[]): void {
-        this[key] = {};
-        nodes.forEach(node => this[key][node.feature().ID] = {x: this.treeNode.x(node), y: this.treeNode.y(node)});
+        (this as any)[key] = {};
+        nodes.forEach(node => (this as any)[key][node.feature().ID] = {x: this.treeNode.x(node), y: this.treeNode.y(node)});
     }
 
     getParentCoordinateFn(key: string): NodeCoordinateForAxisFunction {
         return (node, axis) => {
             if (!node.feature().isRoot) {
-                const coords = this[key][node.parent!.feature().ID];
-                return coords ? coords[axis] : this.treeNode[axis](node.parent);
+                const coords = (this as any)[key][node.parent!.feature().ID];
+                return coords ? coords[axis] : (this as any).treeNode[axis](node.parent);
             } else
-                return this.treeNode[axis](node);
+                return (this as any).treeNode[axis](node);
         };
     }
 
@@ -171,7 +171,7 @@ export default class extends React.Component<AbstractTreeLayoutProps> {
             hierarchy = featureModel.hierarchy,
             tree = d3Tree()
                 .nodeSize(settings.featureDiagram.treeLayout.node.size)
-                .separation(this.getSeparationFn(estimateTextWidth)),
+                .separation((this as any).getSeparationFn(estimateTextWidth)),
             nodes = featureModel.visibleNodes;
 
         if (isSelectionChange)
@@ -199,10 +199,10 @@ export default class extends React.Component<AbstractTreeLayoutProps> {
         estimatedBbox: Bbox, isCreating: boolean, isResize: boolean, isSelectionChange: boolean): D3Selection {
         const svgRoot = d3Select(this.svgRef.current)
                 .call(svgRoot => width && height && svgRoot.attr('style', `width: ${width}; height: ${height};`))
-                .on('click', () => {
-                    if (this.props.isSelectMultipleFeatures && d3Event.target.tagName === 'svg')
+                .on('click', event => {
+                    if (this.props.isSelectMultipleFeatures && event.target.tagName === 'svg')
                         this.props.onDeselectAllFeatures();
-                    if (!this.props.isSelectMultipleFeatures && d3Event.target.tagName === 'svg' &&
+                    if (!this.props.isSelectMultipleFeatures && event.target.tagName === 'svg' &&
                         isFloatingFeatureOverlay(this.props.overlay))
                         this.props.onHideOverlay({overlay: this.props.overlay});
                 }),
@@ -231,22 +231,22 @@ export default class extends React.Component<AbstractTreeLayoutProps> {
             this.transition(rect)
                 .attr('stroke', 'none');
 
-        svgRoot.call(zoom
+        svgRoot.call((zoom as any)
             .translateExtent(estimatedBbox)
             .scaleExtent(settings.featureDiagram.treeLayout.scaleExtent)
-            .on('zoom', () => g.attr('transform', d3Event.transform)))
+            .on('zoom', (event: any) => g.attr('transform', event.transform)))
             .call(svgRoot => {
                 const dblclicked = svgRoot.on('dblclick.zoom');
-                svgRoot.on('contextmenu', function() {
-                    d3Event.preventDefault();
-                }).on('dblclick.zoom', function() {
-                    if (d3Event.target.tagName === 'svg')
-                        dblclicked!.call(this);
+                svgRoot.on('contextmenu', function(event) {
+                    event.preventDefault();
+                }).on('dblclick.zoom', function(event) {
+                    if (event.target.tagName === 'svg')
+                        (dblclicked as any)!.call(this);
                 });
             });
 
         if (isCreating || (fitOnResize && isResize))
-            svgRoot.call(zoom.scaleTo, Math.max(
+            svgRoot.call((zoom as any).scaleTo, Math.max(
                 Math.min(1,
                     this.svgRef.current!.getBoundingClientRect().width / estimatedBboxWidth,
                     this.svgRef.current!.getBoundingClientRect().height / estimatedBboxHeight),
@@ -260,20 +260,20 @@ export default class extends React.Component<AbstractTreeLayoutProps> {
     }
 
     joinNodes(nodes: FeatureNode[], svgRoot: D3Selection): D3Selection {
-        return svgRoot.selectAll('.node').data(nodes, this.getKeyFn('node'));
+        return svgRoot.selectAll('.node').data(nodes, (this as any).getKeyFn('node'));
     }
 
     joinLinks(nodes: FeatureNode[], svgRoot: D3Selection): D3Selection {
-        return svgRoot.selectAll('.link').data(nodes.slice(1), this.getKeyFn('link'));
+        return svgRoot.selectAll('.link').data(nodes.slice(1), (this as any).getKeyFn('link'));
     }
 
     joinData(isCreating: boolean, isResize = false, isSelectionChange = false):
         {node: D3Selection, linkInBack: D3Selection, linkInFront: D3Selection, nodes: FeatureNode[]} {
-        const {nodes, estimatedBbox} = this.createLayout(this.props, isSelectionChange);
+        const {nodes, estimatedBbox} = this.createLayout((this as any).props, isSelectionChange);
         if (!isSelectionChange)
             logger.infoTagged({tag}, () => 'estimated bounding box ' +
                 JSON.stringify(estimatedBbox, (k, v) => typeof v === 'number' ? parseInt(v.toFixed(0)) : v));
-        const svgRoot = this.getSvgRoot(this.props, estimatedBbox!, isCreating, isResize, isSelectionChange);
+        const svgRoot = this.getSvgRoot((this as any).props, estimatedBbox!, isCreating, isResize, isSelectionChange);
         const linkInBack = this.joinLinks(nodes,
             isCreating ? svgRoot.append('g').attr('class', 'linksInBack') : svgRoot.select('g.linksInBack'));
         const node = this.joinNodes(nodes,
@@ -287,7 +287,7 @@ export default class extends React.Component<AbstractTreeLayoutProps> {
         this.props.settings.featureDiagram.treeLayout.transitionDuration): D3Selection {
         return this.props.settings.featureDiagram.treeLayout.useTransitions
             // transitions _almost_ have the same interface as selections, here we just ignore the differences
-            ? selection.transition().duration(transitionDuration) as any
+            ? (selection as any).transition().duration(transitionDuration) as any
             : selection;
     }
 

@@ -3,9 +3,9 @@ import {shallow} from 'enzyme';
 import SettingsPanel, {Setting} from './SettingsPanel';
 import {defaultSettings, getNewSettings, getSetting} from '../../store/settings';
 import {FeatureDiagramLayoutType} from '../../types';
-import {Panel} from 'office-ui-fabric-react/lib/Panel';
-import {ColorPicker} from 'office-ui-fabric-react/lib/ColorPicker';
-import {Slider} from 'office-ui-fabric-react/lib/Slider';
+import {Panel} from '@fluentui/react';
+import {ColorPicker} from '@fluentui/react';
+import {Slider} from '@fluentui/react';
 import i18n from '../../i18n';
 
 describe('Setting', () => {

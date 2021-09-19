@@ -10,10 +10,6 @@ const constants = {
             minWidth: 500,
             minHeight: 500,
             maxCollapsibleNodes: (nodes: any[]) => nodes.length > 100 ? nodes.length / 10 : 1
-        },
-        conflictView: {
-            transition: 1000,
-            transitionNeutral: 600
         }
     },
     constraint: {

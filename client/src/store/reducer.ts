@@ -14,9 +14,9 @@ import actions, {Action, SERVER_SEND_MESSAGE, KERNEL_GENERATE_OPERATION} from '.
 import {getType, isActionOf} from 'typesafe-actions';
 import {State, initialState, CollaborativeSession, FeatureDiagramCollaborativeSession, initialFeatureDiagramCollaborativeSessionState, KernelContext} from './types';
 import objectPath from 'object-path';
-import objectPathImmutable from 'object-path-immutable';
+import * as objectPathImmutable from 'object-path-immutable';
 import logger, {setLogLevel, LogLevel, defaultLogLevel} from '../helpers/logger';
-import {AnyAction, Store} from 'redux';
+import {AnyAction, Store as ReduxStore} from 'redux';
 import Kernel from '../modeling/Kernel';
 import {KernelFeatureModel, isKernelConflictDescriptor} from '../modeling/types';
 import {getCurrentArtifactPath, redirectToArtifactPath} from '../router';
@@ -48,7 +48,7 @@ function getNewCollaborativeSessions(state: State, artifactPath: ArtifactPath,
 }
 
 function removeObsoleteFeaturesFromFeatureList(state: State, artifactPath: ArtifactPath, key: string): State {
-    const featureIDList = getCollaborativeSession(state, artifactPath)[key],
+    const featureIDList = (getCollaborativeSession(state, artifactPath) as any)[key],
         actualFeatureIDs = getFeatureModel(state, artifactPath)!.getActualFeatureIDs(),
         obsoleteFeatureIDs = featureIDList.filter((featureID: string) => !actualFeatureIDs.includes(featureID));
     return obsoleteFeatureIDs.length > 0
@@ -453,15 +453,15 @@ function uiReducer(state: State, action: Action): State {
 }
 
 export default <(state?: State, action?: Action) => State>
-    reduceReducers(
+    (reduceReducers as any)(
+        initialState,
+        uiReducer,
+        settingsReducer,
+        serverReceiveReducer,
+        serverSendReducer,
+        kernelReducer,
         (state: State, action: Action) => {
             logger.infoTagged({tag: 'redux'}, () => action);
             return state;
-        },
-        kernelReducer,
-        serverSendReducer,
-        serverReceiveReducer,
-        settingsReducer,
-        uiReducer,
-        initialState);
-export type Store = Store<State, Action>;
+        });
+export type Store = ReduxStore<State, Action>;

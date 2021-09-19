@@ -1,7 +1,7 @@
 import React from 'react';
 import FontComboBox from './FontComboBox';
 import {shallow} from 'enzyme';
-import {ComboBox} from 'office-ui-fabric-react/lib/ComboBox';
+import {ComboBox} from '@fluentui/react';
 import isFontInstalled from './isFontInstalled';
 
 jest.mock('./isFontInstalled');

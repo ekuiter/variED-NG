@@ -109,7 +109,7 @@ export interface Message {
 };
 
 export function isMessageType(type: string) {
-    return Object.values(MessageType).includes(type);
+    return Object.values(MessageType).includes(type as any);
 };
 
 export type Point = {x: number, y: number};

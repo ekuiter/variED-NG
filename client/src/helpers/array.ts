@@ -40,8 +40,8 @@ export function setRemove<T>(set: T[], elementOrElements: T | T[],
  */
 export function arrayUnique<T>(array: T[],
         keyFn: (element: T) => any = element => element,
-        eqFn: (a: any, b: any) => any = (a, b) => a === b) {
-    return array.reduce((acc, val) => [...acc.filter(element => !eqFn(keyFn(element), keyFn(val))), val], []);
+        eqFn: (a: any, b: any) => any = (a, b) => a === b): T[] {
+    return (array as any).reduce((acc: any, val: any) => [...acc.filter((element: any) => !eqFn(keyFn(element), keyFn(val))), val], []);
 }
 
 /**

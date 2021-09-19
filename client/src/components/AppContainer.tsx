@@ -5,7 +5,7 @@
 import React from 'react';
 import {openWebSocket} from '../server/webSocket';
 import {connect} from 'react-redux';
-import {Fabric} from 'office-ui-fabric-react/lib/Fabric';
+import {Fabric} from '@fluentui/react';
 import OverlayContainer from './overlays/OverlayContainer';
 import CommandBarContainer from './CommandBarContainer';
 import ShortcutContainer from './ShortcutContainer';
@@ -20,7 +20,7 @@ import i18n from '../i18n';
 import FeatureDiagramRouteContainer from './FeatureDiagramRouteContainer';
 
 class AppContainer extends React.Component<StateDerivedProps> {
-    flushOutgoingMessageQueueInterval: number;
+    flushOutgoingMessageQueueInterval?: number;
 
     componentDidMount() {
         openWebSocket(queueingMessageHandler(this.props.handleMessage));

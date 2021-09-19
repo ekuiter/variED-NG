@@ -4,8 +4,8 @@ import FeatureContextualMenu from './FeatureContextualMenu';
 import {defaultSettings} from '../../store/settings';
 import FeatureModel from '../../modeling/FeatureModel';
 import {validFeatureModel} from '../../fixtures';
-import {ContextualMenu} from 'office-ui-fabric-react/lib/ContextualMenu';
-import {DirectionalHint} from 'office-ui-fabric-react/lib/Callout';
+import {ContextualMenu} from '@fluentui/react';
+import {DirectionalHint} from '@fluentui/react';
 import {FeatureDiagramLayoutType} from '../../types';
 
 describe('FeatureContextualMenu', () => {

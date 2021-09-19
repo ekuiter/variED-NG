@@ -8,4 +8,4 @@
 
 export const importCanvg = () => import('canvg');
 export const importSvg2PdfJs = () => import('svg2pdf.js');
-export const importJspdfYworks = () => import('jspdf-yworks');
+export const importJspdfYworks = () => null; // import('jspdf-yworks');

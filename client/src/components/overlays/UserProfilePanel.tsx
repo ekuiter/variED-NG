@@ -1,10 +1,10 @@
 import React from 'react';
 import i18n from '../../i18n';
-import {TextField} from 'office-ui-fabric-react/lib/TextField';
+import {TextField} from '@fluentui/react';
 import logger from '../../helpers/logger';
-import {PrimaryButton} from 'office-ui-fabric-react/lib/Button';
+import {PrimaryButton} from '@fluentui/react';
 import {OnSetUserProfileFunction, Collaborator} from '../../store/types';
-import {Panel, PanelType} from 'office-ui-fabric-react/lib/Panel';
+import {Panel, PanelType} from '@fluentui/react';
 
 interface UserProfilePanelProps {
     isOpen: boolean,

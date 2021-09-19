@@ -5,7 +5,7 @@
 
 import {configure} from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
-import {setIconOptions} from 'office-ui-fabric-react/lib/Styling';
+import {setIconOptions} from '@fluentui/react';
 
 configure({adapter: new Adapter()});
 setIconOptions({disableWarnings: true});

@@ -3,9 +3,9 @@
  */
 
 import React from 'react';
-import {Panel, PanelType} from 'office-ui-fabric-react/lib/Panel';
+import {Panel, PanelType} from '@fluentui/react';
 import i18n from '../../i18n';
-import {CommandBar, ICommandBarItemProps} from 'office-ui-fabric-react/lib/CommandBar';
+import {CommandBar, ICommandBarItemProps} from '@fluentui/react';
 import commands from '../commands';
 import FeatureComponent, {FeatureComponentProps} from './FeatureComponent';
 import {Feature} from '../../modeling/types';
@@ -39,15 +39,15 @@ export default class extends FeatureComponent()<Props> {
         <CommandBar
             items={transparentItems([
                 commands.featureDiagram.feature.newMenu(this.props.featureID!, this.props.featureModel, this.props.onCreateFeatureBelow, this.props.onCreateFeatureAbove, this.props.onDismissed, true),
-                commands.featureDiagram.feature.removeMenu([this.feature.ID], this.props.featureModel, this.props.onRemoveFeature, this.props.onRemoveFeatureSubtree, this.props.onDismissed, true)
+                commands.featureDiagram.feature.removeMenu([(this as any).feature.ID], this.props.featureModel, this.props.onRemoveFeature, this.props.onRemoveFeatureSubtree, this.props.onDismissed, true)
             ])}
             overflowItems={[
                 commands.featureDiagram.feature.collapseMenu(
-                    [this.feature], this.props.onCollapseFeatures, this.props.onExpandFeatures,
+                    [(this as any).feature], this.props.onCollapseFeatures, this.props.onExpandFeatures,
                     this.props.onCollapseFeaturesBelow, this.props.onExpandFeaturesBelow, this.props.onDismissed),
                 commands.featureDiagram.feature.rename(this.props.featureID!, this.props.featureModel, this.props.onShowOverlay),
                 commands.featureDiagram.feature.setDescription(this.props.featureID!, this.props.featureModel, this.props.onShowOverlay),
-                commands.featureDiagram.feature.properties([this.feature.ID], this.props.featureModel, this.props.onSetFeatureAbstract,
+                commands.featureDiagram.feature.properties([(this as any).feature.ID], this.props.featureModel, this.props.onSetFeatureAbstract,
                     this.props.onSetFeatureHidden, this.props.onSetFeatureOptional, this.props.onSetFeatureAnd,
                     this.props.onSetFeatureOr, this.props.onSetFeatureAlternative, this.props.onDismissed)
             ]}

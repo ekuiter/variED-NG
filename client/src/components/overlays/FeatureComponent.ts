@@ -26,8 +26,8 @@ export function isFeatureOffscreen(element: Element) {
 
 export default ({doUpdate = false} = {}) =>
     class <Props extends FeatureComponentProps> extends React.Component<Props> {
-        interval: number;
-        feature: Feature;
+        interval?: number;
+        feature?: Feature;
 
         componentDidMount() {
             if (doUpdate)
@@ -44,11 +44,11 @@ export default ({doUpdate = false} = {}) =>
         getFeature = () => this.props.featureID && this.props.featureModel &&
             this.props.featureModel.getFeature(this.props.featureID!);
 
-        renderIfFeature(_feature: Feature): JSX.Element | null {
+        renderIfFeature(_feature: Feature) {
             throw new Error('abstract method not implemented');
         }
 
-        render(): JSX.Element | null {
+        render(): any {
             let feature = this.getFeature();
             if (typeof feature === 'undefined')
                 return null;

@@ -81,7 +81,7 @@ d3Hierarchy.prototype.feature = function(this: FeatureNode): Feature {
         getPropertyString: key => {
             if (typeof key === 'function')
                 return key(this);
-            return this._feature[key] ? 'yes' : 'no';
+            return (this as any)._feature[key] ? 'yes' : 'no';
         },
         getNumberOfFeaturesBelow: () => {
             if (!this.actualChildren)
@@ -205,7 +205,7 @@ const isGraveyardedConstraintRenderer = createConstraintRenderer({
 
 export class Constraint {
     _renderCache: {[x: string]: any} = {};
-    _element: JSX.Element;
+    _element: any;
 
     constructor(public kernelConstraint: KernelConstraint,
         public featureModel: FeatureModel) {}
@@ -301,12 +301,18 @@ export class Constraint {
 }
 
 class FeatureModel {
-    kernelFeatureModel: KernelFeatureModel;
+    kernelFeatureModel: any;
     collapsedFeatureIDs: string[] = [];
-    _hierarchy: FeatureNode;
-    _actualNodes: FeatureNode[];
-    _visibleNodes: FeatureNode[];
-    _constraints: Constraint[];
+    _hierarchy: any;
+    _actualNodes: any;
+    _visibleNodes: any;
+    _constraints: any;
+    // kernelFeatureModel: KernelFeatureModel;
+    // collapsedFeatureIDs: string[] = [];
+    // _hierarchy: FeatureNode;
+    // _actualNodes: FeatureNode[];
+    // _visibleNodes: FeatureNode[];
+    // _constraints: Constraint[];
     _IDsToFeatureNodes: {[x: string]: FeatureNode} = {};
     _IDsToConstraints: {[x: string]: Constraint} = {};
 
@@ -342,7 +348,7 @@ class FeatureModel {
                     // in the future, we may introduce a better ordering criterion
                     // further, this may be inefficient for large models
                     .sort()
-                    .map(ID => features[ID]);
+                    .map((ID: any) => features[ID]);
 
             if (childrenCache[NIL].length !== 1)
                 throw new Error('feature model does not have a single root');
@@ -360,7 +366,7 @@ class FeatureModel {
                 return isVisible(node.parent!);
             }, (node: FeatureNode) => getID(node));
 
-            this._actualNodes.forEach(node => {
+            this._actualNodes.forEach((node: any) => {
                 // store children nodes (because they are changed on collapse)
                 node.actualChildren = node.children;
 
@@ -376,10 +382,10 @@ class FeatureModel {
             // TODO: this might be inefficient for large models
             // TODO: do we need to sort the constraints as well? do they "jump"?
             this._constraints = Object.values(constraints)
-                .map(kernelConstraint => new Constraint(kernelConstraint, this))
+                .map(kernelConstraint => new Constraint(kernelConstraint as any, this))
                 .filter(kernelConstraint => !kernelConstraint.isGraveyarded);
 
-            this._constraints.forEach(constraint =>
+            this._constraints.forEach((constraint: any) =>
                 this._IDsToConstraints[constraint.ID] = constraint);
         }
     }

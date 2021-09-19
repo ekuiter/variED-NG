@@ -3,7 +3,7 @@ import {shallow} from 'enzyme';
 import FeaturePanel from './FeaturePanel';
 import FeatureModel from '../../modeling/FeatureModel';
 import {validFeatureModel} from '../../fixtures';
-import {Panel} from 'office-ui-fabric-react/lib/Panel';
+import {Panel} from '@fluentui/react';
 import i18n from '../../i18n';
 import {defaultSettings} from '../../store/settings';
 

@@ -3,7 +3,6 @@
  */
 
 import 'd3-selection-multi';
-import {event as d3Event} from 'd3-selection';
 import {Settings} from '../../../store/settings';
 import measureTextWidth from '../../../helpers/measureTextWidth';
 import {addStyle, appendCross, drawCircle, translateTransform, StyleDescriptor, Style} from '../../../helpers/svg';
@@ -31,7 +30,7 @@ function makeRect(settings: Settings, textBbox: Rect): Rect {
 }
 
 function addFontStyle(selection: D3Selection, settings: Settings, scale = 1): void {
-    selection.attrs({
+    (selection as any)["attrs"]({
         'font-family': settings.featureDiagram.font.family,
         'font-size': settings.featureDiagram.font.size * scale
     });
@@ -61,9 +60,12 @@ function makeText(settings: Settings, selection: D3Selection, isGettingRectInfo:
 }
 
 export default class {
-    rectInfo: Rect;
-    treeLink: AbstractTreeLink;
-    getWidestTextOnLayer: (node: FeatureNode) => number;
+    rectInfo: any;
+    treeLink: any;
+    getWidestTextOnLayer: any;
+    // rectInfo: Rect;
+    // treeLink: AbstractTreeLink;
+    // getWidestTextOnLayer: (node: FeatureNode) => number;
 
     constructor(public settings: Settings, public isSelectMultipleFeatures: boolean, public debug: boolean,
         public setActiveNode: (overlay: OverlayType | 'select', activeNode: FeatureNode) => void,
@@ -94,10 +96,10 @@ export default class {
                 .attr('opacity', 0),
             rectAndText = nodeEnter.append('g')
                 .attr('class', 'rectAndText')
-                .on('click', (d: FeatureNode) => this.setActiveNode(isCommand(d3Event) ? 'select' : OverlayType.featureCallout, d))
-                .on('contextmenu', (d: FeatureNode) => {
-                    d3Event.preventDefault();
-                    this.setActiveNode(isCommand(d3Event) ? 'select' : OverlayType.featureContextualMenu, d);
+                .on('click', (event, d: FeatureNode) => this.setActiveNode(isCommand(event) ? 'select' : OverlayType.featureCallout, d))
+                .on('contextmenu', (event, d: FeatureNode) => {
+                    event.preventDefault();
+                    this.setActiveNode(isCommand(event) ? 'select' : OverlayType.featureContextualMenu, d);
                 })
                 .on('dblclick', (d: FeatureNode) => {
                     if (!this.isSelectMultipleFeatures)
@@ -107,8 +109,8 @@ export default class {
         let bboxes = makeText(this.settings, rectAndText, false, this.getTextStyle()) as Rect[];
 
         let i = 0;
-        rectAndText.insert('rect', 'text')
-            .attrs(() => makeRect(this.settings, bboxes[i++]))
+        
+        (rectAndText.insert('rect', 'text') as any)["attrs"](() => makeRect(this.settings, bboxes[i++]))
             .call(addStyle, styles.node.abstract(this.settings));
 
         const arcSegment = nodeEnter.insert('path', 'g.rectAndText')
@@ -126,12 +128,11 @@ export default class {
         const expandFeature = (d: FeatureNode) => d.feature().isCollapsed && this.onExpandFeatures({featureIDs: [d.feature().ID]});
         i = 0;
         bboxes = [];
-        nodeEnter.insert('text', 'path.arcClick')
-            .call(addFontStyle, this.settings)
-            .attr('fill', this.settings.featureDiagram.treeLayout.node.visibleFill)
-            .attr('class', 'collapse')
-            .attr('text-anchor', 'middle')
-            .attrs((d: FeatureNode) => this.treeLink.collapseAnchor(d) as Style)
+        (nodeEnter.insert('text', 'path.arcClick')
+        .call(addFontStyle, this.settings)
+        .attr('fill', this.settings.featureDiagram.treeLayout.node.visibleFill)
+        .attr('class', 'collapse')
+        .attr('text-anchor', 'middle') as any)["attrs"]((d: FeatureNode) => this.treeLink.collapseAnchor(d) as Style)
             .call(addStyle, styles.node.collapseText(this.settings))
             .text((d: FeatureNode) => d.feature().getNumberOfFeaturesBelow())
             .attr('opacity', 0)

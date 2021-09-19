@@ -10,8 +10,7 @@ import actions from '../store/actions';
 import {withRouter} from 'react-router';
 import {connect} from 'react-redux';
 import FeatureDiagramView from './featureDiagramView/FeatureDiagramView';
-import {Spinner, SpinnerSize} from 'office-ui-fabric-react/lib/Spinner';
-import ConflictView from './conflictView/ConflictView';
+import {Spinner, SpinnerSize} from '@fluentui/react';
 
 type FeatureDiagramRouteProps = StateDerivedProps & RouteProps;
 
@@ -39,17 +38,7 @@ class FeatureDiagramRoute extends React.Component<FeatureDiagramRouteProps> {
             onSetSetting={this.props.onSetSetting!}
             renderPrimaryView={(style: CSSProperties) =>
                 this.props.transitionConflictDescriptor || this.props.conflictDescriptor
-                    ? <ConflictView
-                        conflictDescriptor={(this.props.transitionConflictDescriptor || this.props.conflictDescriptor)!}
-                        myself={this.props.myself!}
-                        collaborators={this.props.collaborators!}
-                        voterSiteIDs={this.props.voterSiteIDs}
-                        votes={this.props.votes!}
-                        onVote={this.props.onVote!}
-                        settings={this.props.settings!}
-                        transitioning={!!this.props.transitionConflictDescriptor}
-                        transitionResolutionOutcome={this.props.transitionResolutionOutcome}
-                        onEndConflictViewTransition={this.props.onEndConflictTransition!}/>
+                    ? null
                     : this.props.featureModel
                         ? <FeatureDiagramView
                             featureDiagramLayout={this.props.featureDiagramLayout!}

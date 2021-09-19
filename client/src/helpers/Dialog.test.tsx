@@ -1,9 +1,9 @@
 import React from 'react';
 import {shallow, mount} from 'enzyme';
 import {DialogContextualMenu, TextFieldDialog, DialogWrapper} from './Dialog';
-import {DefaultButton, PrimaryButton} from 'office-ui-fabric-react/lib/Button';
-import {Dialog} from 'office-ui-fabric-react/lib/Dialog';
-import {TextField} from 'office-ui-fabric-react/lib/TextField';
+import {DefaultButton, PrimaryButton} from '@fluentui/react';
+import {Dialog} from '@fluentui/react';
+import {TextField} from '@fluentui/react';
 
 describe('Dialog', () => {
     describe('DialogWrapper', () => {

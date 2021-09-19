@@ -4,8 +4,8 @@
 
 import React from 'react';
 import i18n from '../../i18n';
-import {Dialog, DialogFooter} from 'office-ui-fabric-react/lib/Dialog';
-import {PrimaryButton} from 'office-ui-fabric-react/lib/Button';
+import {Dialog, DialogFooter} from '@fluentui/react';
+import {PrimaryButton} from '@fluentui/react';
 import FontComboBox from '../../helpers/FontComboBox';
 import SpinButton from '../../helpers/SpinButton';
 import {Settings} from '../../store/settings';

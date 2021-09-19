@@ -8,15 +8,15 @@ import {Settings, getSetting} from '../../store/settings';
 import i18n from '../../i18n';
 import FontComboBox from '../../helpers/FontComboBox';
 import SpinButton, {SpinButtonProps} from '../../helpers/SpinButton';
-import {Panel, PanelType} from 'office-ui-fabric-react/lib/Panel';
-import {Toggle} from 'office-ui-fabric-react/lib/Toggle';
-import {ColorPicker} from 'office-ui-fabric-react/lib/ColorPicker';
-import {Slider} from 'office-ui-fabric-react/lib/Slider';
+import {Panel, PanelType} from '@fluentui/react';
+import {Toggle} from '@fluentui/react';
+import {ColorPicker} from '@fluentui/react';
+import {Slider} from '@fluentui/react';
 import {DialogContextualMenu} from '../../helpers/Dialog';
-import {DefaultButton} from 'office-ui-fabric-react/lib/Button';
+import {DefaultButton} from '@fluentui/react';
 import {FeatureDiagramLayoutType} from '../../types';
 import debounce from '../../helpers/debounce';
-import {IContextualMenuItem} from 'office-ui-fabric-react/lib/ContextualMenu';
+import {IContextualMenuItem} from '@fluentui/react';
 import {OnSetSettingFunction, OnResetSettingsFunction} from '../../store/types';
 
 const getLabel = (path: string) => i18n.t('overlays.settingsPanel.labels', path);
@@ -87,16 +87,17 @@ export const Setting = {
 
         render() {
             return (
-                <DialogContextualMenu
-                    label={i18n.t('overlays.settingsPanel.customizeColors')}
-                    options={this.props.paths.map(path => ({key: path, text: getLabel(path)}))}
-                    onApply={this.onApply}
-                    onRender={this.onRender}
-                    iconProps={{iconName: 'Color'}}>
-                    <ColorPicker
-                        color={this.state.color!}
-                        onColorChanged={this.onColorChanged}/>
-                </DialogContextualMenu>
+                null
+                // <DialogContextualMenu
+                //     label={i18n.t('overlays.settingsPanel.customizeColors')}
+                //     options={this.props.paths.map(path => ({key: path, text: getLabel(path)}))}
+                //     onApply={this.onApply}
+                //     onRender={this.onRender}
+                //     iconProps={{iconName: 'Color'}}>
+                //     <ColorPicker
+                //         color={this.state.color!}
+                //         onColorChanged={this.onColorChanged}/>
+                // </DialogContextualMenu>
             );
         }
     },

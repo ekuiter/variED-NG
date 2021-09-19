@@ -10,8 +10,8 @@ import memoize from './memoize';
 const baseFonts = ['monospace', 'sans-serif', 'serif'],
     testString = 'mmmmmmmmmmlli',
     testSize = '72px',
-    defaultWidth = {},
-    defaultHeight = {},
+    defaultWidth: any = {},
+    defaultHeight: any = {},
     body = document.getElementsByTagName('body')[0],
     span = document.createElement('span');
 

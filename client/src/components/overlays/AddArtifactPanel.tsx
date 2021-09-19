@@ -1,14 +1,14 @@
 import React, {ChangeEvent} from 'react';
 import i18n from '../../i18n';
 import deferred from '../../helpers/deferred';
-import {ITextField, TextField} from 'office-ui-fabric-react/lib/TextField';
+import {ITextField, TextField} from '@fluentui/react';
 import logger from '../../helpers/logger';
-import {PrimaryButton} from 'office-ui-fabric-react/lib/Button';
+import {PrimaryButton} from '@fluentui/react';
 import {OnAddArtifactFunction} from '../../store/types';
-import {ComboBox, IComboBoxOption} from 'office-ui-fabric-react/lib/ComboBox';
+import {ComboBox, IComboBoxOption} from '@fluentui/react';
 import {ArtifactPath} from '../../types';
 import {arrayUnique} from '../../helpers/array';
-import {Panel, PanelType} from 'office-ui-fabric-react/lib/Panel';
+import {Panel, PanelType} from '@fluentui/react';
 import {redirectToArtifactPath} from '../../router';
 
 interface AddArtifactPanelProps {
@@ -85,8 +85,8 @@ export default class extends React.Component<AddArtifactPanelProps, AddArtifactP
 
     render() {
         const {isOpen, onDismissed} = this.props,
-            projectOptions = arrayUnique(this.props.artifactPaths.map(artifactPath => artifactPath.project))
-                .map(project => ({key: project, text: project}));
+            projectOptions = (arrayUnique as any)(this.props.artifactPaths.map(artifactPath => artifactPath.project))
+                .map((project: any) => ({key: project, text: project}));
 
         return (
             <Panel
@@ -103,7 +103,7 @@ export default class extends React.Component<AddArtifactPanelProps, AddArtifactP
                     allowFreeform
                     autoComplete="on"
                     options={projectOptions}
-                    onChange={this.onProjectChange}
+                    onChange={this.onProjectChange as any}
                     required/>
                 <TextField
                     componentRef={this.artifactRef}
@@ -122,7 +122,7 @@ export default class extends React.Component<AddArtifactPanelProps, AddArtifactP
                     autoComplete="on"
                     options={['UTF-8', 'ISO-8859-1', 'Windows-1252']
                         .map(encoding => ({key: encoding, text: encoding}))}
-                    onChange={this.onEncodingChange}/>
+                    onChange={this.onEncodingChange as any}/>
             </Panel>
         );
     }

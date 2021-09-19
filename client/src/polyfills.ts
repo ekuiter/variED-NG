@@ -9,7 +9,7 @@ import 'blueimp-canvas-to-blob';
 
 if (!Object.values)
     Object.values = function<T>(obj: {[x: string]: T} |  ArrayLike<T>) {
-        return Object.keys(obj).map(key => obj[key]);
+        return Object.keys(obj).map(key => (obj as any)[key]);
     };
 
 if (!Object.entries)
@@ -18,7 +18,7 @@ if (!Object.entries)
             i = ownProps.length,
             resArray = new Array(i);
         while (i--)
-            resArray[i] = [ownProps[i], obj[ownProps[i]]];
+            resArray[i] = [ownProps[i], (obj as any)[ownProps[i]]];
         return resArray;
     };
 

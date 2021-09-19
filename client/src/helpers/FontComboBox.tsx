@@ -3,7 +3,7 @@
  */
 
 import isFontInstalled from './isFontInstalled';
-import {ComboBox, IComboBox, IComboBoxOption, IComboBoxProps} from 'office-ui-fabric-react/lib/ComboBox';
+import {ComboBox, IComboBox, IComboBoxOption, IComboBoxProps} from '@fluentui/react';
 import React from 'react';
 import i18n from '../i18n';
 import constants from '../constants';

@@ -4,7 +4,7 @@
 
 import React from 'react';
 import i18n from '../../i18n';
-import {Panel, PanelType} from 'office-ui-fabric-react/lib/Panel';
+import {Panel, PanelType} from '@fluentui/react';
 
 export default ({isOpen, onDismissed}: {isOpen: boolean, onDismissed: () => void}) => (
     <Panel

@@ -57,13 +57,13 @@ async function exportJpg({scale = 1, quality = 0.8}: FormatOptions): BlobPromise
 async function exportPdf({}, fileName: string): BlobPromise {
     const {svg, width, height} = svgData();
     const [svg2pdf, jsPDF] = await Promise.all([importSvg2PdfJs(), importJspdfYworks()]);
-    const pdf = new jsPDF({
+    const pdf = new (jsPDF as any)({
         orientation: 'landscape',
         unit: 'pt',
         format: [width, height]
     });
     try {
-        svg2pdf(svg, pdf, {
+        (svg2pdf as any)(svg, pdf, {
             xOffset: 0,
             yOffset: 0,
             scale: 1

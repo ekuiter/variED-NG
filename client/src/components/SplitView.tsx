@@ -8,8 +8,8 @@ interface Props {
     height: number,
     settings: Settings,
     onSetSetting: OnSetSettingFunction,
-    renderPrimaryView: (style: CSSProperties) => JSX.Element,
-    renderSecondaryView: () => JSX.Element,
+    renderPrimaryView: (style: CSSProperties) => any,
+    renderSecondaryView: () => any,
     enableSecondaryView: () => boolean
 };
 
@@ -91,4 +91,4 @@ class SplitView extends React.Component<Props> {
     }
 }
 
-export default withDimensions<Props>(SplitView);
+export default withDimensions<Props>(SplitView as any);

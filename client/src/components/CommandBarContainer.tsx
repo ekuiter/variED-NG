@@ -3,8 +3,7 @@
  */
 
 import commands, {makeDivider} from './commands';
-import CollaboratorFacepile from './CollaboratorFacepile';
-import {CommandBar} from 'office-ui-fabric-react/lib/CommandBar';
+import {CommandBar} from '@fluentui/react';
 import React from 'react';
 import {connect} from 'react-redux';
 import {getCurrentCollaborativeSession, isFeatureDiagramCollaborativeSession, getCurrentFeatureModel} from '../store/selectors';
@@ -112,16 +111,7 @@ const CommandBarContainer = (props: StateDerivedProps & RouteProps) => (
             ...props.featureModel
                 ? commands.featureDiagram.manualSync(props.settings!, props.handleMessage)
                 : []
-        ]}
-        farItems={[{
-            key: 'collaboratorFacepile',
-            onRender: () =>
-                <CollaboratorFacepile
-                    users={props.collaborators!}
-                    settings={props.settings!}
-                    user={props.myself}
-                    onShowOverlay={props.onShowOverlay!}/>
-        }]}/>
+        ]}/>
 );
 
 export default withRouter(connect(

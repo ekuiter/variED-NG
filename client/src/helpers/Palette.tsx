@@ -1,8 +1,8 @@
 import React from 'react';
-import {Modal} from 'office-ui-fabric-react/lib/Modal';
-import {TextField} from 'office-ui-fabric-react/lib/TextField';
+import {Modal} from '@fluentui/react';
+import {TextField} from '@fluentui/react';
 import i18n from '../i18n';
-import {Icon} from 'office-ui-fabric-react/lib/Icon';
+import {Icon} from '@fluentui/react';
 import fuzzysort from 'fuzzysort';
 
 export type PaletteAction = (...args: string[]) => void;
@@ -17,6 +17,7 @@ export interface PaletteItem {
 };
 
 interface Props {
+    key: number,
     isOpen: boolean,
     items: PaletteItem[],
     placeholder?: string,
@@ -39,7 +40,7 @@ export const getKey = (item: PaletteItem) => item.key || item.text;
 export default class extends React.Component<Props, State> {
     static defaultProps: Partial<Props> = {onSubmit: () => {}, itemUsage: {}};
     state: State = {selectedIndex: 0};
-    searchResults: PaletteItem[];
+    searchResults: PaletteItem[] = [];
 
     componentDidMount() {
         document.addEventListener('keydown', this.onKeyPress);
@@ -112,7 +113,7 @@ export default class extends React.Component<Props, State> {
             {searchResults, truncatedItems} = this.getSearchResults(search),
             showIcons = this.props.items.some(item => typeof item.icon !== 'undefined'),
             showShortcuts = this.props.items.some(item => typeof item.shortcut !== 'undefined'),
-            showBeak = this.props.items.some(item => item.action['isActionWithArguments']);
+            showBeak = this.props.items.some(item => (item as any).action['isActionWithArguments']);
         this.searchResults = searchResults;
 
         return (
@@ -145,7 +146,7 @@ export default class extends React.Component<Props, State> {
                                 ? <span dangerouslySetInnerHTML={{__html: fuzzysort.highlight(fuzzysort.single(search, item.text)!)!}}/>
                                 : item.text}
                             {showBeak &&
-                            (item.action['isActionWithArguments']
+                            ((item as any).action['isActionWithArguments']
                                 ? <span className="aside"><Icon iconName="ChevronRightMed"/></span>
                                 : <span className="aside"><i>&nbsp;</i></span>)}
                             {showShortcuts &&

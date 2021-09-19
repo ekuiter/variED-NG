@@ -54,7 +54,7 @@ export function getCurrentCollaborativeSession(state: State): CollaborativeSessi
 const featureModelCollaborativeSessionKeySelector = <T>(key: string) => (state: State, artifactPath: ArtifactPath): T | undefined => {
     const collaborativeSession = getCollaborativeSession(state, artifactPath);
     if (collaborativeSession && isFeatureDiagramCollaborativeSession(collaborativeSession))
-        return collaborativeSession[key];
+        return (collaborativeSession as any)[key];
     return undefined;
 };
 

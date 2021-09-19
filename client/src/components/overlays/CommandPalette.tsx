@@ -187,9 +187,9 @@ export default class extends React.Component<Props, State> {
             action: this.actionWithArguments(
                 [{
                     title: i18n.t('commandPalette.project'),
-                    items: () => arrayUnique(
+                    items: (() => arrayUnique(
                         this.props.collaborativeSessions
-                            .map(collaborativeSession => collaborativeSession.artifactPath.project))
+                            .map(collaborativeSession => collaborativeSession.artifactPath.project))) as any
                 }, {
                     title: i18n.t('commandPalette.artifact'),
                     items: (project: string) =>
@@ -205,7 +205,7 @@ export default class extends React.Component<Props, State> {
             action: this.actionWithArguments(
                 [{
                     title: i18n.t('commandPalette.project'),
-                    items: () => arrayUnique(this.props.artifactPaths.map(artifactPath => artifactPath.project))
+                    items: (() => arrayUnique(this.props.artifactPaths.map(artifactPath => artifactPath.project))) as any
                 }, {
                     title: i18n.t('commandPalette.artifact'),
                     items: (project: string) =>
@@ -224,9 +224,9 @@ export default class extends React.Component<Props, State> {
             action: this.actionWithArguments(
                 [{
                     title: i18n.t('commandPalette.project'),
-                    items: () => arrayUnique(
+                    items: (() => arrayUnique(
                         this.props.collaborativeSessions
-                            .map(collaborativeSession => collaborativeSession.artifactPath.project))
+                            .map(collaborativeSession => collaborativeSession.artifactPath.project))) as any
                 }, {
                     title: i18n.t('commandPalette.artifact'),
                     items: (project: string) =>
@@ -274,7 +274,7 @@ export default class extends React.Component<Props, State> {
             action: this.actionWithArguments(
                 [{
                     title: i18n.t('commandPalette.project'),
-                    items: () => arrayUnique(this.props.artifactPaths.map(artifactPath => artifactPath.project))
+                    items: (() => arrayUnique(this.props.artifactPaths.map(artifactPath => artifactPath.project))) as any
                 }, {
                     title: i18n.t('commandPalette.artifact'),
                     items: (project: string) =>
@@ -300,7 +300,7 @@ export default class extends React.Component<Props, State> {
                         ({text: i18n.t('commandPalette.featureDiagram', format), key: format}))
                 }],
                 formatString => {
-                    const format = ClientFormatType[formatString];
+                    const format = (ClientFormatType as any)[formatString];
                     if (canExport(this.props.featureDiagramLayout!, format))
                         this.props.onShowOverlay({overlay: OverlayType.exportDialog, overlayProps: {format}});
                 })
@@ -312,7 +312,7 @@ export default class extends React.Component<Props, State> {
                     title: i18n.t('commandPalette.layout'),
                     items: () => Object.values(FeatureDiagramLayoutType).map(layout => ({text: i18n.t('commands.featureDiagram', layout), key: layout}))
                 }],
-                layoutString => this.props.onSetFeatureDiagramLayout({layout: FeatureDiagramLayoutType[layoutString]}))
+                layoutString => this.props.onSetFeatureDiagramLayout({layout: (FeatureDiagramLayoutType as any)[layoutString]}))
         }, {
             key: 'fitToScreen',
             icon: 'FullScreen',
@@ -666,7 +666,7 @@ export default class extends React.Component<Props, State> {
                 transformFreeform={this.state.transformFreeform}
                 placeholder={this.state.title}
                 onSubmit={this.onSubmit}
-                itemUsage={this.state.argumentItems ? undefined : this.commandUsage}/>
+                itemUsage={this.state.argumentItems ? {} : this.commandUsage}/>
         );
     }
 };

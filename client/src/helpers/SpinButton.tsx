@@ -3,8 +3,8 @@
  */
 
 import React from 'react';
-import {SpinButton} from 'office-ui-fabric-react/lib/SpinButton';
-import {IIconProps} from 'office-ui-fabric-react/lib/Icon';
+import {SpinButton} from '@fluentui/react';
+import {IIconProps} from '@fluentui/react';
 
 export interface SpinButtonProps {
     label?: string,

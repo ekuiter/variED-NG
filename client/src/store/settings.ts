@@ -5,7 +5,7 @@
  */
 
 import objectPath from 'object-path';
-import objectPathImmutable from 'object-path-immutable';
+import * as objectPathImmutable from 'object-path-immutable';
 import {getViewportWidth, getViewportHeight} from '../helpers/withDimensions';
 
 export interface Settings {
@@ -67,11 +67,6 @@ export interface Settings {
             width: number // width of feature callout in px
         },
         manualSync: boolean // whether manual syncing is enabled or not
-    },
-    collaboratorFacepile: {
-        maxDisplayableCollaborators: number, // number of users to display before overflowing
-        overflowBreakpoint: number, // viewport width under which all users will be overflowed
-        gapSpace: number // space between facepile and overlay
     },
     overlays: {
         settingsPanel: {
@@ -141,11 +136,6 @@ export const defaultSettings: Settings = {
             width: 300
         },
         manualSync: false
-    },
-    collaboratorFacepile: {
-        maxDisplayableCollaborators: 3,
-        overflowBreakpoint: 768,
-        gapSpace: 3
     },
     overlays: {
         settingsPanel: {

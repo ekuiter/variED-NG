@@ -16,21 +16,21 @@ import storage from 'redux-persist/lib/storage';
 import {PersistGate} from 'redux-persist/integration/react';
 import {Provider} from 'react-redux';
 import reducer, {Store} from './store/reducer';
-import {initializeIcons} from 'office-ui-fabric-react/lib/Icons';
+import {initializeIcons} from '@fluentui/react';
 import actions, {Action} from './store/actions';
 import {LogLevel, setLogLevel} from './helpers/logger';
 import Kernel from './modeling/Kernel';
 import {initialState, State} from './store/types';
 import {numberofUnflushedOutgoingMessages} from './server/messageQueue';
 import i18n from './i18n';
-import uuidv4 from 'uuid/v4';
+//import uuidv4 from 'uuid/v4';
 import {defaultSettings} from './store/settings';
 import {getCurrentArtifactPath} from './router';
 
 declare var window: any;
 
-if (!window.name)
-    window.name = uuidv4();
+//if (!window.name)
+//    window.name = uuidv4();
 
 (() => {
     const lastActive = localStorage.getItem('lastActive');
@@ -65,7 +65,7 @@ if (!window.name)
     const substateTransform = createTransform(
         // ignore the state keys whitelisted below
         // (redux-persist white/blacklist does not work for some reason)
-        (inboundState, key) => initialState[key],
+        (inboundState, key) => (initialState as any)[key],
         (outboundState, key) => outboundState,
         {'whitelist': ['overlay', 'overlayProps', 'collaborativeSessions', 'artifactPaths']}
     );
@@ -77,7 +77,7 @@ if (!window.name)
     const store: Store = createStore(
         persistedReducer,
         composeEnhancers(applyMiddleware(thunk)));
-    const persistor = persistStore(store);
+    const persistor = persistStore(store as any);
 
     // for debugging purposes
     window.app = {

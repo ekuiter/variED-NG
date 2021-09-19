@@ -32,7 +32,7 @@ export default class extends React.Component<Props> {
             function(this: object, path: string, key: string, _value: any) {
                 // filter settings that should not trigger a rerender
                 if (doNotRerenderForPaths.includes(path))
-                    this[key] = undefined;
+                    (this as any)[key] = undefined;
             });
         // add debug flag to key (as it is managed outside of the featureDiagram settings,
         // but should also trigger a rerender)
@@ -42,9 +42,9 @@ export default class extends React.Component<Props> {
         return stringify(clonedFeatureDiagramSettings);
     }
 
-    render(): JSX.Element {
+    render() {
         const {featureDiagramLayout, ...props} = this.props,
-            LayoutComponent = layoutMap[featureDiagramLayout];
+            LayoutComponent: any = layoutMap[featureDiagramLayout];
         return (
             <LayoutComponent key={this.getKey(props)} debug={props.settings.developer.debug} {...props}/>
         );

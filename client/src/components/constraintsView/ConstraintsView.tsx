@@ -1,6 +1,6 @@
 import React from 'react';
 import FeatureModel, {Constraint} from '../../modeling/FeatureModel';
-import {DetailsList, IColumn, SelectionMode} from 'office-ui-fabric-react/lib/DetailsList';
+import {DetailsList, IColumn, SelectionMode} from '@fluentui/react';
 import i18n from '../../i18n';
 import ConstraintView from './ConstraintView';
 import {KernelConflictDescriptor} from '../../modeling/types';
@@ -14,7 +14,7 @@ interface Props {
 };
 
 export default class extends React.Component<Props> {
-    render(): JSX.Element {
+    render() {
         const columns: IColumn[] = [{
             key: 'constraint',
             name: i18n.t('commandPalette.constraint'),

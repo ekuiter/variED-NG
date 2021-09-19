@@ -3,9 +3,9 @@
  */
 
 import React from 'react';
-import {Callout, DirectionalHint} from 'office-ui-fabric-react/lib/Callout';
+import {Callout, DirectionalHint} from '@fluentui/react';
 import commands from '../commands';
-import {CommandBar} from 'office-ui-fabric-react/lib/CommandBar';
+import {CommandBar} from '@fluentui/react';
 import {FeatureDiagramLayoutType} from '../../types';
 import FeatureComponent, {FeatureComponentProps, isFeatureOffscreen} from './FeatureComponent';
 import {OnShowOverlayFunction, OnCollapseFeaturesFunction, OnCollapseFeaturesBelowFunction, OnExpandFeaturesFunction, OnExpandFeaturesBelowFunction, OnRemoveFeatureFunction, OnCreateFeatureBelowFunction, OnCreateFeatureAboveFunction, OnRemoveFeatureSubtreeFunction} from '../../store/types';

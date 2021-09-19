@@ -10,7 +10,7 @@ import constants from '../constants';
 import {Omit} from '../types';
 
 function getViewportDimension(key: string) {
-    return Math.max(document.documentElement![key], 0);
+    return Math.max((document as any).documentElement![key], 0);
 }
 
 export const getViewportWidth = () => getViewportDimension('clientWidth'),

@@ -1,7 +1,7 @@
 import React from 'react';
 import SpinButton from './SpinButton';
 import {shallow} from 'enzyme';
-import {SpinButton as FabricSpinButton} from 'office-ui-fabric-react/lib/SpinButton';
+import {SpinButton as FabricSpinButton} from '@fluentui/react';
 
 describe('SpinButton', () => {
     const spinButton = ({min, max, onChange}:

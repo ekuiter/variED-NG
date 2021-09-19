@@ -3,7 +3,7 @@
  * They are plain objects describing a state change.
  */
 
-import {createStandardAction, ActionType, action} from 'typesafe-actions';
+import {deprecated, ActionType, action} from 'typesafe-actions';
 import {Message, MessageType, FeatureDiagramLayoutType, OverlayType, OverlayProps, ArtifactPath, ServerFormatType} from '../types';
 import {Dispatch, AnyAction, Action as ReduxAction} from 'redux';
 import {ThunkAction} from 'redux-thunk';
@@ -13,6 +13,8 @@ import Kernel from '../modeling/Kernel';
 import {enqueueOutgoingMessage, flushOutgoingMessageQueue} from '../server/messageQueue';
 import deferred from '../helpers/deferred';
 import {getCurrentArtifactPath} from '../router';
+
+const { createStandardAction } = deprecated;
 
 export const SERVER_SEND_MESSAGE = 'server/sendMessage';
 export const KERNEL_GENERATE_OPERATION = 'kernel/generateOperation';
