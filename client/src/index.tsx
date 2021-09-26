@@ -19,47 +19,19 @@ import reducer, {Store} from './store/reducer';
 import {initializeIcons} from '@fluentui/react';
 import actions, {Action} from './store/actions';
 import {LogLevel, setLogLevel} from './helpers/logger';
-import Kernel from './modeling/Kernel';
 import {initialState, State} from './store/types';
 import {numberofUnflushedOutgoingMessages} from './server/messageQueue';
 import i18n from './i18n';
-//import uuidv4 from 'uuid/v4';
-import {defaultSettings} from './store/settings';
-import {getCurrentArtifactPath} from './router';
 
 declare var window: any;
 
-//if (!window.name)
-//    window.name = uuidv4();
-
 (() => {
-    const lastActive = localStorage.getItem('lastActive');
-    const [lastActiveWindow, lastActiveTimestamp]: [string, number] =
-        lastActive ? JSON.parse(lastActive) : [undefined, undefined];
-
-    if (lastActiveWindow && lastActiveTimestamp &&
-        (+new Date) - lastActiveTimestamp < 1.5 * defaultSettings.intervals.lastActive &&
-        lastActiveWindow !== window.name) {
-            ReactDOM.render(
-                i18n.getFunction('alreadyActive')(),
-                document.getElementById('root'));
-        return;
-    }
-
-    const updateLastActive = () =>
-        localStorage.setItem('lastActive', JSON.stringify([window.name, +new Date]));
-    updateLastActive();
-    window.setInterval(updateLastActive, defaultSettings.intervals.lastActive);
-
     window.addEventListener('beforeunload', (e: BeforeUnloadEvent) => {
         if (numberofUnflushedOutgoingMessages() > 0)
             e.returnValue = i18n.getFunction('hasUnflushedOutgoingMessages')(numberofUnflushedOutgoingMessages());
     });
 
-    if (window.location.protocol !== 'http:')
-        window.location.protocol = 'http:'; // TODO: hack until we support WSS
-
-    initializeIcons('/assets/');
+    initializeIcons('/fonts/');
 
     const composeEnhancers = (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
     const substateTransform = createTransform(
@@ -85,9 +57,7 @@ declare var window: any;
         LogLevel, // parameter for setLogLevel
         actions, // can be dispatched with the store (for debugging)
         store, // used by message delay/offline simulation
-        persistor, // used to clear local storage
-        runKernel: (fn: (kernel: Kernel) => any) => // for debugging
-            Kernel.run(store.getState(), getCurrentArtifactPath(store.getState().collaborativeSessions), fn)
+        persistor // used to clear local storage
     };
 
     ReactDOM.render((

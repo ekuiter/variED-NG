@@ -3,7 +3,6 @@ import {createHashHistory} from 'history';
 import {CollaborativeSession} from './store/types';
 
 export const history = createHashHistory();
-(window as any).h = history;
 
 export function getArtifactPathFromLocation(): ArtifactPath | undefined {
     let path = history.location.pathname.substr(1);

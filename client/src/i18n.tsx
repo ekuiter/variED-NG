@@ -36,19 +36,6 @@ const translationMap = {
             </div>
         </div>
     ),
-    alreadyActive: () => (
-        <div className="message">
-            <div>
-                <p>
-                    <strong>variED is already active in another tab.</strong>
-                </p>
-                <p>
-                    To use variED in this tab, close all other variED tabs and&nbsp;
-                    <a href="#" onClick={() => window.location.reload()}>reload the page</a>.
-                </p>
-            </div>
-        </div>
-    ),
     hasUnflushedOutgoingMessages: (numberofUnflushedOutgoingMessages: number) =>
         `${numberofUnflushedOutgoingMessages} messages have not yet been synchronized.\nIf you proceed, these messages will be lost.`,
     commands: {

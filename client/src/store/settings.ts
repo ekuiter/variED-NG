@@ -74,9 +74,7 @@ export interface Settings {
         }
     },
     intervals: {
-        flushOutgoingMessageQueue: number, // how often the message queue should additionally be flushed, interval in ms
-        lastActive: number // used to guarantee that only one tab is active at once, can not be changed at runtime!
-        // TODO: GC, heartbeat
+        flushOutgoingMessageQueue: number // how often the message queue should additionally be flushed, interval in ms
     }
 };
 
@@ -143,8 +141,7 @@ export const defaultSettings: Settings = {
         }
     },
     intervals: {
-        flushOutgoingMessageQueue: 2000,
-        lastActive: 2000
+        flushOutgoingMessageQueue: 2000
     }
 };
 
