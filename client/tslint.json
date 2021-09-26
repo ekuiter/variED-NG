@@ -2,8 +2,7 @@
     "extends": [],
     "linterOptions": {
       "exclude": [
-        "node_modules/**/*.ts",
-        "coverage/lcov-report/*.js"
+        "node_modules/**/*.ts"
       ]
     },
     "rules": {

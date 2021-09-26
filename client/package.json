@@ -32,18 +32,14 @@
     "reselect": "^4.0.0",
     "s-expression": "^3.1.1",
     "svg2pdf.js": "2.2.0",
-    "typesafe-actions": "^5.1.0",
-    "uuid": "^8.3.2"
+    "typesafe-actions": "^5.1.0"
   },
   "devDependencies": {
     "@types/d3-hierarchy": "^3.0.2",
     "@types/d3-selection": "^3.0.1",
     "@types/d3-selection-multi": "^1.0.10",
     "@types/d3-zoom": "^3.0.1",
-    "@types/enzyme": "^3.10.9",
-    "@types/enzyme-adapter-react-16": "^1.0.6",
     "@types/file-saver": "^2.0.3",
-    "@types/jest": "^27.0.1",
     "@types/json-stable-stringify": "^1.0.33",
     "@types/node": "^16.9.2",
     "@types/object-path": "^0.11.1",
@@ -51,29 +47,17 @@
     "@types/react-dom": "^17.0.9",
     "@types/react-router-dom": "^5.1.9",
     "@types/redux-localstorage": "^1.0.8",
-    "@types/uuid": "^8.3.1",
-    "@wojtekmaj/enzyme-adapter-react-17": "^0.6.3",
-    "enzyme": "^3.11.0",
-    "enzyme-to-json": "^3.6.2",
-    "mock-socket": "^9.0.3",
     "react-scripts": "^4.0.3",
     "typescript": "^4.4.3"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom --moduleNameMapper='{\"office-ui-fabric-react/lib/(.*)$\": \"office-ui-fabric-react/lib-commonjs/$1\"}'",
     "eject": "react-scripts eject"
-  },
-  "jest": {
-    "snapshotSerializers": [
-      "enzyme-to-json/serializer"
-    ]
   },
   "eslintConfig": {
     "extends": [
-      "react-app",
-      "react-app/jest"
+      "react-app"
     ],
     "rules": {
       "import/no-anonymous-default-export": "off",
