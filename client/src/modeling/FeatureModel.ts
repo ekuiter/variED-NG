@@ -154,8 +154,8 @@ export function createConstraintRenderer<T>({neutral, _return, returnFeature, jo
         
         if (!operator)
             throw new Error(`invalid operator ${nodeType}`);
-        if (nodeType === ConstraintType.not && operands.length !== 1 ||
-            nodeType !== ConstraintType.not && operands.length !== 2)
+        if ((nodeType === ConstraintType.not && operands.length !== 1) ||
+            (nodeType !== ConstraintType.not && operands.length !== 2))
             throw new Error(`invalid number of operations ${operands.length}`);
 
         if (nodeType === ConstraintType.conj || nodeType === ConstraintType.disj ||

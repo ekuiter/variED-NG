@@ -3,8 +3,6 @@
  * This initializes Redux and the React app container.
  */
 
-import './polyfills';
-import React from 'react';
 import ReactDOM from 'react-dom';
 import AppContainer from './components/AppContainer';
 import 'normalize.css';

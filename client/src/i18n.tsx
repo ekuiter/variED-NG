@@ -26,16 +26,6 @@ function isTranslationFunction(translation: Translation): translation is Transla
 }
 
 const translationMap = {
-    noCollaborativeSessions: (onShowOverlay: OnShowOverlayFunction) => (
-        <div className="standout">
-            <div>
-                <p>You are not currently participating in any collaborative session.</p>
-                <p>To join one, open the <Link
-                    onClick={() => onShowOverlay({overlay: OverlayType.commandPalette, overlayProps: {}})}><strong>command palette</strong></Link> or create a <Link
-                    onClick={() => onShowOverlay({overlay: OverlayType.addArtifactPanel, overlayProps: {}})}><strong>new feature model</strong></Link>.</p>
-            </div>
-        </div>
-    ),
     hasUnflushedOutgoingMessages: (numberofUnflushedOutgoingMessages: number) =>
         `${numberofUnflushedOutgoingMessages} messages have not yet been synchronized.\nIf you proceed, these messages will be lost.`,
     commands: {

@@ -16,7 +16,6 @@ import {flushOutgoingMessageQueue, queueingMessageHandler} from '../server/messa
 import {artifactPathToString} from '../types';
 import {history, getCurrentArtifactPath} from '../router';
 import {Router, Route, Switch} from 'react-router-dom';
-import i18n from '../i18n';
 import FeatureDiagramRouteContainer from './FeatureDiagramRouteContainer';
 
 class AppContainer extends React.Component<StateDerivedProps> {
@@ -54,7 +53,6 @@ class AppContainer extends React.Component<StateDerivedProps> {
                     <ShortcutContainer/>
                     <Switch>
                         <Route path="/:project/:artifact" component={FeatureDiagramRouteContainer}/>
-                        <Route component={() => i18n.getFunction('noCollaborativeSessions')(this.props.onShowOverlay)}/>
                     </Switch>
                 </Fabric>
             </Router>

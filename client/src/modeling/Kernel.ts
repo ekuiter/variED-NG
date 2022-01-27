@@ -1,8 +1,6 @@
-import {ArtifactPath, artifactPathToString} from '../types';
-import logger from '../helpers/logger';
+import {ArtifactPath} from '../types';
 import {KernelContext, State, KernelData} from '../store/types';
 import {GroupType, KernelFeatureModel, KernelConstraintFormula, KernelCombinedEffect} from './types';
-import {isFeatureDiagramCollaborativeSession, getCollaborativeSession} from '../store/selectors';
 
 class Kernel {
 
