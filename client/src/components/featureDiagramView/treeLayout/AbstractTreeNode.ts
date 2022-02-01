@@ -12,10 +12,10 @@ import {OverlayType, Rect, D3Selection, Point} from '../../../types';
 import {OnShowOverlayFunction, OnExpandFeaturesFunction, OnToggleFeatureGroupTypeFunction} from '../../../store/types';
 import {FeatureNode} from '../../../modeling/types';
 
-declare class AbstractTreeLink {
-    collapseAnchor(_node: FeatureNode): Partial<Point>;
-    drawGroup(arcSegment: D3Selection, arcSlice: D3Selection, arcClick: D3Selection): void;
-}
+// declare class AbstractTreeLink {
+//     collapseAnchor(_node: FeatureNode): Partial<Point>;
+//     drawGroup(arcSegment: D3Selection, arcSlice: D3Selection, arcClick: D3Selection): void;
+// }
 
 function widenBbox({x, y, width, height}: Rect, paddingX: number, paddingY: number): Rect {
     return {x: x - paddingX, y: y - paddingY, width: width + 2 * paddingX, height: height + 2 * paddingY};

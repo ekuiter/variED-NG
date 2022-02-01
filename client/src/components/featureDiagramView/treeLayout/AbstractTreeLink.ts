@@ -16,16 +16,16 @@ import {Rect, Point, D3Selection} from '../../../types';
 import {OnToggleFeatureOptionalFunction} from '../../../store/types';
 import {FeatureNode, NodeCoordinateForAxisFunction, NodePointFunction} from '../../../modeling/types';
 
-declare class AbstractTreeNode {
-    rectInfo: Rect;
-    x(_node: FeatureNode): number;
-    y(_node: FeatureNode): number;
-    estimateTextWidth(node: FeatureNode): number;
-}
+// declare class AbstractTreeNode {
+//     rectInfo: Rect;
+//     x(_node: FeatureNode): number;
+//     y(_node: FeatureNode): number;
+//     estimateTextWidth(node: FeatureNode): number;
+// }
 
 export default class {
     constructor(public settings: Settings, public getCurrentParentCoordinate: NodeCoordinateForAxisFunction,
-        public getPreviousParentCoordinate: NodeCoordinateForAxisFunction, public treeNode: AbstractTreeNode,
+        public getPreviousParentCoordinate: NodeCoordinateForAxisFunction, public treeNode: any, // AbstractTreeNode,
         public onToggleFeatureOptional: OnToggleFeatureOptionalFunction) {}
 
     nodeX(node: FeatureNode): number {
