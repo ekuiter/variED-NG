@@ -44,7 +44,7 @@ type SliderProps = SettingProps & {
 };
 
 interface SettingsPanelProps {
-    onDismissed: () => void,
+    onDismiss: () => void,
     isOpen: boolean,
     settings: Settings,
     featureDiagramLayout?: FeatureDiagramLayoutType,
@@ -134,7 +134,7 @@ export default class extends React.Component<SettingsPanelProps> {
                 className="settingsPanel"
                 isOpen={this.props.isOpen}
                 type={PanelType.smallFixedFar}
-                onDismissed={this.props.onDismissed}
+                onDismiss={this.props.onDismiss}
                 isLightDismiss={true}
                 headerText={i18n.t('overlays.settingsPanel.title')}>
 

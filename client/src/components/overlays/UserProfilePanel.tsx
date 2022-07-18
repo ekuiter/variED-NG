@@ -8,7 +8,7 @@ import {Panel, PanelType} from '@fluentui/react';
 
 interface UserProfilePanelProps {
     isOpen: boolean,
-    onDismissed: () => void,
+    onDismiss: () => void,
     onSetUserProfile: OnSetUserProfileFunction,
     myself: Collaborator
 };
@@ -34,20 +34,20 @@ export default class extends React.Component<UserProfilePanelProps, UserProfileP
 
         this.props.onSetUserProfile({name});
         this.setState({name: undefined});
-        this.props.onDismissed();
+        this.props.onDismiss();
     };
 
     onRenderFooterContent = () =>
         <PrimaryButton onClick={this.onSubmit} text={i18n.t('overlays.userProfilePanel.save')}/>;
 
     render() {
-        const {isOpen, onDismissed} = this.props;
+        const {isOpen, onDismiss} = this.props;
 
         return (
             <Panel
                 type={PanelType.smallFixedFar}
                 isOpen={isOpen}
-                onDismissed={onDismissed}
+                onDismiss={onDismiss}
                 isLightDismiss={true}
                 headerText={i18n.t('overlays.userProfilePanel.title')}
                 onRenderFooterContent={this.onRenderFooterContent}>

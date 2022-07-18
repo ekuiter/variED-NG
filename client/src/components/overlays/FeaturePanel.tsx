@@ -12,7 +12,7 @@ import {Feature} from '../../modeling/types';
 import {OnShowOverlayFunction, OnCollapseFeaturesFunction, OnCollapseFeaturesBelowFunction, OnExpandFeaturesFunction, OnExpandFeaturesBelowFunction, OnRemoveFeatureFunction, OnCreateFeatureBelowFunction, OnCreateFeatureAboveFunction, OnSetFeatureAbstractFunction, OnSetFeatureHiddenFunction, OnSetFeatureOptionalFunction, OnSetFeatureAndFunction, OnSetFeatureOrFunction, OnSetFeatureAlternativeFunction, OnRemoveFeatureSubtreeFunction} from '../../store/types';
 
 type Props = FeatureComponentProps & {
-    onDismissed: () => void,
+    onDismiss: () => void,
     isOpen: boolean,
     onShowOverlay: OnShowOverlayFunction,
     onCollapseFeatures: OnCollapseFeaturesFunction,
@@ -38,18 +38,18 @@ export default class extends FeatureComponent()<Props> {
     onRenderFooterContent = () => (
         <CommandBar
             items={transparentItems([
-                commands.featureDiagram.feature.newMenu(this.props.featureID!, this.props.featureModel, this.props.onCreateFeatureBelow, this.props.onCreateFeatureAbove, this.props.onDismissed, true),
-                commands.featureDiagram.feature.removeMenu([(this as any).feature.ID], this.props.featureModel, this.props.onRemoveFeature, this.props.onRemoveFeatureSubtree, this.props.onDismissed, true)
+                commands.featureDiagram.feature.newMenu(this.props.featureID!, this.props.featureModel, this.props.onCreateFeatureBelow, this.props.onCreateFeatureAbove, this.props.onDismiss, true),
+                commands.featureDiagram.feature.removeMenu([(this as any).feature.ID], this.props.featureModel, this.props.onRemoveFeature, this.props.onRemoveFeatureSubtree, this.props.onDismiss, true)
             ])}
             overflowItems={[
                 commands.featureDiagram.feature.collapseMenu(
                     [(this as any).feature], this.props.onCollapseFeatures, this.props.onExpandFeatures,
-                    this.props.onCollapseFeaturesBelow, this.props.onExpandFeaturesBelow, this.props.onDismissed),
+                    this.props.onCollapseFeaturesBelow, this.props.onExpandFeaturesBelow, this.props.onDismiss),
                 commands.featureDiagram.feature.rename(this.props.featureID!, this.props.featureModel, this.props.onShowOverlay),
                 commands.featureDiagram.feature.setDescription(this.props.featureID!, this.props.featureModel, this.props.onShowOverlay),
                 commands.featureDiagram.feature.properties([(this as any).feature.ID], this.props.featureModel, this.props.onSetFeatureAbstract,
                     this.props.onSetFeatureHidden, this.props.onSetFeatureOptional, this.props.onSetFeatureAnd,
-                    this.props.onSetFeatureOr, this.props.onSetFeatureAlternative, this.props.onDismissed)
+                    this.props.onSetFeatureOr, this.props.onSetFeatureAlternative, this.props.onDismiss)
             ]}
             overflowButtonProps={{styles: buttonStyles}}
             styles={{root: {margin: '0 -40px', padding: '0 35px'}}}/>
@@ -60,7 +60,7 @@ export default class extends FeatureComponent()<Props> {
             <Panel
                 isOpen={this.props.isOpen}
                 type={PanelType.smallFixedFar}
-                onDismissed={this.props.onDismissed}
+                onDismiss={this.props.onDismiss}
                 isLightDismiss={true}
                 headerText={
                     <span>

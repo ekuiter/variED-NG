@@ -13,7 +13,7 @@ import {redirectToArtifactPath} from '../../router';
 
 interface AddArtifactPanelProps {
     isOpen: boolean,
-    onDismissed: () => void,
+    onDismiss: () => void,
     onAddArtifact: OnAddArtifactFunction,
     artifactPaths: ArtifactPath[]
 };
@@ -65,7 +65,7 @@ export default class extends React.Component<AddArtifactPanelProps, AddArtifactP
         const proceed = (source?: string) => {
             this.props.onAddArtifact({artifactPath, source});
             this.setState({project: undefined, artifact: undefined, encoding: undefined, file: undefined});
-            this.props.onDismissed();
+            this.props.onDismiss();
             redirectToArtifactPath(artifactPath);
             // TODO: large models are rejected by the server (traditional POST upload instead?)
         };
@@ -84,7 +84,7 @@ export default class extends React.Component<AddArtifactPanelProps, AddArtifactP
         <PrimaryButton onClick={this.onSubmit} text={i18n.t('overlays.addArtifactPanel.create')}/>;
 
     render() {
-        const {isOpen, onDismissed} = this.props,
+        const {isOpen, onDismiss} = this.props,
             projectOptions = (arrayUnique as any)(this.props.artifactPaths.map(artifactPath => artifactPath.project))
                 .map((project: any) => ({key: project, text: project}));
 
@@ -92,7 +92,7 @@ export default class extends React.Component<AddArtifactPanelProps, AddArtifactP
             <Panel
                 type={PanelType.smallFixedFar}
                 isOpen={isOpen}
-                onDismissed={onDismissed}
+                onDismiss={onDismiss}
                 isLightDismiss={true}
                 layerProps={{onLayerDidMount: this.onLayerDidMount}}
                 headerText={i18n.t('overlays.addArtifactPanel.title')}

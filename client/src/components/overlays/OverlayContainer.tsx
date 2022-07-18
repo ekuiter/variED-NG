@@ -72,7 +72,7 @@ const OverlayContainer = (props: StateDerivedProps & RouteProps) => (
 
         <SettingsPanel
             isOpen={props.overlay === OverlayType.settingsPanel}
-            onDismissed={() => props.onHideOverlay!({overlay: OverlayType.settingsPanel})}
+            onDismiss={() => props.onHideOverlay!({overlay: OverlayType.settingsPanel})}
             settings={props.settings!}
             onSetSetting={props.onSetSetting!}
             onResetSettings={props.onResetSettings!}
@@ -81,13 +81,13 @@ const OverlayContainer = (props: StateDerivedProps & RouteProps) => (
 
         <AboutPanel
             isOpen={props.overlay === OverlayType.aboutPanel}
-            onDismissed={() => props.onHideOverlay!({overlay: OverlayType.aboutPanel})}
+            onDismiss={() => props.onHideOverlay!({overlay: OverlayType.aboutPanel})}
             {...props.overlayProps}/>
 
         {props.overlay === OverlayType.featurePanel &&
         <FeaturePanel
             isOpen={true}
-            onDismissed={() => props.onHideOverlay!({overlay: OverlayType.featurePanel})}
+            onDismiss={() => props.onHideOverlay!({overlay: OverlayType.featurePanel})}
             onShowOverlay={props.onShowOverlay!}
             onCollapseFeatures={props.onCollapseFeatures!}
             onExpandFeatures={props.onExpandFeatures!}
@@ -128,7 +128,7 @@ const OverlayContainer = (props: StateDerivedProps & RouteProps) => (
         {props.overlay === OverlayType.addArtifactPanel &&
         <AddArtifactPanel
             isOpen={true}
-            onDismissed={() => props.onHideOverlay!({overlay: OverlayType.addArtifactPanel})}
+            onDismiss={() => props.onHideOverlay!({overlay: OverlayType.addArtifactPanel})}
             onAddArtifact={props.onAddArtifact!}
             artifactPaths={props.artifactPaths!}
             {...props.overlayProps}/>}
@@ -136,7 +136,7 @@ const OverlayContainer = (props: StateDerivedProps & RouteProps) => (
         {props.overlay === OverlayType.userProfilePanel &&
         <UserProfilePanel
             isOpen={true}
-            onDismissed={() => props.onHideOverlay!({overlay: OverlayType.userProfilePanel})}
+            onDismiss={() => props.onHideOverlay!({overlay: OverlayType.userProfilePanel})}
             onSetUserProfile={props.onSetUserProfile!}
             myself={props.myself!}
             {...props.overlayProps}/>}

@@ -6,11 +6,11 @@ import React from 'react';
 import i18n from '../../i18n';
 import {Panel, PanelType} from '@fluentui/react';
 
-export default ({isOpen, onDismissed}: {isOpen: boolean, onDismissed: () => void}) => (
+export default ({isOpen, onDismiss}: {isOpen: boolean, onDismiss: () => void}) => (
     <Panel
         isOpen={isOpen}
         type={PanelType.smallFixedFar}
-        onDismissed={onDismissed}
+        onDismiss={onDismiss}
         isLightDismiss={true}
         headerText={i18n.t('overlays.aboutPanel.title')}>
         {i18n.getElement('overlays.aboutPanel.content')}
