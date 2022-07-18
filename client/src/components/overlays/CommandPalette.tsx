@@ -614,35 +614,10 @@ export default class extends React.Component<Props, State> {
                 (votingStrategy, onlyInvolved) => this.props.onSetVotingStrategy(
                     {votingStrategy, onlyInvolved: onlyInvolved === 'true'}))
         }, {
-            text: i18n.t('commandPalette.featureDiagram.manualSync'),
-            icon: 'Sync',
-            action: this.action(() => this.props.onSetSetting(
-                {path: 'featureDiagram.manualSync', value: (bool: boolean) => !bool}))
-        }, {
             text: i18n.t('commandPalette.developer.debug'),
             icon: 'DeveloperTools',
             action: this.action(() => this.props.onSetSetting(
                 {path: 'developer.debug', value: (bool: boolean) => !bool}))
-        }, {
-            text: i18n.t('commandPalette.developer.simulateDelay'),
-            icon: 'DeveloperTools',
-            action: this.actionWithArguments(
-                [{
-                    title: i18n.t('commandPalette.delay'),
-                    allowFreeform: true
-                }],
-                delayString => {
-                    const delay = parseInt(delayString);
-                    if (isNaN(delay) || delay < 0)
-                        logger.warn(() => 'invalid delay specified');
-                    else
-                        this.props.onSetSetting({path: 'developer.simulateDelay', value: delay});
-                })
-        }, {
-            text: i18n.t('commandPalette.developer.simulateOffline'),
-            icon: 'DeveloperTools',
-            action: this.action(() => this.props.onSetSetting(
-                {path: 'developer.simulateOffline', value: (bool: boolean) => !bool}))
         }, {
             text: i18n.t('commandPalette.developer.clearLocalStorage'),
             icon: 'DeveloperTools',

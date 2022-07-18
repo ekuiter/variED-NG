@@ -1,5 +1,5 @@
 import {ArtifactPath, Message} from '../types';
-import {sendMessage, isSimulateOffline, isManualSync} from './webSocket';
+import {sendMessage} from './webSocket';
 import logger from '../helpers/logger';
 
 const tag = 'queue';
@@ -28,18 +28,10 @@ export async function flushOutgoingMessageQueue(forceFlush = false): Promise<voi
             document.title = '(*) ' + document.title;
     }
     
-    if (isSimulateOffline()) {
-        logger.warnTagged({tag}, () => 'simulating offline, abort flushing message queue');
-        return;
-    }
-
     if (isFlushingOutgoingMessageQueue) {
         logger.warnTagged({tag}, () => 'already flushing message queue, abort');
         return;
     }
-
-    if (isManualSync() && !forceFlush)
-        return;
 
     isFlushingOutgoingMessageQueue = true;
     const numberOfMessages = outgoingMessageQueue.length;
@@ -65,9 +57,6 @@ export async function flushOutgoingMessageQueue(forceFlush = false): Promise<voi
 }
 
 export function flushIncomingMessageQueue(handleMessage?: (msg: Message) => void, forceFlush = false): void {
-    if (isManualSync() && !forceFlush)
-        return;
-
     while (incomingMessageQueue.length > 0) {
         if (handleMessage)
             handleMessage(incomingMessageQueue[0]);

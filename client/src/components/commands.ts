@@ -87,15 +87,6 @@ const commands = {
         onClick: onRedo
     }),
     featureDiagram: {
-        manualSync: (settings: Settings, handleMessage?: (msg: Message) => void) =>
-            settings.featureDiagram.manualSync
-                ? [{
-                    key: 'manualSync',
-                    iconProps: {iconName: 'Sync'},
-                    text: i18n.t('commands.featureDiagram.manualSync'),
-                    iconOnly: true,
-                    onClick: () => forceFlushMessageQueues(handleMessage)
-                }] : [],
         addArtifact: (onShowOverlay: OnShowOverlayFunction) => ({
             key: 'addArtifact',
             text: i18n.t('commands.addArtifact'),

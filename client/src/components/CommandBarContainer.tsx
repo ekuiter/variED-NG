@@ -107,10 +107,7 @@ const CommandBarContainer = (props: StateDerivedProps & RouteProps) => (
                         commands.about(props.onShowOverlay!)
                     ]
                 }
-            },
-            ...props.featureModel
-                ? commands.featureDiagram.manualSync(props.settings!, props.handleMessage)
-                : []
+            }
         ]}/>
 );
 

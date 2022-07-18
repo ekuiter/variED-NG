@@ -10,9 +10,7 @@ import {getViewportWidth, getViewportHeight} from '../helpers/withDimensions';
 
 export interface Settings {
     developer: {
-        debug: boolean, // whether to show detailed logs and the estimated bounding box and node anchors for feature diagrams
-        simulateDelay: number, // simulate message delay when developing on localhost
-        simulateOffline: boolean // simulate that the web socket connection is closed (e.g., no internet connection)
+        debug: boolean // whether to show detailed logs and the estimated bounding box and node anchors for feature diagrams
     },
     views: {
         splitDirection: 'horizontal' | 'vertical', // at which axis to split views
@@ -65,8 +63,7 @@ export interface Settings {
             throttleUpdate: number, // how often to reposition the overlay on zoom or pan in ms
             gapSpace: number, // space between node and overlay in px
             width: number // width of feature callout in px
-        },
-        manualSync: boolean // whether manual syncing is enabled or not
+        }
     },
     overlays: {
         settingsPanel: {
@@ -80,9 +77,7 @@ export interface Settings {
 
 export const defaultSettings: Settings = {
     developer: {
-        debug: false,
-        simulateDelay: 0,
-        simulateOffline: false
+        debug: false
     },
     views: {
         splitDirection: getViewportWidth() > getViewportHeight() ? 'horizontal' : 'vertical',
@@ -132,8 +127,7 @@ export const defaultSettings: Settings = {
             throttleUpdate: 200,
             gapSpace: 5,
             width: 300
-        },
-        manualSync: false
+        }
     },
     overlays: {
         settingsPanel: {

@@ -58,7 +58,6 @@ const translationMap = {
             fitToScreen: 'Fit feature model to screen',
             showConstraintView: 'Show constraint view',
             splitConstraintViewHorizontally: 'Constraint view sidebar',
-            manualSync: 'Synchronize',
             feature: {
                 newMenu: {
                     title: 'New',
@@ -163,12 +162,9 @@ const translationMap = {
             plurality: 'Plurality vote',
             majority: 'Majority vote',
             consensus: 'Consensus (default)',
-            manualSync: 'Toggle manual synchronization'
         },
         developer: {
             debug: 'Developer: Toggle debug mode',
-            simulateDelay: 'Developer: Simulate message delay',
-            simulateOffline: 'Developer: Simulate offline',
             clearLocalStorage: 'Developer: Clear local storage',
             reset: 'Developer: Reset entire system',
             confirmReset: 'WARNING: This will interrupt all modeling activities and discard all changes. ' +
