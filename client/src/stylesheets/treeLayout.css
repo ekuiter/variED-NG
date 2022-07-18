@@ -1,4 +1,4 @@
-.ms-Fabric.fabricRoot .content.vertical .treeLayout {
+.fabricRoot .content.vertical .treeLayout {
     width: 100%; /* prevent flickering in Google Chrome 70 */
 }
 

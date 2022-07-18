@@ -4,11 +4,10 @@
  */
 
 import {Point, D3Selection, Func} from '../types';
-import {ValueMap} from 'd3-selection-multi';
 import logger from './logger';
 import {FeaturePropertyKey, NodeCoordinateFunction, FeatureNode, NodePointFunction} from '../modeling/types';
+import {select} from 'd3-selection';
 
-export type Style = ValueMap<any, any>;
 export interface StyleDescriptor {
     property?: FeaturePropertyKey,
     [x: string]: any
@@ -29,12 +28,28 @@ function toD(...data: (string | number)[]): string {
     return data.join(' ');
 }
 
+function attrsFunction(selection: D3Selection, map: Func) {
+    return selection.each(function() {
+      var x = map.apply(this, arguments as any), s = select(this);
+      for (var name in x) s.attr(name, x[name]);
+    });
+  }
+  
+function attrsObject(selection: D3Selection, map: any) {
+    for (var name in map) selection.attr(name, map[name]);
+    return selection;
+}
+
+export function attrs(selection: D3Selection, map: any) {
+    return (typeof map === "function" ? attrsFunction : attrsObject)(selection, map);
+}
+
 export function attrIfPresent(selection: D3Selection, key: string, value?: any): void {
     if (typeof value !== 'undefined')
         selection.attr(key, value);
 }
 
-export function styleIfPresent(selection: D3Selection, style?: Style): void {
+export function styleIfPresent(selection: D3Selection, style?: object): void {
     if (typeof style !== 'undefined')
         selection.call(addStyle, style);
 }
@@ -44,18 +59,16 @@ export function fnIfPresent(selection: D3Selection, fn?: Func): void {
         selection.call(fn);
 }
 
-export function appendCross(selection: D3Selection, style?: Style): void {
-    style = style || {
-        fill: 'none',
-        stroke: 'red',
-        'stroke-width': '1.5px'
-    };
-    (selection.append('path').attr('d', toD(MOVE, -4, -4, LINE, 4, 4)) as any)["attrs"](style);
-    (selection.append('path').attr('d', toD(MOVE, -4, 4, LINE, 4, -4)) as any)["attrs"](style);
+export function appendCross(selection: D3Selection): void {
+    let styler = (selection: D3Selection) => selection.attr('fill', 'none')
+        .attr('stroke', 'red')
+        .attr('stroke-width', '1.5px');
+    styler(selection.append('path').attr('d', toD(MOVE, -4, -4, LINE, 4, 4)));
+    styler(selection.append('path').attr('d', toD(MOVE, -4, 4, LINE, 4, -4)));
 }
 
 export function updateRect(selection: D3Selection, {x, y, klass, width, height, style, fn}:
-    {x: number, y: number, klass?: string, width: number, height: number, style?: Style, fn?: Func}): void {
+    {x: number, y: number, klass?: string, width: number, height: number, style?: object, fn?: Func}): void {
     style = style || {
         fill: 'none',
         stroke: 'red',
@@ -77,7 +90,7 @@ export function translateTransform(selection: D3Selection, x: NodeCoordinateFunc
 
 export function drawLine(selection: D3Selection, selector: string | undefined,
     {klass, from, to, style, fn}:
-    {klass?: string, from: NodePointFunction, to: NodePointFunction, style?: Style, fn?: Func}): void {
+    {klass?: string, from: NodePointFunction, to: NodePointFunction, style?: object, fn?: Func}): void {
     (!selector ? selection.append('path') : selection.select(selector))
         .call(attrIfPresent, 'class', klass)
         .call(styleIfPresent, style)
@@ -87,7 +100,7 @@ export function drawLine(selection: D3Selection, selector: string | undefined,
 
 export function drawCurve(selection: D3Selection, selector: string | undefined,
     {klass, from, to, inset, style, fn}:
-    {klass?: string, from: NodePointFunction, to: NodePointFunction, inset: number, style?: Style, fn?: Func}): void {
+    {klass?: string, from: NodePointFunction, to: NodePointFunction, inset: number, style?: object, fn?: Func}): void {
     (!selector ? selection.append('path') : selection.select(selector))
         .call(attrIfPresent, 'class', klass)
         .call(styleIfPresent, style)
@@ -104,7 +117,7 @@ export function drawCurve(selection: D3Selection, selector: string | undefined,
 export function drawCircle(selection: D3Selection, selector: string | undefined,
     {klass, center, radius, style, fn}:
     {klass?: string, from: NodePointFunction, to: NodePointFunction, center: NodePointFunction,
-        radius: number, style?: Style, fn?: Func}): void {
+        radius: number, style?: object, fn?: Func}): void {
     (!selector ? selection.append('circle') : selection.select(selector))
         .call(attrIfPresent, 'class', klass)
         .call(attrIfPresent, 'r', radius)
@@ -145,8 +158,8 @@ export function addStyle(selection: D3Selection, ...styleDescriptors: StyleDescr
             Object.keys(styles).forEach(key =>
                 selection
                     .filter((node: FeatureNode) => node.feature().getPropertyString(property!) === key)
-                    .call(selection => (selection as any)["attrs"](styles[key])));
+                    .call(selection => attrs(selection, styles[key])));
         else
-            (selection as any)["attrs"](styleDescriptor);
+            attrs(selection, styleDescriptor);
     });
 }

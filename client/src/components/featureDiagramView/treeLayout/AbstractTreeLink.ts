@@ -8,8 +8,7 @@ import {
     arcSlicePath,
     cartesianToAngle,
     drawCircle,
-    ArcPathFunction,
-    Style
+    ArcPathFunction
 } from '../../../helpers/svg';
 import styles from './styles';
 import {Rect, Point, D3Selection} from '../../../types';
@@ -68,7 +67,7 @@ export default class {
         throw new Error('abstract method not implemented');
     }
 
-    drawLink(_selection: D3Selection, _selector: string | undefined, {klass, from, to, style}: {klass?: string, from: NodePointFunction, to: NodePointFunction, style?: Style}): void {
+    drawLink(_selection: D3Selection, _selector: string | undefined, {klass, from, to, style}: {klass?: string, from: NodePointFunction, to: NodePointFunction, style?: object}): void {
         throw new Error('abstract method not implemented');
     }
 

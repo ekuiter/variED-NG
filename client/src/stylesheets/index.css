@@ -1,58 +1,58 @@
-.ms-Fabric.fabricRoot {
+.fabricRoot {
     width: 100%;
     height: 100%;
     display: flex;
     flex-flow: column;
 }
 
-.ms-Fabric.fabricRoot .header {
+.fabricRoot .header {
     flex: 0 1 auto;
 }
 
-.ms-Fabric.fabricRoot .content {
+.fabricRoot .content {
     flex: 1 1 auto;
     display: flex;
     align-items: stretch;
 }
 
-.ms-Fabric.fabricRoot .content.vertical {
+.fabricRoot .content.vertical {
     flex-direction: column;
 }
 
-.ms-Fabric.fabricRoot .content.horizontal {
+.fabricRoot .content.horizontal {
     flex-direction: row;
 }
 
-.ms-Fabric.fabricRoot .content > * {
+.fabricRoot .content > * {
     flex: 1 1 auto;
     box-sizing: border-box;
     overflow: scroll;
     height: calc(100vh - 40px);
 }
 
-.ms-Fabric.fabricRoot .content > .handler {
+.fabricRoot .content > .handler {
     flex: 0 0 auto;
     background-color: #f4f4f4;
     background-image: url("resources/texture.png");
     overflow: hidden;
 }
 
-.ms-Fabric.fabricRoot .content.horizontal > .handler {
+.fabricRoot .content.horizontal > .handler {
     width: 12px;
     cursor: col-resize;
 }
 
-.ms-Fabric.fabricRoot .content.vertical > .handler {
+.fabricRoot .content.vertical > .handler {
     height: 12px;
     cursor: row-resize;
 }
 
-.ms-Fabric.fabricRoot .content .scrollable {
+.fabricRoot .content .scrollable {
     overflow-x: hidden;
     overflow-y: auto;
 }
 
-.ms-Fabric.fabricRoot .content > div > .ms-Spinner {
+.fabricRoot .content > div > .ms-Spinner {
     margin: auto;
 }
 

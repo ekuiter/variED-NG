@@ -5,7 +5,7 @@
 import React from 'react';
 import {openWebSocket} from '../server/webSocket';
 import {connect} from 'react-redux';
-import {Fabric} from '@fluentui/react';
+import {ThemeProvider} from '@fluentui/react';
 import OverlayContainer from './overlays/OverlayContainer';
 import CommandBarContainer from './CommandBarContainer';
 import ShortcutContainer from './ShortcutContainer';
@@ -45,7 +45,7 @@ class AppContainer extends React.Component<StateDerivedProps> {
     render() {
         return (
             <Router history={history}>
-                <Fabric className="fabricRoot">
+                <ThemeProvider className="fabricRoot">
                     <div className="header">
                         <CommandBarContainer/>
                     </div>
@@ -54,7 +54,7 @@ class AppContainer extends React.Component<StateDerivedProps> {
                     <Switch>
                         <Route path="/:project/:artifact" component={FeatureDiagramRouteContainer}/>
                     </Switch>
-                </Fabric>
+                </ThemeProvider>
             </Router>
         );
     }

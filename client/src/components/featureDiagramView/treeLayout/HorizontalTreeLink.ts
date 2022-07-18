@@ -4,7 +4,7 @@
 
 import AbstractTreeLink from './AbstractTreeLink';
 import {Settings} from '../../../store/settings';
-import {attrIfPresent, drawCurve, drawLine, ArcPathFunction, Style} from '../../../helpers/svg';
+import {attrIfPresent, drawCurve, drawLine, ArcPathFunction} from '../../../helpers/svg';
 import {estimateRectWidth} from './estimation';
 import {Point, D3Selection, Rect} from '../../../types';
 import {FeatureNode, NodePointFunction} from '../../../modeling/types';
@@ -50,7 +50,7 @@ export default class extends AbstractTreeLink {
         return arcPathFn(center, radius, -90, 90, sweepFlag);
     }
 
-    drawLink = (selection: D3Selection, selector: string | undefined, {klass, from, to, style}: {klass?: string, from: NodePointFunction, to: NodePointFunction, style?: Style}): void => {
+    drawLink = (selection: D3Selection, selector: string | undefined, {klass, from, to, style}: {klass?: string, from: NodePointFunction, to: NodePointFunction, style?: object}): void => {
         const settings = this.settings,
             g = (!selector ? selection.append('g') : selection.select(selector))
                 .call(attrIfPresent, 'class', klass),

@@ -3,7 +3,7 @@
  */
 
 import AbstractTreeLink from './AbstractTreeLink';
-import {drawLine, ArcPathFunction, Style} from '../../../helpers/svg';
+import {drawLine, ArcPathFunction} from '../../../helpers/svg';
 import {Rect, Point, D3Selection} from '../../../types';
 import {FeatureNode, NodePointFunction} from '../../../modeling/types';
 
@@ -40,7 +40,7 @@ export default class extends AbstractTreeLink {
         return arcPathFn(center, radius, startAngle, endAngle, sweepFlag);
     }
 
-    drawLink(selection: D3Selection, selector: string | undefined, {klass, from, to, style}: {klass?: string, from: NodePointFunction, to: NodePointFunction, style?: Style}): void {
+    drawLink(selection: D3Selection, selector: string | undefined, {klass, from, to, style}: {klass?: string, from: NodePointFunction, to: NodePointFunction, style?: object}): void {
         drawLine(selection, selector, {klass, from, to, style});
     }
 

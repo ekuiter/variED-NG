@@ -2,10 +2,9 @@
  * Nodes for the abstract tree layout.
  */
 
-import 'd3-selection-multi';
 import {Settings} from '../../../store/settings';
 import measureTextWidth from '../../../helpers/measureTextWidth';
-import {addStyle, appendCross, drawCircle, translateTransform, StyleDescriptor, Style} from '../../../helpers/svg';
+import {addStyle, appendCross, drawCircle, translateTransform, StyleDescriptor, attrs} from '../../../helpers/svg';
 import styles from './styles';
 import {isCommand} from '../../../helpers/withKeys';
 import {OverlayType, Rect, D3Selection, Point} from '../../../types';
@@ -30,10 +29,9 @@ function makeRect(settings: Settings, textBbox: Rect): Rect {
 }
 
 function addFontStyle(selection: D3Selection, settings: Settings, scale = 1): void {
-    (selection as any)["attrs"]({
-        'font-family': settings.featureDiagram.font.family,
-        'font-size': settings.featureDiagram.font.size * scale
-    });
+    selection
+        .attr('font-family', settings.featureDiagram.font.family)
+        .attr('font-size', settings.featureDiagram.font.size * scale);
 }
 
 function makeText(settings: Settings, selection: D3Selection, isGettingRectInfo: boolean, textStyle: StyleDescriptor): Rect | Rect[] | undefined {
@@ -110,7 +108,7 @@ export default class {
 
         let i = 0;
         
-        (rectAndText.insert('rect', 'text') as any)["attrs"](() => makeRect(this.settings, bboxes[i++]))
+        attrs(rectAndText.insert('rect', 'text'), () => makeRect(this.settings, bboxes[i++]))
             .call(addStyle, styles.node.abstract(this.settings));
 
         const arcSegment = nodeEnter.insert('path', 'g.rectAndText')
@@ -128,11 +126,11 @@ export default class {
         const expandFeature = (d: FeatureNode) => d.feature().isCollapsed && this.onExpandFeatures({featureIDs: [d.feature().ID]});
         i = 0;
         bboxes = [];
-        (nodeEnter.insert('text', 'path.arcClick')
-        .call(addFontStyle, this.settings)
-        .attr('fill', this.settings.featureDiagram.treeLayout.node.visibleFill)
-        .attr('class', 'collapse')
-        .attr('text-anchor', 'middle') as any)["attrs"]((d: FeatureNode) => this.treeLink.collapseAnchor(d) as Style)
+        attrs(nodeEnter.insert('text', 'path.arcClick')
+            .call(addFontStyle, this.settings)
+            .attr('fill', this.settings.featureDiagram.treeLayout.node.visibleFill)
+            .attr('class', 'collapse')
+            .attr('text-anchor', 'middle'), (d: FeatureNode) => this.treeLink.collapseAnchor(d))
             .call(addStyle, styles.node.collapseText(this.settings))
             .text((d: FeatureNode) => d.feature().getNumberOfFeaturesBelow())
             .attr('opacity', 0)
