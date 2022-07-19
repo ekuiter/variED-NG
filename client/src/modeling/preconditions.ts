@@ -1,5 +1,5 @@
-import FeatureModel, {Constraint} from './FeatureModel';
-import {KernelConstraintFormula, FORMULA, GRAVEYARDED} from './types';
+import FeatureModel from './FeatureModel';
+import {ApiConstraintFormula} from './types';
 
 const featureExists = (featureID: string, featureModel: FeatureModel): boolean => !!featureModel.getFeature(featureID);
 const featuresExist = (featureIDs: string[], featureModel: FeatureModel): boolean =>
@@ -54,18 +54,10 @@ export const preconditions = {
         },
 
         constraint: {
-            create: (formula: KernelConstraintFormula, featureModel: FeatureModel): boolean =>
-                !new Constraint({
-                    [FORMULA]: formula,
-                    [GRAVEYARDED]: false
-                }, featureModel).isGraveyarded,
+            create: (formula: ApiConstraintFormula, featureModel: FeatureModel): boolean => true,
 
-            set: (constraintID: string, formula: KernelConstraintFormula, featureModel: FeatureModel): boolean => 
-                !!featureModel.getConstraint(constraintID) &&
-                !new Constraint({
-                    [FORMULA]: formula,
-                    [GRAVEYARDED]: false
-                }, featureModel).isGraveyarded,
+            set: (constraintID: string, formula: ApiConstraintFormula, featureModel: FeatureModel): boolean => 
+                !!featureModel.getConstraint(constraintID),
 
             remove: (constraintID: string, featureModel: FeatureModel): boolean =>
                 !!featureModel.getConstraint(constraintID)

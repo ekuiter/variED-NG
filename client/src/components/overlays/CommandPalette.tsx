@@ -1,8 +1,8 @@
 import React from 'react';
 import i18n from '../../i18n';
-import {OnShowOverlayFunction, OnUndoFunction, OnRedoFunction, OnSetFeatureDiagramLayoutFunction, OnFitToScreenFunction, OnCreateFeatureAboveFunction, OnCreateFeatureBelowFunction, OnCollapseFeaturesFunction, OnCollapseFeaturesBelowFunction, OnExpandFeaturesFunction, OnExpandFeaturesBelowFunction, OnRemoveFeatureFunction, OnRemoveFeatureSubtreeFunction, OnSetFeatureAbstractFunction, OnSetFeatureHiddenFunction, OnSetFeatureOptionalFunction, OnSetFeatureAndFunction, OnSetFeatureOrFunction, OnSetFeatureAlternativeFunction, OnExpandAllFeaturesFunction, OnCollapseAllFeaturesFunction, OnLeaveRequestFunction, CollaborativeSession, OnSetSettingFunction, OnMoveFeatureSubtreeFunction, OnCreateConstraintFunction, OnSetConstraintFunction, OnRemoveConstraintFunction, OnRemoveArtifactFunction, OnResetFunction, OnSetVotingStrategyFunction} from '../../store/types';
+import {OnShowOverlayFunction, OnUndoFunction, OnRedoFunction, OnSetFeatureDiagramLayoutFunction, OnFitToScreenFunction, OnCreateFeatureAboveFunction, OnCreateFeatureBelowFunction, OnCollapseFeaturesFunction, OnCollapseFeaturesBelowFunction, OnExpandFeaturesFunction, OnExpandFeaturesBelowFunction, OnRemoveFeatureFunction, OnRemoveFeatureSubtreeFunction, OnSetFeatureAbstractFunction, OnSetFeatureHiddenFunction, OnSetFeatureOptionalFunction, OnSetFeatureAndFunction, OnSetFeatureOrFunction, OnSetFeatureAlternativeFunction, OnExpandAllFeaturesFunction, OnCollapseAllFeaturesFunction, OnLeaveRequestFunction, Session, OnSetSettingFunction, OnMoveFeatureSubtreeFunction, OnCreateConstraintFunction, OnSetConstraintFunction, OnRemoveConstraintFunction, OnRemoveArtifactFunction, OnResetFunction} from '../../store/types';
 import {getShortcutText} from '../../shortcuts';
-import {OverlayType, Omit, FeatureDiagramLayoutType, ClientFormatType, isArtifactPathEqual, ArtifactPath, VotingStrategy} from '../../types';
+import {OverlayType, Omit, FeatureDiagramLayoutType, ClientFormatType, isArtifactPathEqual, ArtifactPath} from '../../types';
 import Palette, {PaletteItem, PaletteAction, getKey} from '../../helpers/Palette';
 import {canExport} from '../featureDiagramView/export';
 import FeatureModel, {Constraint, paletteConstraintRenderer} from '../../modeling/FeatureModel';
@@ -14,15 +14,13 @@ import {enableConstraintsView} from '../constraintsView/ConstraintsView';
 import {defaultSettings, Settings} from '../../store/settings';
 import {preconditions} from '../../modeling/preconditions';
 import {redirectToArtifactPath} from '../../router';
-import {KernelConflictDescriptor} from '../../modeling/types';
 
 interface Props {
     artifactPaths: ArtifactPath[],
-    collaborativeSessions: CollaborativeSession[],
+    sessions: Session[],
     isOpen: boolean,
     featureDiagramLayout?: FeatureDiagramLayoutType,
     featureModel?: FeatureModel,
-    transitionConflictDescriptor?: KernelConflictDescriptor,
     settings: Settings,
     onDismiss: () => void,
     onShowOverlay: OnShowOverlayFunction,
@@ -53,8 +51,7 @@ interface Props {
     onRemoveConstraint: OnRemoveConstraintFunction,
     onSetFeatureDiagramLayout: OnSetFeatureDiagramLayoutFunction,
     onSetSetting: OnSetSettingFunction,
-    onReset: OnResetFunction,
-    onSetVotingStrategy: OnSetVotingStrategyFunction
+    onReset: OnResetFunction
 };
 
 interface State {
@@ -105,7 +102,7 @@ export default class extends React.Component<Props, State> {
             (prevState.getArgumentItems !== this.state.getArgumentItems ||
                 prevProps.featureModel !== this.props.featureModel ||
                 prevProps.artifactPaths !== this.props.artifactPaths ||
-                prevProps.collaborativeSessions !== this.props.collaborativeSessions))
+                prevProps.sessions !== this.props.sessions))
             this.state.getArgumentItems()
                 .then(argumentItems => this.setState({argumentItems}));
     }
@@ -176,26 +173,26 @@ export default class extends React.Component<Props, State> {
     }
 
     isEditing = (artifactPath: ArtifactPath) =>
-        this.props.collaborativeSessions.find(collaborativeSession =>
-            isArtifactPathEqual(collaborativeSession.artifactPath, artifactPath));
+        this.props.sessions.find(session =>
+            isArtifactPathEqual(session.artifactPath, artifactPath));
 
     commands: PaletteItem[] = [
         {
             text: i18n.t('commandPalette.switch'),
             icon: 'JoinOnlineMeeting',
-            disabled: () => this.props.collaborativeSessions.length < 2,
+            disabled: () => this.props.sessions.length < 2,
             action: this.actionWithArguments(
                 [{
                     title: i18n.t('commandPalette.project'),
                     items: (() => arrayUnique(
-                        this.props.collaborativeSessions
-                            .map(collaborativeSession => collaborativeSession.artifactPath.project))) as any
+                        this.props.sessions
+                            .map(session => session.artifactPath.project))) as any
                 }, {
                     title: i18n.t('commandPalette.artifact'),
                     items: (project: string) =>
-                    this.props.collaborativeSessions
-                        .filter(collaborativeSession => collaborativeSession.artifactPath.project === project)
-                        .map(collaborativeSession => collaborativeSession.artifactPath.artifact)
+                    this.props.sessions
+                        .filter(session => session.artifactPath.project === project)
+                        .map(session => session.artifactPath.artifact)
                 }],
                 (project, artifact) => redirectToArtifactPath({project, artifact}))
         }, {
@@ -220,19 +217,19 @@ export default class extends React.Component<Props, State> {
         }, {
             text: i18n.t('commandPalette.leaveRequest'),
             icon: 'JoinOnlineMeeting',
-            disabled: () => this.props.collaborativeSessions.length === 0,
+            disabled: () => this.props.sessions.length === 0,
             action: this.actionWithArguments(
                 [{
                     title: i18n.t('commandPalette.project'),
                     items: (() => arrayUnique(
-                        this.props.collaborativeSessions
-                            .map(collaborativeSession => collaborativeSession.artifactPath.project))) as any
+                        this.props.sessions
+                            .map(session => session.artifactPath.project))) as any
                 }, {
                     title: i18n.t('commandPalette.artifact'),
                     items: (project: string) =>
-                    this.props.collaborativeSessions
-                        .filter(collaborativeSession => collaborativeSession.artifactPath.project === project)
-                        .map(collaborativeSession => collaborativeSession.artifactPath.artifact)
+                    this.props.sessions
+                        .filter(session => session.artifactPath.project === project)
+                        .map(session => session.artifactPath.artifact)
                 }],
                 (project, artifact) => this.props.onLeaveRequest({artifactPath: {project, artifact}}))
         }, {
@@ -322,14 +319,14 @@ export default class extends React.Component<Props, State> {
         }, {
             key: 'toggleConstraintView',
             text: i18n.t('commandPalette.featureDiagram.toggleConstraintView'),
-            disabled: () => !enableConstraintsView(this.props.featureModel, this.props.transitionConflictDescriptor),
+            disabled: () => !enableConstraintsView(this.props.featureModel),
             action: this.action(() => this.props.onSetSetting(
                 {path: 'views.splitAt', value: (splitAt: number) =>
                     splitAt > defaultSettings.views.splitAt ? defaultSettings.views.splitAt : 1}))
         }, {
             key: 'toggleConstraintViewSplitDirection',
             text: i18n.t('commandPalette.featureDiagram.toggleConstraintViewSplitDirection'),
-            disabled: () => !enableConstraintsView(this.props.featureModel, this.props.transitionConflictDescriptor),
+            disabled: () => !enableConstraintsView(this.props.featureModel),
             action: this.action(() => this.props.onSetSetting(
                 {path: 'views.splitDirection', value: (splitDirection: 'horizontal' | 'vertical') =>
                     splitDirection === 'horizontal' ? 'vertical' : 'horizontal'}))
@@ -518,7 +515,7 @@ export default class extends React.Component<Props, State> {
         }, {
             text: i18n.t('commandPalette.featureDiagram.constraint.set'),
             icon: 'Edit',
-            disabled: () => !enableConstraintsView(this.props.featureModel, this.props.transitionConflictDescriptor),
+            disabled: () => !enableConstraintsView(this.props.featureModel),
             action: this.actionWithArguments(
                 [{
                     title: i18n.t('commandPalette.oldConstraint'),
@@ -594,25 +591,6 @@ export default class extends React.Component<Props, State> {
             icon: 'ExploreContent',
             disabled: () => !this.props.featureModel,
             action: this.action(this.props.onExpandAllFeatures)
-        }, {
-            text: i18n.t('commandPalette.featureDiagram.setVotingStrategy'),
-            icon: 'Commitments',
-            disabled: () => !this.props.featureModel,
-            action: this.actionWithArguments(
-                [{
-                    title: i18n.t('commandPalette.featureDiagram.votingStrategy'),
-                    items: () => Object.values(VotingStrategy).map(votingStrategy =>
-                        ({text: i18n.t('commandPalette.featureDiagram', votingStrategy), key: votingStrategy})),
-                    skipArguments: (votingStrategy: string) => votingStrategy === VotingStrategy.reject ? 1 : 0
-                }, {
-                    title: i18n.t('commandPalette.featureDiagram.votingStrategy'),
-                    items: () => [
-                        {text: i18n.t('commandPalette.featureDiagram.everyone'), key: 'false'},
-                        {text: i18n.t('commandPalette.featureDiagram.onlyInvolved'), key: 'true'}
-                    ]
-                }],
-                (votingStrategy, onlyInvolved) => this.props.onSetVotingStrategy(
-                    {votingStrategy, onlyInvolved: onlyInvolved === 'true'}))
         }, {
             text: i18n.t('commandPalette.developer.debug'),
             icon: 'DeveloperTools',

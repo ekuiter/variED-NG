@@ -13,7 +13,7 @@ import {Settings} from '../store/settings';
 import {FeatureDiagramLayoutType} from '../types';
 import {present} from '../helpers/present';
 import logger from '../helpers/logger';
-import {FeatureNode, Feature, KernelFeatureModel, DESCRIPTION, ABSTRACT, HIDDEN, OPTIONAL, NAME, KernelFeature, KernelConstraint, CONSTRAINTS, ConstraintType, FEATURES, CHILDREN_CACHE, KernelConstraintFormula, GRAVEYARDED, FORMULA, ID_KEY, KernelConstraintFormulaAtom, GROUP_TYPE, GroupType, NIL} from './types';
+import {FeatureNode, Feature, ApiFeatureModel, DESCRIPTION, ABSTRACT, HIDDEN, OPTIONAL, NAME, ApiFeature, ApiConstraint, CONSTRAINTS, ConstraintType, FEATURES, CHILDREN_CACHE, ApiConstraintFormula, FORMULA, ID_KEY, ApiConstraintFormulaAtom, GROUP_TYPE, GroupType, NIL} from './types';
 import {getViewportWidth, getViewportHeight} from '../helpers/withDimensions';
 // @ts-ignore: no declarations available for s-expression
 import SParse from 's-expression';
@@ -100,7 +100,7 @@ d3Hierarchy.prototype.feature = function(this: FeatureNode): Feature {
     });
 };
 
-type ConstraintRenderer<T> = ((featureModel: FeatureModel, formula: KernelConstraintFormula) => T) & {cacheKey: string};
+type ConstraintRenderer<T> = ((featureModel: FeatureModel, formula: ApiConstraintFormula) => T) & {cacheKey: string};
 
 // adapted from FeatureIDE fm.core's org/prop4j/NodeWriter.java
 export function createConstraintRenderer<T>({neutral, _return, returnFeature, join, cacheKey}: {
@@ -129,12 +129,12 @@ export function createConstraintRenderer<T>({neutral, _return, returnFeature, jo
 
     let i = 0;
 
-    const isAtom = (formula: KernelConstraintFormula): formula is KernelConstraintFormulaAtom => !Array.isArray(formula),
-            renderLiteral = (featureModel: FeatureModel, atom: KernelConstraintFormulaAtom): T => {
+    const isAtom = (formula: ApiConstraintFormula): formula is ApiConstraintFormulaAtom => !Array.isArray(formula),
+            renderLiteral = (featureModel: FeatureModel, atom: ApiConstraintFormulaAtom): T => {
             const feature = featureModel.getFeature(atom);
             return returnFeature(feature, i++);
         },
-        renderFormula = (featureModel: FeatureModel, formula: KernelConstraintFormula, parentType: ConstraintType): T => {
+        renderFormula = (featureModel: FeatureModel, formula: ApiConstraintFormula, parentType: ConstraintType): T => {
         if (isAtom(formula))
             return renderLiteral(featureModel, formula);
         const nodeType = formula[0] as ConstraintType;
@@ -171,7 +171,7 @@ export function createConstraintRenderer<T>({neutral, _return, returnFeature, jo
             return join([_return(operator), _return('('), join(operands, _return(', ')), _return(')')], neutral);
     }
 
-    const constraintRenderer = (featureModel: FeatureModel, root: KernelConstraintFormula) => {
+    const constraintRenderer = (featureModel: FeatureModel, root: ApiConstraintFormula) => {
         i = 0;
         return renderFormula(featureModel, root, ConstraintType.unknown);
     };
@@ -182,7 +182,7 @@ export function createConstraintRenderer<T>({neutral, _return, returnFeature, jo
 const stringConstraintRenderer = createConstraintRenderer({
     neutral: '',
     _return: s => s,
-    returnFeature: f => f ? f.name : 'GRAVEYARDED',
+    returnFeature: f => f ? f.name : '',
     join: (ts, t) => ts.join(t),
     cacheKey: 'string'
 });
@@ -195,31 +195,19 @@ export const paletteConstraintRenderer = createConstraintRenderer({
     cacheKey: 'palette'
 });
 
-const isGraveyardedConstraintRenderer = createConstraintRenderer({
-    neutral: false,
-    _return: _ => false,
-    returnFeature: f => !f,
-    join: (ts, _) => ts.reduce((acc, val) => acc || val),
-    cacheKey: 'isGraveyarded'
-});
-
 export class Constraint {
     _renderCache: {[x: string]: any} = {};
     _element: any;
 
-    constructor(public kernelConstraint: KernelConstraint,
+    constructor(public apiConstraint: ApiConstraint,
         public featureModel: FeatureModel) {}
 
     get ID(): string {
-        return this.kernelConstraint[ID_KEY]!;
+        return this.apiConstraint[ID_KEY]!;
     }
 
-    get isGraveyarded(): boolean {
-        return this.kernelConstraint[GRAVEYARDED] || this.render(isGraveyardedConstraintRenderer);
-    }
-
-    get formula(): KernelConstraintFormula {
-        return this.kernelConstraint[FORMULA];
+    get formula(): ApiConstraintFormula {
+        return this.apiConstraint[FORMULA];
     }
 
     render<T>(constraintRenderer: ConstraintRenderer<T>): T {
@@ -237,7 +225,7 @@ export class Constraint {
     }
 
     static readFormulaFromString<T>(formulaString: string, featureModel: FeatureModel,
-        constraintRenderer: ConstraintRenderer<T>): {formula?: KernelConstraintFormula, preview?: T} {
+        constraintRenderer: ConstraintRenderer<T>): {formula?: ApiConstraintFormula, preview?: T} {
         const operatorMap: {[x: string]: string} = {
             "not": ConstraintType.not,
             "disj": ConstraintType.disj,
@@ -284,8 +272,7 @@ export class Constraint {
                 }
                 sexpr = recurse(sexpr);
                 const constraint = new Constraint({
-                    [FORMULA]: sexpr,
-                    [GRAVEYARDED]: false
+                    [FORMULA]: sexpr
                 }, featureModel);
                 return {
                     formula: sexpr,
@@ -301,13 +288,13 @@ export class Constraint {
 }
 
 class FeatureModel {
-    kernelFeatureModel: any;
+    apiFeatureModel: any;
     collapsedFeatureIDs: string[] = [];
     _hierarchy: any;
     _actualNodes: any;
     _visibleNodes: any;
     _constraints: any;
-    // kernelFeatureModel: KernelFeatureModel;
+    // apiFeatureModel: apiFeatureModel;
     // collapsedFeatureIDs: string[] = [];
     // _hierarchy: FeatureNode;
     // _actualNodes: FeatureNode[];
@@ -317,14 +304,14 @@ class FeatureModel {
     _IDsToConstraints: {[x: string]: Constraint} = {};
 
     // feature model as supplied by feature model messages from the server
-    static fromKernel(kernelFeatureModel: KernelFeatureModel): FeatureModel {
+    static fromApi(apiFeatureModel: ApiFeatureModel): FeatureModel {
         const featureModel = new FeatureModel();
-        featureModel.kernelFeatureModel = kernelFeatureModel;
+        featureModel.apiFeatureModel = apiFeatureModel;
         return featureModel;
     }
 
-    toKernel(): KernelFeatureModel {
-        return this.kernelFeatureModel;
+    toApi(): ApiFeatureModel {
+        return this.apiFeatureModel;
     }
 
     collapse(collapsedFeatureIDs: string[]): FeatureModel {
@@ -336,15 +323,15 @@ class FeatureModel {
 
     prepare(): void {
         if (!this._hierarchy) {
-            const features = this.kernelFeatureModel[FEATURES],
-                constraints = this.kernelFeatureModel[CONSTRAINTS],
-                childrenCache = this.kernelFeatureModel[CHILDREN_CACHE];
+            const features = this.apiFeatureModel[FEATURES],
+                constraints = this.apiFeatureModel[CONSTRAINTS],
+                childrenCache = this.apiFeatureModel[CHILDREN_CACHE];
             Object.keys(features).forEach(ID => features[ID][ID_KEY] = ID);
             Object.keys(constraints).forEach(ID => constraints[ID][ID_KEY] = ID);
 
-            const children = (kernelFeature: KernelFeature) =>
-                (childrenCache[kernelFeature[ID_KEY]!] || [])
-                    // sort features by ID as the kernel uses an arbitrary order (to avoid "jumping" features)
+            const children = (apiFeature: ApiFeature) =>
+                (childrenCache[apiFeature[ID_KEY]!] || [])
+                    // sort features by ID as the api uses an arbitrary order (to avoid "jumping" features)
                     // in the future, we may introduce a better ordering criterion
                     // further, this may be inefficient for large models
                     .sort()
@@ -382,8 +369,7 @@ class FeatureModel {
             // TODO: this might be inefficient for large models
             // TODO: do we need to sort the constraints as well? do they "jump"?
             this._constraints = Object.values(constraints)
-                .map(kernelConstraint => new Constraint(kernelConstraint as any, this))
-                .filter(kernelConstraint => !kernelConstraint.isGraveyarded);
+                .map(apiConstraint => new Constraint(apiConstraint as any, this));
 
             this._constraints.forEach((constraint: any) =>
                 this._IDsToConstraints[constraint.ID] = constraint);

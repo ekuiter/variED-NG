@@ -1,6 +1,6 @@
 import {ArtifactPath, isArtifactPathEqual} from './types';
 import {createHashHistory} from 'history';
-import {CollaborativeSession} from './store/types';
+import {Session} from './store/types';
 
 export const history = createHashHistory();
 
@@ -14,10 +14,10 @@ export function getArtifactPathFromLocation(): ArtifactPath | undefined {
     return {project, artifact};
 }
 
-export function getCurrentArtifactPath(collaborativeSessions: CollaborativeSession[]): ArtifactPath | undefined {
+export function getCurrentArtifactPath(sessions: Session[]): ArtifactPath | undefined {
     const artifactPath = getArtifactPathFromLocation();
-    return collaborativeSessions.find(collaborativeSession =>
-        isArtifactPathEqual(collaborativeSession.artifactPath, artifactPath))
+    return sessions.find(session =>
+        isArtifactPathEqual(session.artifactPath, artifactPath))
         ? artifactPath
         : undefined;
 }

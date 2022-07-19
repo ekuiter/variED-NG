@@ -8,8 +8,7 @@ import {Message, MessageType, FeatureDiagramLayoutType, OverlayType, OverlayProp
 import {Dispatch, AnyAction, Action as ReduxAction} from 'redux';
 import {ThunkAction} from 'redux-thunk';
 import {State} from './types';
-import {Feature, PropertyType, GroupType, KernelConstraintFormula} from '../modeling/types';
-import Kernel from '../modeling/Kernel';
+import {Feature, ApiConstraintFormula} from '../modeling/types';
 import {enqueueOutgoingMessage, flushOutgoingMessageQueue} from '../server/messageQueue';
 import deferred from '../helpers/deferred';
 import {getCurrentArtifactPath} from '../router';
@@ -23,7 +22,7 @@ function createMessageAction<P>(fn: (payload: P) => Message): (payload: P) => Th
     return (payload: P) => {
         return async (dispatch: Dispatch<AnyAction>, getState: () => State) => {
             const state = getState(),
-                artifactPath = getCurrentArtifactPath(state.collaborativeSessions),
+                artifactPath = getCurrentArtifactPath(state.sessions),
                 message = enqueueOutgoingMessage(fn(payload), artifactPath);
             deferred(flushOutgoingMessageQueue)();
             return dispatch(action(SERVER_SEND_MESSAGE, message));
@@ -31,18 +30,19 @@ function createMessageAction<P>(fn: (payload: P) => Message): (payload: P) => Th
     };
 }
 
-function createOperationAction<P>(makePOSequence: (payload: P, kernel: Kernel) => Message): (payload: P) => ThunkAction<Promise<ReduxAction>, State, any, any> {
+function createOperationAction<P>(makePOSequence: (payload: P, kernel: object) => any): (payload: P) => ThunkAction<Promise<ReduxAction>, State, any, any> {
     return (payload: P) => {
         return async (dispatch: Dispatch<AnyAction>, getState: () => State) => {
-            const state = getState(),
-                artifactPath = getCurrentArtifactPath(state.collaborativeSessions);
-            const [kernelContext, [kernelFeatureModel, operation]] =
-                Kernel.run(state, artifactPath, kernel =>
-                    kernel.generateOperation(makePOSequence(payload, kernel)));
-            const message: Message = {type: MessageType.KERNEL, message: operation};
-            enqueueOutgoingMessage(message, artifactPath);
-            deferred(flushOutgoingMessageQueue)();
-            return dispatch(action(KERNEL_GENERATE_OPERATION, {artifactPath, kernelFeatureModel, kernelContext}));
+            return dispatch(action(KERNEL_GENERATE_OPERATION, {}));
+            // const state = getState(),
+            //     artifactPath = getCurrentArtifactPath(state.sessions);
+            // const [kernelContext, [kernelFeatureModel, operation]] =
+            //     Kernel.run(state, artifactPath, kernel =>
+            //         kernel.generateOperation(makePOSequence(payload, kernel)));
+            // const message: Message = {type: MessageType.KERNEL, message: operation};
+            // enqueueOutgoingMessage(message, artifactPath);
+            // deferred(flushOutgoingMessageQueue)();
+            // return dispatch(action(KERNEL_GENERATE_OPERATION, {artifactPath, kernelFeatureModel, kernelContext}));
         };
     };
 }
@@ -73,8 +73,7 @@ const actions = {
         overlay: {
             show: createStandardAction('ui/overlay/show')<{overlay: OverlayType, overlayProps: OverlayProps, selectOneFeature?: string}>(),
             hide: createStandardAction('ui/overlay/hide')<{overlay: OverlayType}>()
-        },
-        endConflictViewTransition: createStandardAction('ui/endConflictViewTransition')<void>()
+        }
     },
     server: {
         receive: createStandardAction('server/receiveMessage')<Message>(),
@@ -92,77 +91,46 @@ const actions = {
         reset: createMessageAction(() => ({type: MessageType.RESET})),
         featureDiagram: {
             feature: {
-                createBelow: createOperationAction(({featureParentID}: {featureParentID: string}, kernel) =>
-                    kernel!.operationCreateFeatureBelow(featureParentID)),
+                createBelow: createOperationAction(({featureParentID}: {featureParentID: string}, kernel) => null),
                 
-                createAbove: createOperationAction(({featureIDs}: {featureIDs: string[]}, kernel) =>
-                    kernel.operationCreateFeatureAbove(...featureIDs)),
+                createAbove: createOperationAction(({featureIDs}: {featureIDs: string[]}, kernel) => null),
                 
-                remove: createOperationAction(({featureIDs}: {featureIDs: string[]}, kernel) =>
-                    kernel.operationCompose(...featureIDs.map(featureID => kernel.operationRemoveFeature(featureID)))),
+                remove: createOperationAction(({featureIDs}: {featureIDs: string[]}, kernel) => null),
                 
-                removeSubtree: createOperationAction(({featureIDs}: {featureIDs: string[]}, kernel) =>
-                    kernel.operationCompose(...featureIDs.map(featureID => kernel.operationRemoveFeatureSubtree(featureID)))),
+                removeSubtree: createOperationAction(({featureIDs}: {featureIDs: string[]}, kernel) => null),
 
-                moveSubtree: createOperationAction(({featureID, featureParentID}: {featureID: string, featureParentID: string}, kernel) =>
-                    kernel.operationMoveFeatureSubtree(featureID, featureParentID)),
+                moveSubtree: createOperationAction(({featureID, featureParentID}: {featureID: string, featureParentID: string}, kernel) => null),
                 
-                setName: createOperationAction(({featureID, name}: {featureID: string, name: string}, kernel) =>
-                    kernel.operationSetFeatureProperty(featureID, PropertyType.name, name)),
+                setName: createOperationAction(({featureID, name}: {featureID: string, name: string}, kernel) => null),
 
-                setDescription: createOperationAction(({featureID, description}: {featureID: string, description: string}, kernel) =>
-                    kernel.operationSetFeatureProperty(featureID, PropertyType.description, description)),
+                setDescription: createOperationAction(({featureID, description}: {featureID: string, description: string}, kernel) => null),
 
                 properties: {
-                    setAbstract: createOperationAction(({featureIDs, value}: {featureIDs: string[], value: boolean}, kernel) =>
-                        kernel.operationCompose(...featureIDs.map(featureID =>
-                            kernel.operationSetFeatureProperty(featureID, PropertyType.abstract, value)))),
+                    setAbstract: createOperationAction(({featureIDs, value}: {featureIDs: string[], value: boolean}, kernel) => null),
 
-                    setHidden: createOperationAction(({featureIDs, value}: {featureIDs: string[], value: boolean}, kernel) =>
-                        kernel.operationCompose(...featureIDs.map(featureID =>
-                            kernel.operationSetFeatureProperty(featureID, PropertyType.hidden, value)))),
+                    setHidden: createOperationAction(({featureIDs, value}: {featureIDs: string[], value: boolean}, kernel) => null),
 
-                    setOptional: createOperationAction(({featureIDs, value}: {featureIDs: string[], value: boolean}, kernel) =>
-                        kernel.operationCompose(...featureIDs.map(featureID =>
-                            kernel.operationSetFeatureOptional(featureID, value)))),
+                    setOptional: createOperationAction(({featureIDs, value}: {featureIDs: string[], value: boolean}, kernel) => null),
 
-                    toggleOptional: createOperationAction(({feature}: {feature: Feature}, kernel) =>
-                        kernel.operationSetFeatureOptional(feature.ID, !feature.isOptional)),
+                    toggleOptional: createOperationAction(({feature}: {feature: Feature}, kernel) => null),
                         
-                    setAnd: createOperationAction(({featureIDs}: {featureIDs: string[]}, kernel) =>
-                        kernel.operationCompose(...featureIDs.map(featureID =>
-                            kernel.operationSetFeatureGroupType(featureID, GroupType.and)))),
+                    setAnd: createOperationAction(({featureIDs}: {featureIDs: string[]}, kernel) => null),
 
-                    setOr: createOperationAction(({featureIDs}: {featureIDs: string[]}, kernel) =>
-                        kernel.operationCompose(...featureIDs.map(featureID =>
-                            kernel.operationSetFeatureGroupType(featureID, GroupType.or)))),
+                    setOr: createOperationAction(({featureIDs}: {featureIDs: string[]}, kernel) => null),
 
-                    setAlternative: createOperationAction(({featureIDs}: {featureIDs: string[]}, kernel) =>
-                        kernel.operationCompose(...featureIDs.map(featureID =>
-                            kernel.operationSetFeatureGroupType(featureID, GroupType.alternative)))),
+                    setAlternative: createOperationAction(({featureIDs}: {featureIDs: string[]}, kernel) => null),
                     
-                    toggleGroup: createOperationAction(({feature}: {feature: Feature}, kernel) =>
-                        kernel.operationSetFeatureGroupType(feature.ID,
-                            feature.isAnd
-                            ? GroupType.or : feature.isOr
-                                ? GroupType.alternative : GroupType.and))
+                    toggleGroup: createOperationAction(({feature}: {feature: Feature}, kernel) => null),
                 }
             },
 
             constraint: {
-                create: createOperationAction(({formula}: {formula: KernelConstraintFormula}, kernel) =>
-                    kernel.operationCreateConstraint(formula)),
+                create: createOperationAction(({formula}: {formula: ApiConstraintFormula}, kernel) => null),
                 
-                set: createOperationAction(({constraintID, formula}: {constraintID: string, formula: KernelConstraintFormula}, kernel) =>
-                    kernel.operationSetConstraint(constraintID, formula)),
+                set: createOperationAction(({constraintID, formula}: {constraintID: string, formula: ApiConstraintFormula}, kernel) => null),
 
-                remove: createOperationAction(({constraintID}: {constraintID: string}, kernel) =>
-                    kernel.operationRemoveConstraint(constraintID)),
-            },
-
-            vote: createMessageAction(({versionID}: {versionID?: string}) => ({type: MessageType.VOTE, versionID})),
-            setVotingStrategy: createMessageAction(({votingStrategy, onlyInvolved}: {votingStrategy: string, onlyInvolved: boolean}) =>
-                ({type: MessageType.SET_VOTING_STRATEGY, votingStrategy, onlyInvolved}))
+                remove: createOperationAction(({constraintID}: {constraintID: string}, kernel) => null),
+            }
         }
     }
 };

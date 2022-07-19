@@ -12,7 +12,7 @@ import SettingsPanel from './SettingsPanel';
 import AboutPanel from './AboutPanel';
 import FeaturePanel from './FeaturePanel';
 import actions from '../../store/actions';
-import {getCurrentCollaborativeSession, isFeatureDiagramCollaborativeSession, getCurrentFeatureModel} from '../../store/selectors';
+import {getCurrentSession, isFeatureDiagramSession, getCurrentFeatureModel} from '../../store/selectors';
 import FeatureRenameDialog from './FeatureRenameDialog';
 import FeatureSetDescriptionDialog from './FeatureSetDescriptionDialog';
 import FeatureCallout from './FeatureCallout';
@@ -32,11 +32,10 @@ const OverlayContainer = (props: StateDerivedProps & RouteProps) => (
     <React.Fragment>
         <CommandPalette
             artifactPaths={props.artifactPaths!}
-            collaborativeSessions={props.collaborativeSessions!}
+            sessions={props.sessions!}
             isOpen={props.overlay === OverlayType.commandPalette}
             featureDiagramLayout={props.featureDiagramLayout}
             featureModel={props.featureModel}
-            transitionConflictDescriptor={props.transitionConflictDescriptor}
             settings={props.settings!}
             onDismiss={() => props.onHideOverlay!({overlay: OverlayType.commandPalette})}
             onShowOverlay={props.onShowOverlay!}
@@ -67,8 +66,7 @@ const OverlayContainer = (props: StateDerivedProps & RouteProps) => (
             onSetConstraint={props.onSetConstraint!}
             onRemoveConstraint={props.onRemoveConstraint!}
             onSetSetting={props.onSetSetting!}
-            onReset={props.onReset!}
-            onSetVotingStrategy={props.onSetVotingStrategy!}/>
+            onReset={props.onReset!}/>
 
         <SettingsPanel
             isOpen={props.overlay === OverlayType.settingsPanel}
@@ -206,25 +204,24 @@ const OverlayContainer = (props: StateDerivedProps & RouteProps) => (
 
 export default withRouter(connect(
     logger.mapStateToProps('OverlayContainer', (state: State): StateDerivedProps => {
-        const collaborativeSession = getCurrentCollaborativeSession(state),
+        const session = getCurrentSession(state),
             props: StateDerivedProps = {
                 settings: state.settings,
                 overlay: state.overlay,
                 overlayProps: state.overlayProps,
                 artifactPaths: state.artifactPaths,
-                currentArtifactPath: getCurrentArtifactPath(state.collaborativeSessions),
-                collaborativeSessions: state.collaborativeSessions,
+                currentArtifactPath: getCurrentArtifactPath(state.sessions),
+                sessions: state.sessions,
                 myself: state.myself
             };
-        if (!collaborativeSession || !isFeatureDiagramCollaborativeSession(collaborativeSession))
+        if (!session || !isFeatureDiagramSession(session))
             return props;
         return {
             ...props,
-            featureDiagramLayout: collaborativeSession.layout,
-            isSelectMultipleFeatures: collaborativeSession.isSelectMultipleFeatures,
-            selectedFeatureIDs: collaborativeSession.selectedFeatureIDs,
-            featureModel: getCurrentFeatureModel(state),
-            transitionConflictDescriptor: collaborativeSession.transitionConflictDescriptor
+            featureDiagramLayout: session.layout,
+            isSelectMultipleFeatures: session.isSelectMultipleFeatures,
+            selectedFeatureIDs: session.selectedFeatureIDs,
+            featureModel: getCurrentFeatureModel(state)
         };
     }),
     (dispatch): StateDerivedProps => ({
@@ -263,7 +260,6 @@ export default withRouter(connect(
         onSetFeatureName: payload => dispatch<any>(actions.server.featureDiagram.feature.setName(payload)),
         onSetFeatureDescription: payload => dispatch<any>(actions.server.featureDiagram.feature.setDescription(payload)),
         onSetUserProfile: payload => dispatch<any>(actions.server.setUserProfile(payload)),
-        onReset: () => dispatch<any>(actions.server.reset({})),
-        onSetVotingStrategy: payload => dispatch<any>(actions.server.featureDiagram.setVotingStrategy(payload))
+        onReset: () => dispatch<any>(actions.server.reset({}))
     })
 )(OverlayContainer));

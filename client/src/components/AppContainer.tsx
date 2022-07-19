@@ -36,7 +36,7 @@ class AppContainer extends React.Component<StateDerivedProps> {
     }
 
     componentDidUpdate() {
-        const currentArtifactPath = getCurrentArtifactPath(this.props.collaborativeSessions!);
+        const currentArtifactPath = getCurrentArtifactPath(this.props.sessions!);
         document.title = currentArtifactPath
             ? `${artifactPathToString(currentArtifactPath)} | variED`
             : 'variED';
@@ -63,7 +63,7 @@ class AppContainer extends React.Component<StateDerivedProps> {
 export default connect(
     logger.mapStateToProps('AppContainer', (state: State): StateDerivedProps => ({
         settings: state.settings,
-        collaborativeSessions: state.collaborativeSessions
+        sessions: state.sessions
     })),
     (dispatch): StateDerivedProps => ({
         handleMessage: message => dispatch(actions.server.receive(message)),

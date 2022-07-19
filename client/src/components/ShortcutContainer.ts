@@ -7,7 +7,7 @@ import {OverlayType, isFloatingFeatureOverlay} from '../types';
 import {getShortcutKeyBinding} from '../shortcuts';
 import {collapseCommand} from './commands';
 import {connect} from 'react-redux';
-import {getCurrentCollaborativeSession, isFeatureDiagramCollaborativeSession, getCurrentFeatureModel} from '../store/selectors';
+import {getCurrentSession, isFeatureDiagramSession, getCurrentFeatureModel} from '../store/selectors';
 import actions from '../store/actions';
 import {State, StateDerivedProps} from '../store/types';
 import logger from '../helpers/logger';
@@ -21,17 +21,17 @@ const ifFeatureModel = (props: StateDerivedProps) => !!props.featureModel,
 
 export default withRouter(<any>connect(
     logger.mapStateToProps('ShortcutContainer', (state: State): StateDerivedProps => {
-        const collaborativeSession = getCurrentCollaborativeSession(state),
+        const session = getCurrentSession(state),
             props: StateDerivedProps = {
                 overlay: state.overlay,
                 overlayProps: state.overlayProps
             };
-        if (!collaborativeSession || !isFeatureDiagramCollaborativeSession(collaborativeSession))
+        if (!session || !isFeatureDiagramSession(session))
             return props;
         return {
             ...props,
-            isSelectMultipleFeatures: collaborativeSession.isSelectMultipleFeatures,
-            selectedFeatureIDs: collaborativeSession.selectedFeatureIDs,
+            isSelectMultipleFeatures: session.isSelectMultipleFeatures,
+            selectedFeatureIDs: session.selectedFeatureIDs,
             featureModel: getCurrentFeatureModel(state)
         };
     }),

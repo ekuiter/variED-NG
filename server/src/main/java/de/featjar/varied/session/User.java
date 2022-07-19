@@ -2,12 +2,12 @@ package de.featjar.varied.session;
 
 import com.google.gson.annotations.Expose;
 import de.featjar.varied.Socket;
-import de.featjar.varied.message.Api;
-import de.featjar.varied.message.Message;
+import de.featjar.varied.api.Api;
+import de.featjar.varied.api.Message;
 import de.featjar.varied.project.Artifact;
 import de.featjar.varied.project.Project;
 import de.featjar.varied.project.ProjectManager;
-import de.featjar.varied.util.Collaborators;
+import de.featjar.varied.util.Users;
 import me.atrox.haikunator.Haikunator;
 import org.pmw.tinylog.Logger;
 
@@ -15,9 +15,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Collaborator {
+public class User {
     @Expose
-    private UUID siteID;
+    private UUID userID;
 
     @Expose
     private String name;
@@ -39,18 +39,18 @@ public class Collaborator {
         return capitalize(haikunator.haikunate());
     }
 
-    Collaborator(Socket socket) {
-        this(UUID.randomUUID(), generateName(), socket);
+    User(UUID userID, Socket socket) {
+        this(userID, generateName(), socket);
     }
 
-    private Collaborator(UUID siteID, String name, Socket socket) {
-        this.siteID = siteID;
+    private User(UUID userID, String name, Socket socket) {
+        this.userID = userID;
         this.name = name;
         this.socket = socket;
     }
 
     private void _send(Message.IEncodable message) throws Socket.SendException {
-        Logger.info("sending {} message to collaborator {}", ((Message) message).getType(), this);
+        Logger.info("sending {} message to user {}", ((Message) message).getType(), this);
         socket.send(message);
     }
 
@@ -72,8 +72,8 @@ public class Collaborator {
     }
 
     void sendInitialInformation() {
-        Logger.info("sending initial information to collaborator {}", this);
-        send(new Api.CollaboratorJoined(null, this));
+        Logger.info("sending initial information to user {}", this);
+        send(new Api.UserJoined(null, this));
         send(new Api.AddArtifact(ProjectManager.getInstance().getArtifactPaths()));
     }
 
@@ -86,12 +86,12 @@ public class Collaborator {
         broadcastUpdatedProfile();
     }
 
-    public UUID getSiteID() {
-        return siteID;
+    public UUID getUserID() {
+        return userID;
     }
 
     public String toString() {
-        return getSiteID().toString();
+        return getUserID().toString();
     }
 
     public void setSocket(Socket socket) {
@@ -100,17 +100,17 @@ public class Collaborator {
 
     void onMessage(Message message) throws Message.InvalidMessageException {
         Objects.requireNonNull(message, "no message given");
-        Logger.info("received {} message from collaborator {}", message.getType(), this);
+        Logger.info("received {} message from user {}", message.getType(), this);
 
         if (message.isType(Api.TypeEnum.RESET)) {
             Logger.info("resetting server");
             ProjectManager.getInstance().resetInstance();
-            CollaboratorManager.getInstance().resetInstance();
+            UserManager.getInstance().resetInstance();
             return;
         }
 
         if (message.isType(Api.TypeEnum.SET_USER_PROFILE)) {
-            Logger.info("setting user profile of collaborator {}", this);
+            Logger.info("setting user profile of user {}", this);
             this.setName(((Api.SetUserProfile) message).name);
             return;
         }
@@ -138,7 +138,7 @@ public class Collaborator {
             else
                 artifact = new Artifact.FeatureModel(project, artifactPath.getArtifactName(), source);
             project.addArtifact(artifact);
-            CollaboratorManager.getInstance().broadcast(new Api.AddArtifact(Arrays.asList(artifactPath)));
+            UserManager.getInstance().broadcast(new Api.AddArtifact(List.of(artifactPath)));
             return;
         }
 
@@ -150,7 +150,7 @@ public class Collaborator {
             if (artifact.getSession().isInProcess())
                 throw new RuntimeException("session for artifact is still in process");
             ProjectManager.getInstance().getProject(artifactPath).removeArtifact(artifact);
-            CollaboratorManager.getInstance().broadcast(new Api.RemoveArtifact(artifactPath));
+            UserManager.getInstance().broadcast(new Api.RemoveArtifact(artifactPath));
             return;
         }
 
@@ -194,9 +194,9 @@ public class Collaborator {
     }
 
     private void broadcastUpdatedProfile() {
-        send(new Api.CollaboratorJoined(null, this));
+        send(new Api.UserJoined(null, this));
         for (Session session : sessions)
-            Collaborators.broadcastToOthers(session.getCollaborators(),
-                    new Api.CollaboratorJoined(session.getArtifactPath(), this), this);
+            Users.broadcastToOthers(session.getUsers(),
+                    new Api.UserJoined(session.getArtifactPath(), this), this);
     }
 }

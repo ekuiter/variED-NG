@@ -1,4 +1,4 @@
-package de.featjar.varied.message;
+package de.featjar.varied.api;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
@@ -22,7 +22,7 @@ public class MessageSerializer {
     /**
      * type hint for GSON
      */
-    private static final TypeToken<Message> typeToken = new TypeToken<Message>() {
+    private static final TypeToken<Message> typeToken = new TypeToken<>() {
     };
 
     /**

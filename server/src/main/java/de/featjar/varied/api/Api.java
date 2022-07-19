@@ -1,9 +1,9 @@
-package de.featjar.varied.message;
+package de.featjar.varied.api;
 
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
 import de.featjar.varied.project.Artifact;
-import de.featjar.varied.session.Collaborator;
+import de.featjar.varied.session.User;
 import org.pmw.tinylog.Logger;
 
 import java.util.Collection;
@@ -22,12 +22,12 @@ public class Api {
         ADD_ARTIFACT,
         REMOVE_ARTIFACT,
         EXPORT_ARTIFACT,
-        COLLABORATOR_JOINED,
-        COLLABORATOR_LEFT,
+        USER_JOINED,
+        USER_LEFT,
         SET_USER_PROFILE,
         JOIN_REQUEST,
         LEAVE_REQUEST,
-        INITIALIZE
+        ARTIFACT_DATA
     }
 
     public static class Error extends Message implements Message.IEncodable {
@@ -75,23 +75,23 @@ public class Api {
         }
     }
 
-    public static class CollaboratorJoined extends Message implements Message.IEncodable {
+    public static class UserJoined extends Message implements Message.IEncodable {
         @Expose
-        Collaborator collaborator;
+        User user;
 
-        public CollaboratorJoined(Artifact.Path artifactPath, Collaborator collaborator) {
-            super(TypeEnum.COLLABORATOR_JOINED, artifactPath);
-            this.collaborator = collaborator;
+        public UserJoined(Artifact.Path artifactPath, User user) {
+            super(TypeEnum.USER_JOINED, artifactPath);
+            this.user = user;
         }
     }
 
-    public static class CollaboratorLeft extends Message implements Message.IEncodable {
+    public static class UserLeft extends Message implements Message.IEncodable {
         @Expose
-        Collaborator collaborator;
+        User user;
 
-        public CollaboratorLeft(Artifact.Path artifactPath, Collaborator collaborator) {
-            super(TypeEnum.COLLABORATOR_LEFT, artifactPath);
-            this.collaborator = collaborator;
+        public UserLeft(Artifact.Path artifactPath, User user) {
+            super(TypeEnum.USER_LEFT, artifactPath);
+            this.user = user;
         }
     }
 
@@ -106,13 +106,13 @@ public class Api {
     public static class LeaveRequest extends Message implements Message.IDecodable {
     }
 
-    public static class Initialize extends Message implements  Message.IEncodable {
+    public static class ArtifactData extends Message implements Message.IEncodable {
         @Expose
-        JsonObject context;
+        JsonObject payload;
 
-        public Initialize(Artifact.Path artifactPath, JsonObject context) {
-            super(TypeEnum.INITIALIZE, artifactPath);
-            this.context = context;
+        public ArtifactData(Artifact.Path artifactPath, JsonObject payload) {
+            super(TypeEnum.ARTIFACT_DATA, artifactPath);
+            this.payload = payload;
         }
     }
 }

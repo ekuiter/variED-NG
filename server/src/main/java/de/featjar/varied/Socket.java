@@ -1,39 +1,41 @@
 package de.featjar.varied;
 
-import de.featjar.varied.message.Api;
-import de.featjar.varied.message.Message;
-import de.featjar.varied.message.MessageSerializer;
-import de.featjar.varied.session.CollaboratorManager;
+import de.featjar.varied.api.Api;
+import de.featjar.varied.api.Message;
+import de.featjar.varied.api.MessageSerializer;
+import de.featjar.varied.session.UserManager;
 import org.pmw.tinylog.Logger;
 
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.EOFException;
+import java.util.Objects;
 import java.util.UUID;
 
 @ServerEndpoint(
-        value = "/socket/{siteID}", // TODO: add a password that only the site is passed, used to reconnect
+        value = "/socket/{userID}",
         encoders = MessageSerializer.MessageEncoder.class,
         decoders = MessageSerializer.MessageDecoder.class)
 public class Socket {
     private Session session;
-    private UUID siteID;
+    private UUID userID;
 
     // This essentially forces the server to handle only one message at a time.
     // This assumption simplifies multithreaded access to feature models, but limits server performance.
     private static final Object lock = new Object();
 
     @OnOpen
-    public void onOpen(@PathParam("siteID") String _siteID, Session session) {
+    public void onOpen(@PathParam("userID") String _userID, Session session) {
         synchronized (lock) {
             try {
-                Logger.debug("WebSocket opened", siteID);
+                Objects.requireNonNull(_userID, "user ID not supplied");
+                Logger.debug("WebSocket opened for user {}", userID);
                 this.session = session;
+                session.setMaxIdleTimeout(0);
                 try {
-                    UUID siteID = _siteID.equals("initialize") ? null : UUID.fromString(_siteID);
-                    session.setMaxIdleTimeout(0); // this is not always respected by the servlet container!
-                    this.siteID = CollaboratorManager.getInstance().register(this, siteID);
+                    this.userID = UUID.fromString(_userID);
+                    UserManager.getInstance().register(this, userID);
                 } catch (Throwable t) {
                     send(new Api.Error(t));
                     session.close();
@@ -47,8 +49,8 @@ public class Socket {
     @OnClose
     public void onClose() {
         synchronized (lock) {
-            Logger.debug("WebSocket closed for site {}", siteID);
-            CollaboratorManager.getInstance().unregister(siteID);
+            Logger.debug("WebSocket closed for user {}", userID);
+            UserManager.getInstance().unregister(userID);
         }
     }
 
@@ -57,7 +59,7 @@ public class Socket {
         synchronized (lock) {
             try {
                 try {
-                    CollaboratorManager.getInstance().onMessage(siteID, message);
+                    UserManager.getInstance().onMessage(userID, message);
                 } catch (Throwable t) {
                     send(new Api.Error(t));
                 }

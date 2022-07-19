@@ -1,44 +1,32 @@
 import FeatureModel from '../modeling/FeatureModel';
 import {defaultSettings, Settings} from './settings';
 import {Message, FeatureDiagramLayoutType, OverlayType, OverlayProps, ArtifactPath} from '../types';
-import {Feature, KernelConstraintFormula, KernelCombinedEffect, KernelConflictDescriptor} from '../modeling/types';
+import {Feature, ApiConstraintFormula, ApiFeatureModel} from '../modeling/types';
 
-export interface Collaborator {
-    siteID: string,
+export interface User {
+    userID: string,
     name: string
 };
 
-export interface CollaborativeSession {
+export interface Session {
     artifactPath: ArtifactPath,
-    collaborators: Collaborator[]
+    users: User[]
 };
 
-export type KernelContext = object;
-export type KernelData = any;
-
-export interface Votes {
-    [siteID: string]: string
-};
-
-export interface FeatureDiagramCollaborativeSession extends CollaborativeSession {
-    kernelContext: KernelContext,
-    kernelCombinedEffect: KernelCombinedEffect,
+export interface FeatureDiagramSession extends Session {
+    kernelFeatureModel: ApiFeatureModel,
     layout: FeatureDiagramLayoutType,
     isSelectMultipleFeatures: boolean,
     selectedFeatureIDs: string[],
-    collapsedFeatureIDs: string[],
-    voterSiteIDs?: string[],
-    votes: Votes,
-    transitionResolutionOutcome?: string,
-    transitionConflictDescriptor?: KernelConflictDescriptor
+    collapsedFeatureIDs: string[]
 };
 
 export interface State {
     settings: Settings,
     overlay: OverlayType,
     overlayProps: OverlayProps
-    myself?: Collaborator,
-    collaborativeSessions: CollaborativeSession[],
+    myself?: User,
+    sessions: Session[],
     artifactPaths: ArtifactPath[]
 };
 
@@ -47,7 +35,7 @@ export const initialState: State = {
     overlay: OverlayType.none,
     overlayProps: {},
     myself: undefined,
-    collaborativeSessions: [
+    sessions: [
 
 
         <any> {
@@ -55,7 +43,7 @@ export const initialState: State = {
               "project": "Examples",
               "artifact": "Car"
             },
-            "collaborators": [],
+            "users": [],
             "kernelContext": {} as any,
             "kernelCombinedEffect": {
               "features": {
@@ -323,27 +311,23 @@ export const initialState: State = {
             "layout": "verticalTree",
             "isSelectMultipleFeatures": false,
             "selectedFeatureIDs": [],
-            "collapsedFeatureIDs": [],
-            "votes": {}
+            "collapsedFeatureIDs": []
           }
 
     ],
     artifactPaths: []
 };
 
-export const initialFeatureDiagramCollaborativeSessionState =
-    (artifactPath: ArtifactPath, kernelContext: KernelContext, kernelCombinedEffect: KernelCombinedEffect):
-    FeatureDiagramCollaborativeSession => ({
+export const initialFeatureDiagramSessionState =
+    (artifactPath: ArtifactPath, kernelFeatureModel: ApiFeatureModel):
+    FeatureDiagramSession => ({
         artifactPath,
-        collaborators: [],
-        kernelContext,
-        kernelCombinedEffect,
+        users: [],
+        kernelFeatureModel,
         layout: FeatureDiagramLayoutType.verticalTree,
         isSelectMultipleFeatures: false,
         selectedFeatureIDs: [],
-        collapsedFeatureIDs: [],
-        voterSiteIDs: undefined,
-        votes: {}
+        collapsedFeatureIDs: []
     });
 
 export type OnSelectFeatureFunction = (payload: {featureID: string}) => void;
@@ -363,7 +347,6 @@ export type OnHideOverlayFunction = (payload: {overlay: OverlayType}) => void;
 export type OnFitToScreenFunction = () => void;
 export type OnSetSettingFunction = (payload: {path: string, value: any}) => void;
 export type OnResetSettingsFunction = () => void;
-export type OnEndConflictViewTransitionFunction = () => void;
 
 export type OnAddArtifactFunction = (payload: {artifactPath: ArtifactPath, source?: string}) => Promise<void>;
 export type OnRemoveArtifactFunction = (payload: {artifactPath: ArtifactPath}) => Promise<void>;
@@ -385,14 +368,12 @@ export type OnToggleFeatureOptionalFunction = (payload: {feature: Feature}) => P
 export type OnSetFeatureAndFunction = (payload: {featureIDs: string[]}) => Promise<void>;
 export type OnSetFeatureOrFunction = (payload: {featureIDs: string[]}) => Promise<void>;
 export type OnSetFeatureAlternativeFunction = (payload: {featureIDs: string[]}) => Promise<void>;
-export type OnCreateConstraintFunction = (payload: {formula: KernelConstraintFormula}) => Promise<void>;
-export type OnSetConstraintFunction = (payload: {constraintID: string, formula: KernelConstraintFormula}) => Promise<void>;
+export type OnCreateConstraintFunction = (payload: {formula: ApiConstraintFormula}) => Promise<void>;
+export type OnSetConstraintFunction = (payload: {constraintID: string, formula: ApiConstraintFormula}) => Promise<void>;
 export type OnRemoveConstraintFunction = (payload: {constraintID: string}) => Promise<void>;
 export type OnToggleFeatureGroupTypeFunction = (payload: {feature: Feature}) => Promise<void>;
 export type OnSetUserProfileFunction = (payload: {name: string}) => Promise<void>;
 export type OnResetFunction = () => Promise<void>;
-export type OnVoteFunction = (payload: {versionID?: string}) => Promise<void>;
-export type OnSetVotingStrategyFunction = (payload: {votingStrategy: string, onlyInvolved: boolean}) => Promise<void>;
 
 // Props that may derived from the state to use in React components.
 // This enforces the convention that a prop called 'on...' has the same type in all components.
@@ -400,21 +381,16 @@ export type StateDerivedProps = Partial<{
     handleMessage: (message: Message) => void,
     currentArtifactPath: ArtifactPath,
     artifactPaths: ArtifactPath[],
-    collaborativeSessions: CollaborativeSession[],
-    myself: Collaborator,
-    collaborators: Collaborator[],
+    sessions: Session[],
+    myself: User,
+    users: User[],
     settings: Settings,
     featureDiagramLayout: FeatureDiagramLayoutType,
     isSelectMultipleFeatures: boolean,
     selectedFeatureIDs: string[],
     featureModel: FeatureModel,
-    conflictDescriptor: KernelConflictDescriptor,
-    transitionResolutionOutcome: string,
-    transitionConflictDescriptor: KernelConflictDescriptor,
     overlay: OverlayType,
     overlayProps: OverlayProps,
-    voterSiteIDs: string[],
-    votes: Votes,
 
     onSelectFeature: OnSelectFeatureFunction,
     onDeselectFeature: OnDeselectFeatureFunction,
@@ -433,7 +409,6 @@ export type StateDerivedProps = Partial<{
     onFitToScreen: OnFitToScreenFunction,
     onSetSetting: OnSetSettingFunction,
     onResetSettings: OnResetSettingsFunction,
-    onEndConflictTransition: OnEndConflictViewTransitionFunction,
 
     onAddArtifact: OnAddArtifactFunction,
     onRemoveArtifact: OnRemoveArtifactFunction,
@@ -460,7 +435,5 @@ export type StateDerivedProps = Partial<{
     onRemoveConstraint: OnRemoveConstraintFunction,
     onToggleFeatureGroupType: OnToggleFeatureGroupTypeFunction,
     onSetUserProfile: OnSetUserProfileFunction,
-    onReset: OnResetFunction,
-    onVote: OnVoteFunction,
-    onSetVotingStrategy: OnSetVotingStrategyFunction
+    onReset: OnResetFunction
 }>;

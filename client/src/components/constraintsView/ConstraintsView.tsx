@@ -3,10 +3,9 @@ import FeatureModel, {Constraint} from '../../modeling/FeatureModel';
 import {DetailsList, IColumn, SelectionMode} from '@fluentui/react';
 import i18n from '../../i18n';
 import ConstraintView from './ConstraintView';
-import {KernelConflictDescriptor} from '../../modeling/types';
 
-export function enableConstraintsView(featureModel?: FeatureModel, transitionConflictDescriptor?: KernelConflictDescriptor): boolean {
-    return featureModel && !transitionConflictDescriptor ? featureModel.constraints.length > 0 : false;
+export function enableConstraintsView(featureModel?: FeatureModel): boolean {
+    return featureModel ? featureModel.constraints.length > 0 : false;
 }
 
 interface Props {

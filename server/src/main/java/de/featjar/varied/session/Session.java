@@ -1,20 +1,21 @@
 package de.featjar.varied.session;
 
-import de.featjar.varied.message.Api;
-import de.featjar.varied.message.Message;
+import de.featjar.varied.api.Api;
+import de.featjar.varied.api.Message;
+import de.featjar.varied.api.Payload;
 import de.featjar.varied.project.Artifact;
-import de.featjar.varied.util.Collaborators;
+import de.featjar.varied.util.Users;
 import de.featjar.varied.util.FeatureModels;
 import org.pmw.tinylog.Logger;
 
 import java.util.*;
 
 /**
- * A session consists of a set of collaborators that view and edit a artifact together.
+ * A session consists of a set of users that view and edit a artifact together.
  */
 public abstract class Session {
     protected Artifact.Path artifactPath;
-    protected Set<Collaborator> collaborators = new HashSet<>();
+    protected Set<User> users = new HashSet<>();
 
     Session(Artifact.Path artifactPath) {
         this.artifactPath = artifactPath;
@@ -24,45 +25,43 @@ public abstract class Session {
         return artifactPath.toString();
     }
 
-    protected abstract void _join(Collaborator newCollaborator);
+    protected abstract void _join(User newUser);
 
-    protected abstract void _leave(Collaborator oldCollaborator);
+    protected abstract void _leave(User oldUser);
 
-    protected abstract boolean _onMessage(Collaborator collaborator, Message.IDecodable message);
+    protected abstract boolean _onMessage(User user, Message.IDecodable message);
 
     public boolean isInProcess() {
-        return collaborators.size() > 0;
+        return users.size() > 0;
     }
 
     public Artifact.Path getArtifactPath() {
         return artifactPath;
     }
 
-    public Set<Collaborator> getCollaborators() {
-        return collaborators;
+    public Set<User> getUsers() {
+        return users;
     }
 
-    public void join(Collaborator newCollaborator) {
-        Logger.info("{} joins session {}", newCollaborator, this);
-        // collaborator may re-join to obtain new initialization context,
-        // therefore do not check "add" return value here
-        if (!collaborators.add(newCollaborator))
-            throw new RuntimeException("collaborator already joined");
-        _join(newCollaborator);
-        Collaborators.broadcastToOthers(collaborators, new Api.CollaboratorJoined(artifactPath, newCollaborator), newCollaborator);
-        Collaborators.sendForEachCollaborator(newCollaborator, collaborators, collaborator -> new Api.CollaboratorJoined(artifactPath, collaborator));
+    public void join(User newUser) {
+        Logger.info("{} joins session {}", newUser, this);
+        if (!users.add(newUser))
+            throw new RuntimeException("user already joined");
+        _join(newUser);
+        Users.broadcastToOthers(users, new Api.UserJoined(artifactPath, newUser), newUser);
+        Users.sendForEachUser(newUser, users, user -> new Api.UserJoined(artifactPath, user));
     }
 
-    public void leave(Collaborator oldCollaborator) {
-        Logger.info("{} leaves session {}", oldCollaborator, this);
-        if (!collaborators.remove(oldCollaborator))
-            throw new RuntimeException("collaborator already left");
-        _leave(oldCollaborator);
-        Collaborators.broadcastToOthers(collaborators, new Api.CollaboratorLeft(artifactPath, oldCollaborator), oldCollaborator);
+    public void leave(User oldUser) {
+        Logger.info("{} leaves session {}", oldUser, this);
+        if (!users.remove(oldUser))
+            throw new RuntimeException("user already left");
+        _leave(oldUser);
+        Users.broadcastToOthers(users, new Api.UserLeft(artifactPath, oldUser), oldUser);
     }
 
-    public void onMessage(Collaborator collaborator, Message message) throws Message.InvalidMessageException {
-        if (!_onMessage(collaborator, (Message.IDecodable) message))
+    public void onMessage(User user, Message message) throws Message.InvalidMessageException {
+        if (!_onMessage(user, (Message.IDecodable) message))
             throw new Message.InvalidMessageException("message can not be processed");
     }
 
@@ -79,22 +78,22 @@ public abstract class Session {
             return featureModel;
         }
 
-        protected boolean _onMessage(Collaborator collaborator, Message.IDecodable message) {
+        protected boolean _onMessage(User user, Message.IDecodable message) {
             if (message instanceof Api.ExportArtifact) {
                 Api.ExportArtifact exportArtifactMessage = (Api.ExportArtifact) message;
                 exportArtifactMessage.data = FeatureModels.serialize(getFeatureModel(), exportArtifactMessage.format);
-                collaborator.send(exportArtifactMessage);
+                user.send(exportArtifactMessage);
                 return true;
             }
 
             return false;
         }
 
-        protected void _join(Collaborator newCollaborator) {
-            newCollaborator.send(new Api.Initialize(artifactPath, FeatureModels.toJson(featureModel)));
+        protected void _join(User newUser) {
+            newUser.send(new Api.ArtifactData(artifactPath, Payload.fromFeatureModel(featureModel)));
         }
 
-        protected void _leave(Collaborator oldCollaborator) {
+        protected void _leave(User oldUser) {
         }
     }
 }

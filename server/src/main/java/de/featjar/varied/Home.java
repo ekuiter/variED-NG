@@ -14,7 +14,7 @@ public class Home extends HttpServlet {
         if (Objects.equals(request.getQueryString(), "stop"))
             System.exit(0);
         response.setContentType("text/html");
-        response.getWriter().println("Server is running, connect to web socket at /socket/<siteID>.<br>");
+        response.getWriter().println("Server is running, connect to web socket at /socket/<userID>.<br>");
         response.getWriter().println("<a href=\"?stop\">Stop server</a>");
     }
 }

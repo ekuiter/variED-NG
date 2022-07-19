@@ -5,7 +5,7 @@ import {isArtifactPathEqual, RouteProps} from '../types';
 import SplitView from './SplitView';
 import ConstraintsView, {enableConstraintsView} from './constraintsView/ConstraintsView';
 import logger from '../helpers/logger';
-import {getCurrentCollaborativeSession, isFeatureDiagramCollaborativeSession, getCurrentFeatureModel, getCurrentConflictDescriptor} from '../store/selectors';
+import {getCurrentSession, isFeatureDiagramSession, getCurrentFeatureModel} from '../store/selectors';
 import actions from '../store/actions';
 import {withRouter} from 'react-router';
 import {connect} from 'react-redux';
@@ -26,8 +26,8 @@ class FeatureDiagramRoute extends React.Component<FeatureDiagramRouteProps> {
 
     onRouteChanged() {
         const artifactPath = getArtifactPathFromLocation();
-            if (artifactPath && !this.props.collaborativeSessions!.find(collaborativeSession =>
-                isArtifactPathEqual(collaborativeSession.artifactPath, artifactPath))) {
+            if (artifactPath && !this.props.sessions!.find(session =>
+                isArtifactPathEqual(session.artifactPath, artifactPath))) {
                     this.props.onJoinRequest!({artifactPath}); // TODO: error handling
                 }
     }
@@ -37,48 +37,41 @@ class FeatureDiagramRoute extends React.Component<FeatureDiagramRouteProps> {
             settings={this.props.settings!}
             onSetSetting={this.props.onSetSetting!}
             renderPrimaryView={(style: CSSProperties) =>
-                this.props.transitionConflictDescriptor || this.props.conflictDescriptor
-                    ? null
-                    : this.props.featureModel
-                        ? <FeatureDiagramView
-                            featureDiagramLayout={this.props.featureDiagramLayout!}
-                            currentArtifactPath={this.props.currentArtifactPath!}
-                            settings={this.props.settings!}
-                            {...this.props}
-                            style={style}/>
-                        : <div style={{display: 'flex'}}>
-                            <Spinner size={SpinnerSize.large}/>
-                        </div>}
+                this.props.featureModel
+                    ? <FeatureDiagramView
+                        featureDiagramLayout={this.props.featureDiagramLayout!}
+                        currentArtifactPath={this.props.currentArtifactPath!}
+                        settings={this.props.settings!}
+                        {...this.props}
+                        style={style}/>
+                    : <div style={{display: 'flex'}}>
+                        <Spinner size={SpinnerSize.large}/>
+                    </div>}
             renderSecondaryView={() => <ConstraintsView featureModel={this.props.featureModel!}/>}
-            enableSecondaryView={() => enableConstraintsView(this.props.featureModel, this.props.transitionConflictDescriptor)}/>;
+            enableSecondaryView={() => enableConstraintsView(this.props.featureModel)}/>;
     }
 }
 
 export default withRouter(connect(
     logger.mapStateToProps('FeatureModelRouteContainer', (state: State): StateDerivedProps => {
-        const collaborativeSession = getCurrentCollaborativeSession(state),
+        const session = getCurrentSession(state),
             props: StateDerivedProps = {
                 settings: state.settings,
-                collaborativeSessions: state.collaborativeSessions,
+                sessions: state.sessions,
                 overlay: state.overlay,
                 overlayProps: state.overlayProps,
                 myself: state.myself
             };
-            if (!collaborativeSession || !isFeatureDiagramCollaborativeSession(collaborativeSession))
+            if (!session || !isFeatureDiagramSession(session))
                 return props;
         return {
             ...props,
             featureModel: getCurrentFeatureModel(state),
-            conflictDescriptor: getCurrentConflictDescriptor(state),
-            transitionResolutionOutcome: collaborativeSession.transitionResolutionOutcome,
-            transitionConflictDescriptor: collaborativeSession.transitionConflictDescriptor,
-            currentArtifactPath: collaborativeSession.artifactPath,
-            featureDiagramLayout: collaborativeSession.layout,
-            isSelectMultipleFeatures: collaborativeSession.isSelectMultipleFeatures,
-            selectedFeatureIDs: collaborativeSession.selectedFeatureIDs,
-            collaborators: collaborativeSession.collaborators,
-            voterSiteIDs: collaborativeSession.voterSiteIDs,
-            votes: collaborativeSession.votes
+            currentArtifactPath: session.artifactPath,
+            featureDiagramLayout: session.layout,
+            isSelectMultipleFeatures: session.isSelectMultipleFeatures,
+            selectedFeatureIDs: session.selectedFeatureIDs,
+            users: session.users
         };
     }),
     (dispatch): StateDerivedProps => ({
@@ -92,8 +85,6 @@ export default withRouter(connect(
         onExpandFeatures: payload => dispatch(actions.ui.featureDiagram.feature.expand(payload)),
         onDeselectAllFeatures: () => dispatch(actions.ui.featureDiagram.feature.deselectAll()),
         onToggleFeatureGroupType: payload => dispatch<any>(actions.server.featureDiagram.feature.properties.toggleGroup(payload)),
-        onToggleFeatureOptional: payload => dispatch<any>(actions.server.featureDiagram.feature.properties.toggleOptional(payload)),
-        onVote: payload => dispatch<any>(actions.server.featureDiagram.vote(payload)),
-        onEndConflictTransition: () => dispatch(actions.ui.endConflictViewTransition())
+        onToggleFeatureOptional: payload => dispatch<any>(actions.server.featureDiagram.feature.properties.toggleOptional(payload))
     })
 )(FeatureDiagramRoute));

@@ -7,20 +7,15 @@ import {Selection} from 'd3-selection';
 export enum MessageType {
     ERROR = 'ERROR',
     RESET = 'RESET',
-    COLLABORATOR_JOINED = 'COLLABORATOR_JOINED',
-    COLLABORATOR_LEFT = 'COLLABORATOR_LEFT',
-    SET_USER_PROFILE = 'SET_USER_PROFILE',
     ADD_ARTIFACT = 'ADD_ARTIFACT',
     REMOVE_ARTIFACT = 'REMOVE_ARTIFACT',
     EXPORT_ARTIFACT = 'EXPORT_ARTIFACT',
+    USER_JOINED = 'USER_JOINED',
+    USER_LEFT = 'USER_LEFT',
+    SET_USER_PROFILE = 'SET_USER_PROFILE',
     JOIN_REQUEST = 'JOIN_REQUEST',
     LEAVE_REQUEST = 'LEAVE_REQUEST',
-    INITIALIZE = 'INITIALIZE',
-    KERNEL = 'KERNEL',
-    VOTERS = 'VOTERS',
-    VOTE = 'VOTE',
-    RESOLUTION_OUTCOME = 'RESOLUTION_OUTCOME',
-    SET_VOTING_STRATEGY = 'SET_VOTING_STRATEGY'
+    INITIALIZE = 'INITIALIZE'
 };
 
 export enum FeatureDiagramLayoutType {
@@ -70,14 +65,6 @@ export enum ServerFormatType {
 };
 
 export type FormatType = ClientFormatType | ServerFormatType;
-
-export enum VotingStrategy {
-    reject = 'reject',
-    firstVote = 'firstVote',
-    plurality = 'plurality',
-    majority = 'majority',
-    consensus = 'consensus'
-};
 
 export interface FormatOptions {
     scale?: number,

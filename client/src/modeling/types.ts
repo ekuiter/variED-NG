@@ -1,7 +1,7 @@
 import {HierarchyPointNode} from 'd3-hierarchy';
 import {Point} from '../types';
 
-// keys and attributes used in kernel feature models
+// keys and attributes used in api feature models
 export const FEATURES = 'features';
 export const CONSTRAINTS = 'constraints';
 export const CHILDREN_CACHE = 'children-cache';
@@ -14,7 +14,6 @@ export const ABSTRACT = 'abstract?';
 export const HIDDEN = 'hidden?';
 export const PARENT_ID = 'parent-ID';
 export const GROUP_TYPE = 'group-type';
-export const GRAVEYARDED = 'graveyarded?';
 export const FORMULA = 'formula';
 
 export enum ConstraintType {
@@ -39,7 +38,7 @@ export enum PropertyType {
     description = 'description'
 };
 
-export interface KernelFeature {
+export interface ApiFeature {
     [ID_KEY]?: string, // added dynamically by FeatureModel class
     [NAME]: string,
     [DESCRIPTION]: string | null,
@@ -50,43 +49,20 @@ export interface KernelFeature {
     [GROUP_TYPE]: GroupType
 };
 
-export type KernelConstraintFormulaAtom = ConstraintType | string;
-export interface KernelConstraintNestedFormula extends Array<KernelConstraintNestedFormula | KernelConstraintFormulaAtom> {}
-export type KernelConstraintFormula = KernelConstraintFormulaAtom | KernelConstraintNestedFormula;
+export type ApiConstraintFormulaAtom = ConstraintType | string;
+export interface ApiConstraintNestedFormula extends Array<ApiConstraintNestedFormula | ApiConstraintFormulaAtom> {}
+export type ApiConstraintFormula = ApiConstraintFormulaAtom | ApiConstraintNestedFormula;
 
-export interface KernelConstraint {
-    [ID_KEY]?: string, // added dynamically, see KernelFeature
-    [GRAVEYARDED]: boolean,
-    [FORMULA]: KernelConstraintFormula
+export interface ApiConstraint {
+    [ID_KEY]?: string, // added dynamically, see ApiFeature
+    [FORMULA]: ApiConstraintFormula
 };
 
-export interface KernelFeatureModel {
-    [FEATURES]: {[ID: string]: KernelFeature},
-    [CONSTRAINTS]: {[ID: string]: KernelConstraint},
+export interface ApiFeatureModel {
+    [FEATURES]: {[ID: string]: ApiFeature},
+    [CONSTRAINTS]: {[ID: string]: ApiConstraint},
     [CHILDREN_CACHE]: {[ID: string]: string[]}
 };
-
-export interface KernelConflictDescriptor {
-    versions: {[versionID: string]: string[]},
-    conflicts:
-        {[versionID: string]:
-            {[operationID: string]:
-                {[operationID: string]:
-                    {reason: string}}}},
-    metadata: {[operationID: string]: {
-        description: string,
-        icon: string,
-        timestamp: number,
-        siteID: string
-    }},
-    synchronized: boolean
-};
-
-export type KernelCombinedEffect = KernelFeatureModel | KernelConflictDescriptor;
-
-export function isKernelConflictDescriptor(kernelCombinedEffect: KernelCombinedEffect): kernelCombinedEffect is KernelConflictDescriptor {
-    return typeof kernelCombinedEffect !== 'undefined' && !!(<KernelConflictDescriptor>kernelCombinedEffect).conflicts;
-}
 
 export type FeaturePropertyKey = string | ((node: FeatureNode) => string);
 
@@ -111,7 +87,7 @@ export interface Feature {
     getFeatureIDsBelow: () => string[]
 };
 
-type Datum = KernelFeature; // accessible as node.data
+type Datum = ApiFeature; // accessible as node.data
 
 export type FeatureNode = HierarchyPointNode<Datum> & {
     children?: FeatureNode[];

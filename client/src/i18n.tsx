@@ -7,8 +7,6 @@ import objectPath from 'object-path';
 import {Link} from '@fluentui/react';
 import React from 'react';
 import constants from './constants';
-import {OverlayType} from './types';
-import {OnShowOverlayFunction} from './store/types';
 
 type TranslationFunction = (...args: any[]) => any;
 type Translation = any; // string | JSX.Element | TranslationFunction;
@@ -112,9 +110,9 @@ const translationMap = {
         format: 'Format',
         layout: 'Layout',
         delay: 'Delay',
-        switch: 'Switch to collaborative session',
-        joinRequest: 'Join collaborative session',
-        leaveRequest: 'Leave collaborative session',
+        switch: 'Switch to session',
+        joinRequest: 'Join session',
+        leaveRequest: 'Leave session',
         userProfile: 'User profile',
         settings: 'Settings',
         about: 'About',
@@ -152,23 +150,14 @@ const translationMap = {
                 set: 'Set constraint',
                 remove: 'Remove constraint',
                 invalid: 'Invalid constraint.'
-            },
-            votingStrategy: 'Voting strategy',
-            setVotingStrategy: 'Set voting strategy',
-            onlyInvolved: 'Only collaborators involved in a conflict may vote',
-            everyone: 'Everyone may vote (default)',
-            reject: 'Reject conflicts',
-            firstVote: 'First vote wins',
-            plurality: 'Plurality vote',
-            majority: 'Majority vote',
-            consensus: 'Consensus (default)',
+            }
         },
         developer: {
             debug: 'Developer: Toggle debug mode',
             clearLocalStorage: 'Developer: Clear local storage',
             reset: 'Developer: Reset entire system',
             confirmReset: 'WARNING: This will interrupt all modeling activities and discard all changes. ' +
-                'Each connected collaborator will have to run "Developer: Clear local storage".'
+                'Each connected user will have to run "Developer: Clear local storage".'
         }
     },
     overlays: {
@@ -303,16 +292,6 @@ const translationMap = {
                 title: 'Export as PDF'
             }
         }
-    },
-    conflictResolution: {
-        version: 'Version',
-        conflict: (numberOfConflicts: number) => numberOfConflicts > 1 ? `${numberOfConflicts} conflicts`: 'Conflict',
-        header: 'Conflicts detected!',
-        cancel: 'Discard all conflicts',
-        synchronizing: 'Synchronizing ...',
-        pendingVotePermission: 'Waiting for vote permission ...',
-        disallowedToVote: 'You are not allowed to vote.',
-        vote: 'Vote'
     }
 };
 

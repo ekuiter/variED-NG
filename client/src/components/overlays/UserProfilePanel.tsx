@@ -3,14 +3,14 @@ import i18n from '../../i18n';
 import {TextField} from '@fluentui/react';
 import logger from '../../helpers/logger';
 import {PrimaryButton} from '@fluentui/react';
-import {OnSetUserProfileFunction, Collaborator} from '../../store/types';
+import {OnSetUserProfileFunction, User} from '../../store/types';
 import {Panel, PanelType} from '@fluentui/react';
 
 interface UserProfilePanelProps {
     isOpen: boolean,
     onDismiss: () => void,
     onSetUserProfile: OnSetUserProfileFunction,
-    myself: Collaborator
+    myself: User
 };
 
 interface UserProfilePanelState {

@@ -6,7 +6,7 @@ import commands, {makeDivider} from './commands';
 import {CommandBar} from '@fluentui/react';
 import React from 'react';
 import {connect} from 'react-redux';
-import {getCurrentCollaborativeSession, isFeatureDiagramCollaborativeSession, getCurrentFeatureModel} from '../store/selectors';
+import {getCurrentSession, isFeatureDiagramSession, getCurrentFeatureModel} from '../store/selectors';
 import actions from '../store/actions';
 import i18n from '../i18n';
 import {State, StateDerivedProps} from '../store/types';
@@ -23,20 +23,20 @@ const CommandBarContainer = (props: StateDerivedProps & RouteProps) => (
                 text: i18n.t('commands.file'),
                 subMenuProps: {
                     items: [
-                        ...props.collaborativeSessions!.length > 1
+                        ...props.sessions!.length > 1
                             ? [{
-                                key: 'collaborativeSessions',
+                                key: 'sessions',
                                 text: props.currentArtifactPath
                                     ? artifactPathToString(props.currentArtifactPath!)
                                     : i18n.t('commandPalette.switch'),
                                 subMenuProps: {
-                                    items: props.collaborativeSessions!
-                                        .map(collaborativeSession => {
-                                            const artifactPathString = artifactPathToString(collaborativeSession.artifactPath);
+                                    items: props.sessions!
+                                        .map(session => {
+                                            const artifactPathString = artifactPathToString(session.artifactPath);
                                             return {
                                                 key: artifactPathString,
                                                 text: artifactPathString,
-                                                onClick: () => redirectToArtifactPath(collaborativeSession.artifactPath)
+                                                onClick: () => redirectToArtifactPath(session.artifactPath)
                                             };
                                         })
                                 }
@@ -82,7 +82,7 @@ const CommandBarContainer = (props: StateDerivedProps & RouteProps) => (
                             commands.featureDiagram.setLayout(
                                 props.featureDiagramLayout!,
                                 props.onSetFeatureDiagramLayout!),
-                            ...enableConstraintsView(props.featureModel, props.transitionConflictDescriptor)
+                            ...enableConstraintsView(props.featureModel)
                                 ? [makeDivider(),
                                     commands.featureDiagram.showConstraintView(
                                         props.onSetSetting!, props.settings!.views.splitAt),
@@ -113,24 +113,23 @@ const CommandBarContainer = (props: StateDerivedProps & RouteProps) => (
 
 export default withRouter(connect(
     logger.mapStateToProps('CommandBarContainer', (state: State): StateDerivedProps => {
-        const collaborativeSession = getCurrentCollaborativeSession(state),
+        const session = getCurrentSession(state),
             props: StateDerivedProps = {
                 settings: state.settings,
                 myself: state.myself,
-                collaborators: [],
-                collaborativeSessions: state.collaborativeSessions
+                users: [],
+                sessions: state.sessions
             };
-        if (!collaborativeSession || !isFeatureDiagramCollaborativeSession(collaborativeSession))
+        if (!session || !isFeatureDiagramSession(session))
             return props;
         return {
             ...props,
-            featureDiagramLayout: collaborativeSession.layout,
-            isSelectMultipleFeatures: collaborativeSession.isSelectMultipleFeatures,
-            selectedFeatureIDs: collaborativeSession.selectedFeatureIDs,
-            collaborators: collaborativeSession.collaborators,
-            transitionConflictDescriptor: collaborativeSession.transitionConflictDescriptor,
+            featureDiagramLayout: session.layout,
+            isSelectMultipleFeatures: session.isSelectMultipleFeatures,
+            selectedFeatureIDs: session.selectedFeatureIDs,
+            users: session.users,
             featureModel: getCurrentFeatureModel(state),
-            currentArtifactPath: collaborativeSession.artifactPath
+            currentArtifactPath: session.artifactPath
         };
     }),
     (dispatch): StateDerivedProps => ({

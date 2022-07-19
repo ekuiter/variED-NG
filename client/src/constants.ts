@@ -28,7 +28,7 @@ const constants = {
     },
     server: {
         // WebSocket URI to connect to
-        webSocket: (siteID = 'initialize') => `ws://${process.env.REACT_APP_SERVER || window.location.host}/socket/${siteID}`
+        webSocket: (userID = 'initialize') => `ws://${process.env.REACT_APP_SERVER || window.location.host}/socket/${userID}`
     },
     helpers: {
         withDimensions: {

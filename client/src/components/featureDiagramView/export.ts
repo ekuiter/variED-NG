@@ -82,7 +82,7 @@ const exportServer = (format: ServerFormatType) => async (): BlobPromise => {
     const actions = (window as any).app && (window as any).app.actions;
     if (!actions)
         throw 'actions not accessible, can not export';
-    const artifactPath: ArtifactPath | undefined = getCurrentArtifactPath(store.getState().collaborativeSessions);
+    const artifactPath: ArtifactPath | undefined = getCurrentArtifactPath(store.getState().sessions);
     if (!artifactPath)
         throw 'no current artifact path';
     store.dispatch(actions.server.exportArtifact({artifactPath, format}));

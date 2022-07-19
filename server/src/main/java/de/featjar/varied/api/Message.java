@@ -1,4 +1,4 @@
-package de.featjar.varied.message;
+package de.featjar.varied.api;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;

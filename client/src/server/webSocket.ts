@@ -15,12 +15,12 @@ let handleMessage: HandleMessageFunction;
 const tag = 'socket';
 
 // this is _not_ good code, but it gets the job done >_<
-function getSiteID() {
+function getUserID() {
     const state: State | undefined =
         (window as any).app && (window as any).app.store && (window as any).app.store.getState();
     if (!state)
         logger.warn(() => 'store not accessible, can not obtain site ID');
-    return state && state.myself ? state.myself.siteID : 'initialize';
+    return state && state.myself ? state.myself.userID : 'initialize';
 }
 
 const getWebSocket = ((): () => Promise<Sockette> => {
@@ -28,7 +28,7 @@ const getWebSocket = ((): () => Promise<Sockette> => {
 
     function connect(): Promise<Sockette> {
         return promise = new Promise((resolve, reject) => {
-            const url = constants.server.webSocket(getSiteID());
+            const url = constants.server.webSocket("123e4567-e89b-12d3-a456-426614174000");
             logger.logTagged({tag}, () => `connecting to ${url}`);
 
             const sockette = new Sockette(url, {
@@ -60,7 +60,7 @@ const getWebSocket = ((): () => Promise<Sockette> => {
                     logger.logTagged({tag: 'receive'}, () => data);
                     // TODO: when we have better error handling, revise this
                     if (data.type === MessageType.ERROR && data.error.indexOf('not registered') !== -1) {
-                        logger.warn(() => `can not register with site ID ${getSiteID()}, will try to obtain new site ID`);
+                        logger.warn(() => `can not register with site ID ${getUserID()}, will try to obtain new site ID`);
                         // TODO: this is a duplicate (see CommandPalette)
                         const persistor: Persistor | undefined =
                             (window as any).app && (window as any).app.persistor;
