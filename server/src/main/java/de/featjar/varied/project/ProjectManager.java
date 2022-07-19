@@ -1,6 +1,6 @@
 package de.featjar.varied.project;
 
-import com.google.common.io.Resources;
+import de.featjar.util.extension.ExtensionLoader;
 import de.featjar.varied.util.Strings;
 import de.featjar.varied.util.FeatureModels;
 import org.pmw.tinylog.Logger;
@@ -12,12 +12,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ProjectManager {
     private static ProjectManager instance;
-    private final ConcurrentHashMap<String, Project> projects = new ConcurrentHashMap<>();
+    private final Map<String, Project> projects = new ConcurrentHashMap<>();
     public static String EMPTY = "Empty";
 
     {
@@ -32,6 +33,7 @@ public class ProjectManager {
     }
 
     public void resetInstance() {
+        ExtensionLoader.load();
         projects.clear();
         Project examplesProject = new Project("Examples");
         Project featureIDEProject = new Project("FeatureIDE");
@@ -93,7 +95,7 @@ public class ProjectManager {
                     try {
                         Logger.info("loading remote artifact from " + url);
                         String source = new Scanner(new URL(url).openStream(), "UTF-8").useDelimiter("\\A").next();
-                        return FeatureModels.loadFeatureModel(source, artifactName + ".xml");
+                        return FeatureModels.load(source, artifactName + ".xml");
                     } catch (IOException e) {
                         throw new RuntimeException("could not add remote artifact at URL " + url);
                     }
@@ -102,7 +104,7 @@ public class ProjectManager {
 
     public static Path getResourcePath(String fileName) {
         try {
-            return Paths.get(Resources.getResource(fileName).toURI());
+            return Paths.get(ProjectManager.class.getClassLoader().getResource(fileName).toURI());
         } catch (URISyntaxException e) {
             throw new RuntimeException("invalid resource path given");
         }

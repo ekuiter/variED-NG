@@ -4,7 +4,6 @@ import com.google.gson.annotations.Expose;
 import de.featjar.varied.session.Session;
 import de.featjar.varied.util.FeatureModels;
 import de.featjar.varied.util.Strings;
-import de.ovgu.featureide.fm.core.base.IFeatureModel;
 
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -73,7 +72,7 @@ public abstract class Artifact {
     }
 
     public static class FeatureModel extends Artifact {
-        private final Supplier<IFeatureModel> initialFeatureModelSupplier;
+        private final Supplier<de.featjar.model.FeatureModel> featureModelSupplier;
         private Session session;
 
         public FeatureModel(Project project, String name, String source) {
@@ -81,25 +80,21 @@ public abstract class Artifact {
         }
 
         public FeatureModel(Project project, String name, String source, String fileName) {
-            this(project, name, () -> FeatureModels.loadFeatureModel(source, fileName));
+            this(project, name, () -> FeatureModels.load(source, fileName));
         }
 
         public FeatureModel(Project project, String name, java.nio.file.Path path) {
-            this(project, name, () -> FeatureModels.loadFeatureModel(path));
+            this(project, name, () -> FeatureModels.load(path));
         }
 
-        public FeatureModel(Project project, String name, IFeatureModel initialFeatureModel) {
-            this(project, name, () -> initialFeatureModel);
-        }
-
-        public FeatureModel(Project project, String name, Supplier<IFeatureModel> initialFeatureModelSupplier) {
+        public FeatureModel(Project project, String name, Supplier<de.featjar.model.FeatureModel> featureModelSupplier) {
             super(project, name);
-            this.initialFeatureModelSupplier = initialFeatureModelSupplier;
+            this.featureModelSupplier = featureModelSupplier;
         }
 
         public Session getSession() {
             if (this.session == null)
-                this.session = new Session.FeatureModel(getPath(), initialFeatureModelSupplier.get());
+                this.session = new Session.FeatureModel(getPath(), featureModelSupplier.get());
             return session;
         }
     }

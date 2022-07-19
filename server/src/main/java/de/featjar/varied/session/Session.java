@@ -5,12 +5,9 @@ import de.featjar.varied.message.Message;
 import de.featjar.varied.project.Artifact;
 import de.featjar.varied.util.Collaborators;
 import de.featjar.varied.util.FeatureModels;
-import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import org.pmw.tinylog.Logger;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * A session consists of a set of collaborators that view and edit a artifact together.
@@ -70,22 +67,22 @@ public abstract class Session {
     }
 
     public static class FeatureModel extends Session {
-        protected final IFeatureModel initialFeatureModel;
+        protected final de.featjar.model.FeatureModel featureModel;
 
-        public FeatureModel(Artifact.Path artifactPath, IFeatureModel initialFeatureModel) {
+        public FeatureModel(Artifact.Path artifactPath, de.featjar.model.FeatureModel featureModel) {
             super(artifactPath);
-            this.initialFeatureModel = initialFeatureModel;
-            Objects.requireNonNull(initialFeatureModel, "no initial feature model given");
+            this.featureModel = featureModel;
+            Objects.requireNonNull(featureModel, "no initial feature model given");
         }
 
-        public IFeatureModel toFeatureModel() {
-            return initialFeatureModel;
+        public de.featjar.model.FeatureModel getFeatureModel() {
+            return featureModel;
         }
 
         protected boolean _onMessage(Collaborator collaborator, Message.IDecodable message) {
             if (message instanceof Api.ExportArtifact) {
                 Api.ExportArtifact exportArtifactMessage = (Api.ExportArtifact) message;
-                exportArtifactMessage.data = FeatureModels.serializeFeatureModel(toFeatureModel(), exportArtifactMessage.format);
+                exportArtifactMessage.data = FeatureModels.serialize(getFeatureModel(), exportArtifactMessage.format);
                 collaborator.send(exportArtifactMessage);
                 return true;
             }
@@ -94,7 +91,7 @@ public abstract class Session {
         }
 
         protected void _join(Collaborator newCollaborator) {
-            newCollaborator.send(new Api.Initialize(artifactPath, "init"));
+            newCollaborator.send(new Api.Initialize(artifactPath, FeatureModels.toJson(featureModel)));
         }
 
         protected void _leave(Collaborator oldCollaborator) {

@@ -1,5 +1,6 @@
 package de.featjar.varied.message;
 
+import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
 import de.featjar.varied.project.Artifact;
 import de.featjar.varied.session.Collaborator;
@@ -107,9 +108,9 @@ public class Api {
 
     public static class Initialize extends Message implements  Message.IEncodable {
         @Expose
-        Object context;
+        JsonObject context;
 
-        public Initialize(Artifact.Path artifactPath, Object context) {
+        public Initialize(Artifact.Path artifactPath, JsonObject context) {
             super(TypeEnum.INITIALIZE, artifactPath);
             this.context = context;
         }

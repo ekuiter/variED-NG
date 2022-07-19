@@ -15,6 +15,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         int port = args.length > 0 ? Integer.parseInt(args[0]) : 8080;
+        boolean noBrowse = args.length > 1 && args[1].equals("--no-browse");
         serverConnector.setPort(port);
         server.addConnector(serverConnector);
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
@@ -26,7 +27,8 @@ public class Main {
                 });
         server.setHandler(context);
         server.start();
-        Desktop.getDesktop().browse(new URI("http://localhost:" + port));
+        if (!noBrowse)
+            Desktop.getDesktop().browse(new URI("http://localhost:" + port));
         server.join();
     }
 }
