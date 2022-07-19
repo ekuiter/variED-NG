@@ -1,16 +1,15 @@
-package de.ovgu.spldev.varied.messaging;
+package de.featjar.varied.message;
 
 import com.google.gson.annotations.Expose;
-import de.ovgu.spldev.varied.Artifact;
-import de.ovgu.spldev.varied.Collaborator;
+import de.featjar.varied.project.Artifact;
+import de.featjar.varied.session.Collaborator;
 import org.pmw.tinylog.Logger;
 
 import java.util.Collection;
-import java.util.UUID;
 
 /**
  * To add a new kind of message: Add a type below and create a camel-cased inner class
- * that derives Message.IEncodable or Message.IDecodable. Possibly also add an operation.
+ * that derives Message.IEncodable or Message.IDecodable.
  */
 public class Api {
     /**
@@ -27,12 +26,7 @@ public class Api {
         SET_USER_PROFILE,
         JOIN_REQUEST,
         LEAVE_REQUEST,
-        INITIALIZE,
-        KERNEL,
-        VOTERS,
-        VOTE,
-        RESOLUTION_OUTCOME,
-        SET_VOTING_STRATEGY
+        INITIALIZE
     }
 
     public static class Error extends Message implements Message.IEncodable {
@@ -63,7 +57,7 @@ public class Api {
     }
 
     public static class RemoveArtifact extends Message implements Message.IEncodable, Message.IDecodable {
-        public RemoveArtifact(de.ovgu.spldev.varied.Artifact.Path artifactPath) {
+        public RemoveArtifact(Artifact.Path artifactPath) {
             super(TypeEnum.REMOVE_ARTIFACT, artifactPath);
         }
     }
@@ -75,7 +69,7 @@ public class Api {
         @Expose
         public String data;
 
-        public ExportArtifact(de.ovgu.spldev.varied.Artifact.Path artifactPath) {
+        public ExportArtifact(Artifact.Path artifactPath) {
             super(TypeEnum.EXPORT_ARTIFACT, artifactPath);
         }
     }
@@ -84,7 +78,7 @@ public class Api {
         @Expose
         Collaborator collaborator;
 
-        public CollaboratorJoined(de.ovgu.spldev.varied.Artifact.Path artifactPath, Collaborator collaborator) {
+        public CollaboratorJoined(Artifact.Path artifactPath, Collaborator collaborator) {
             super(TypeEnum.COLLABORATOR_JOINED, artifactPath);
             this.collaborator = collaborator;
         }
@@ -94,7 +88,7 @@ public class Api {
         @Expose
         Collaborator collaborator;
 
-        public CollaboratorLeft(de.ovgu.spldev.varied.Artifact.Path artifactPath, Collaborator collaborator) {
+        public CollaboratorLeft(Artifact.Path artifactPath, Collaborator collaborator) {
             super(TypeEnum.COLLABORATOR_LEFT, artifactPath);
             this.collaborator = collaborator;
         }
@@ -119,59 +113,5 @@ public class Api {
             super(TypeEnum.INITIALIZE, artifactPath);
             this.context = context;
         }
-    }
-
-    public static class Kernel extends Message implements Message.IEncodable, Message.IDecodable {
-        @Expose
-        public String message;
-
-        public Kernel(Artifact.Path artifactPath, String message) {
-            super(TypeEnum.KERNEL, artifactPath);
-            this.message = message;
-        }
-    }
-
-    public static class Voters extends Message implements Message.IEncodable {
-        @Expose
-        public UUID[] siteIDs;
-
-        public Voters(Artifact.Path artifactPath, Collection<Collaborator> collaborators) {
-            super(TypeEnum.VOTERS, artifactPath);
-            this.siteIDs = collaborators.stream()
-                    .map(Collaborator::getSiteID)
-                    .toArray(UUID[]::new);
-        }
-    }
-
-    public static class Vote extends Message implements Message.IEncodable, Message.IDecodable {
-        @Expose
-        public UUID siteID;
-
-        @Expose
-        public String versionID;
-
-        public Vote(Artifact.Path artifactPath, Collaborator collaborator, String versionID) {
-            super(TypeEnum.VOTE, artifactPath);
-            this.siteID = collaborator.getSiteID();
-            this.versionID = versionID;
-        }
-    }
-
-    public static class ResolutionOutcome extends Message implements Message.IEncodable {
-        @Expose
-        public String versionID;
-
-        public ResolutionOutcome(Artifact.Path artifactPath, String versionID) {
-            super(TypeEnum.RESOLUTION_OUTCOME, artifactPath);
-            this.versionID = versionID;
-        }
-    }
-
-    public static class SetVotingStrategy extends Message implements Message.IDecodable {
-        @Expose
-        public String votingStrategy;
-
-        @Expose
-        public boolean onlyInvolved;
     }
 }

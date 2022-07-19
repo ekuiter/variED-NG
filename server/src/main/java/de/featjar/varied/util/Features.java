@@ -1,4 +1,4 @@
-package de.ovgu.spldev.varied.util;
+package de.featjar.varied.util;
 
 import de.ovgu.featureide.fm.core.base.IConstraint;
 import de.ovgu.featureide.fm.core.base.IFeature;
@@ -6,7 +6,7 @@ import de.ovgu.featureide.fm.core.base.IPropertyContainer;
 
 import java.util.UUID;
 
-public class FeatureUtils {
+public class Features {
     public static String NAME_PROPERTY = "variED_name";
 
     public static String getFeatureName(IFeature feature) {
@@ -17,11 +17,11 @@ public class FeatureUtils {
     }
 
     public static void setFeatureName(IFeature feature, String name) {
-        feature.getCustomProperties().set(FeatureUtils.NAME_PROPERTY, IPropertyContainer.Type.STRING, name);
+        feature.getCustomProperties().set(Features.NAME_PROPERTY, IPropertyContainer.Type.STRING, name);
     }
 
     public static void removeFeatureName(IFeature feature) {
-        feature.getCustomProperties().remove(FeatureUtils.NAME_PROPERTY);
+        feature.getCustomProperties().remove(Features.NAME_PROPERTY);
     }
 
     public static UUID getConstraintID(IConstraint constraint) {

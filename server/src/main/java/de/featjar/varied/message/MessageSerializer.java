@@ -1,9 +1,8 @@
-package de.ovgu.spldev.varied.messaging;
+package de.featjar.varied.message;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
-import de.ovgu.featureide.fm.core.base.IFeatureModel;
 
 import javax.websocket.Decoder;
 import javax.websocket.Encoder;
@@ -17,19 +16,19 @@ public class MessageSerializer {
     /**
      * register message class hierarchy with GSON
      */
-    private static RuntimeTypeAdapterFactory<Message> runtimeTypeAdapterFactory =
+    private static final RuntimeTypeAdapterFactory<Message> runtimeTypeAdapterFactory =
             Message.Type.registerSubtypes(RuntimeTypeAdapterFactory.of(Message.class, "type", true));
 
     /**
      * type hint for GSON
      */
-    private static TypeToken<Message> typeToken = new TypeToken<Message>() {
+    private static final TypeToken<Message> typeToken = new TypeToken<Message>() {
     };
 
     /**
      * GSON facilitates JSON serialization
      */
-    private static Gson gson = new GsonBuilder()
+    private static final Gson gson = new GsonBuilder()
             .excludeFieldsWithoutExposeAnnotation()
             .registerTypeAdapterFactory(runtimeTypeAdapterFactory)
             .registerTypeAdapter(Message.Type.class, new MessageTypeTypeAdapter())

@@ -1,17 +1,19 @@
-package de.ovgu.spldev.varied;
+package de.featjar.varied.session;
 
-import com.google.common.io.Resources;
 import com.google.gson.annotations.Expose;
-import de.ovgu.spldev.varied.messaging.Api;
-import de.ovgu.spldev.varied.messaging.Message;
-import de.ovgu.spldev.varied.util.CollaboratorUtils;
+import de.featjar.varied.Socket;
+import de.featjar.varied.message.Api;
+import de.featjar.varied.message.Message;
+import de.featjar.varied.project.Artifact;
+import de.featjar.varied.project.Project;
+import de.featjar.varied.project.ProjectManager;
+import de.featjar.varied.util.Collaborators;
 import me.atrox.haikunator.Haikunator;
-import me.atrox.haikunator.HaikunatorBuilder;
-import org.apache.commons.lang3.text.WordUtils;
 import org.pmw.tinylog.Logger;
 
-import java.net.URISyntaxException;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Collaborator {
     @Expose
@@ -20,29 +22,36 @@ public class Collaborator {
     @Expose
     private String name;
 
-    private WebSocket webSocket;
-    private Queue<Message.IEncodable> outgoingQueue = new LinkedList<>();
+    private Socket socket;
+    private final Queue<Message.IEncodable> outgoingQueue = new LinkedList<>();
 
-    private static Haikunator haikunator = new HaikunatorBuilder().setDelimiter(" ").setTokenLength(0).build();
-    private Set<CollaborativeSession> collaborativeSessions = new HashSet<>();
+    private static final Haikunator haikunator = new Haikunator().setDelimiter(" ").setTokenLength(0);
+    private final Set<Session> sessions = new HashSet<>();
+
+    private static String capitalize(final String words) {
+        return Stream.of(words.trim().split("\\s"))
+                .filter(word -> word.length() > 0)
+                .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1))
+                .collect(Collectors.joining(" "));
+    }
 
     private static String generateName() {
-        return WordUtils.capitalize(haikunator.haikunate());
+        return capitalize(haikunator.haikunate());
     }
 
-    Collaborator(WebSocket webSocket) {
-        this(UUID.randomUUID(), generateName(), webSocket);
+    Collaborator(Socket socket) {
+        this(UUID.randomUUID(), generateName(), socket);
     }
 
-    private Collaborator(UUID siteID, String name, WebSocket webSocket) {
+    private Collaborator(UUID siteID, String name, Socket socket) {
         this.siteID = siteID;
         this.name = name;
-        this.webSocket = webSocket;
+        this.socket = socket;
     }
 
-    private void _send(Message.IEncodable message) throws WebSocket.SendException {
+    private void _send(Message.IEncodable message) throws Socket.SendException {
         Logger.info("sending {} message to collaborator {}", ((Message) message).getType(), this);
-        webSocket.send(message);
+        socket.send(message);
     }
 
     void sendPending() {
@@ -50,7 +59,7 @@ public class Collaborator {
             Message.IEncodable message = outgoingQueue.peek();
             try {
                 _send(message);
-            } catch (WebSocket.SendException e) {
+            } catch (Socket.SendException e) {
                 return;
             }
             outgoingQueue.remove();
@@ -85,8 +94,8 @@ public class Collaborator {
         return getSiteID().toString();
     }
 
-    public void setWebSocket(WebSocket webSocket) {
-        this.webSocket = webSocket;
+    public void setSocket(Socket socket) {
+        this.socket = socket;
     }
 
     void onMessage(Message message) throws Message.InvalidMessageException {
@@ -138,8 +147,8 @@ public class Collaborator {
             Artifact artifact = ProjectManager.getInstance().getArtifact(artifactPath);
             if (artifact == null)
                 throw new RuntimeException("no artifact found for path " + artifactPath);
-            if (artifact.getCollaborativeSession().isInProcess())
-                throw new RuntimeException("collaborative session for artifact is still in process");
+            if (artifact.getSession().isInProcess())
+                throw new RuntimeException("session for artifact is still in process");
             ProjectManager.getInstance().getProject(artifactPath).removeArtifact(artifact);
             CollaboratorManager.getInstance().broadcast(new Api.RemoveArtifact(artifactPath));
             return;
@@ -148,46 +157,46 @@ public class Collaborator {
         Artifact artifact = ProjectManager.getInstance().getArtifact(artifactPath);
         if (artifact == null)
             throw new Message.InvalidMessageException("no artifact found for path " + artifactPath);
-        CollaborativeSession collaborativeSession = artifact.getCollaborativeSession();
-        Logger.debug("message concerns collaborative session {}", collaborativeSession);
+        Session session = artifact.getSession();
+        Logger.debug("message concerns session {}", session);
 
         if (message.isType(Api.TypeEnum.JOIN_REQUEST) || message.isType(Api.TypeEnum.LEAVE_REQUEST)) {
             if (message.isType(Api.TypeEnum.JOIN_REQUEST))
-                joinCollaborativeSession(collaborativeSession);
+                join(session);
             if (message.isType(Api.TypeEnum.LEAVE_REQUEST))
-                leaveCollaborativeSession(collaborativeSession);
+                leave(session);
             return;
         }
 
-        for (CollaborativeSession _collaborativeSession : collaborativeSessions)
-            if (_collaborativeSession == collaborativeSession) {
-                collaborativeSession.onMessage(this, message);
+        for (Session _Session : sessions)
+            if (_Session == session) {
+                session.onMessage(this, message);
                 return;
             }
 
-        throw new Message.InvalidMessageException("did not join collaborative session for given artifact path");
+        throw new Message.InvalidMessageException("did not join session for given artifact path");
     }
 
-    private void joinCollaborativeSession(CollaborativeSession collaborativeSession) {
-        collaborativeSession.join(this);
-        collaborativeSessions.add(collaborativeSession);
+    private void join(Session session) {
+        session.join(this);
+        sessions.add(session);
     }
 
-    private void leaveCollaborativeSession(CollaborativeSession collaborativeSession) {
-        collaborativeSession.leave(this);
-        collaborativeSessions.remove(collaborativeSession);
+    private void leave(Session session) {
+        session.leave(this);
+        sessions.remove(session);
     }
 
-    public void leaveAllCollaborativeSessions() {
-        for (CollaborativeSession collaborativeSession : collaborativeSessions)
-            collaborativeSession.leave(this);
-        collaborativeSessions.clear();
+    public void leaveAll() {
+        for (Session session : sessions)
+            session.leave(this);
+        sessions.clear();
     }
 
     private void broadcastUpdatedProfile() {
         send(new Api.CollaboratorJoined(null, this));
-        for (CollaborativeSession collaborativeSession : collaborativeSessions)
-            CollaboratorUtils.broadcastToOtherCollaborators(collaborativeSession.collaborators,
-                    new Api.CollaboratorJoined(collaborativeSession.artifactPath, this), this);
+        for (Session session : sessions)
+            Collaborators.broadcastToOthers(session.getCollaborators(),
+                    new Api.CollaboratorJoined(session.getArtifactPath(), this), this);
     }
 }

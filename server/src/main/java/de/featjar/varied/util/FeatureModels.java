@@ -1,4 +1,4 @@
-package de.ovgu.spldev.varied.util;
+package de.featjar.varied.util;
 
 import de.ovgu.featureide.fm.core.ExtensionManager;
 import de.ovgu.featureide.fm.core.PluginID;
@@ -13,26 +13,26 @@ import org.pmw.tinylog.Logger;
 import java.nio.file.Path;
 import java.util.UUID;
 
-public class FeatureModelUtils {
+public class FeatureModels {
     private static void renameFeaturesToFeatureIDs(IFeatureModel featureModel) {
         de.ovgu.featureide.fm.core.base.FeatureUtils.getFeatureNames(featureModel).forEach(featureName -> {
-            FeatureUtils.setFeatureName(featureModel.getFeature(featureName), featureName);
+            Features.setFeatureName(featureModel.getFeature(featureName), featureName);
             if (!featureModel.getRenamingsManager().renameFeature(featureName, UUID.randomUUID().toString()))
                 throw new RuntimeException("could not rename feature " + featureName + " to ID");
         });
         featureModel.getConstraints().forEach(constraint ->
-                FeatureUtils.setConstraintID(constraint, UUID.randomUUID()));
+                Features.setConstraintID(constraint, UUID.randomUUID()));
     }
 
     private static void renameFeatureIDsToFeatures(IFeatureModel featureModel) {
         de.ovgu.featureide.fm.core.base.FeatureUtils.getFeatureNames(featureModel).forEach(featureID -> {
             IFeature feature = featureModel.getFeature(featureID);
-            String featureName = FeatureUtils.getFeatureName(feature);
+            String featureName = Features.getFeatureName(feature);
             if (!featureModel.getRenamingsManager().renameFeature(featureID, featureName))
                 throw new RuntimeException("could not rename feature " + featureID + " to " + featureName);
-            FeatureUtils.removeFeatureName(feature);
+            Features.removeFeatureName(feature);
         });
-        featureModel.getConstraints().forEach(FeatureUtils::removeConstraintID);
+        featureModel.getConstraints().forEach(Features::removeConstraintID);
     }
 
     public static IFeatureModel loadFeatureModel(Path path) {

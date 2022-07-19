@@ -1,8 +1,9 @@
-package de.ovgu.spldev.varied;
+package de.featjar.varied;
 
-import de.ovgu.spldev.varied.messaging.Api;
-import de.ovgu.spldev.varied.messaging.Message;
-import de.ovgu.spldev.varied.messaging.MessageSerializer;
+import de.featjar.varied.message.Api;
+import de.featjar.varied.message.Message;
+import de.featjar.varied.message.MessageSerializer;
+import de.featjar.varied.session.CollaboratorManager;
 import org.pmw.tinylog.Logger;
 
 import javax.websocket.*;
@@ -12,10 +13,10 @@ import java.io.EOFException;
 import java.util.UUID;
 
 @ServerEndpoint(
-        value = "/websocket/{siteID}", // TODO: add a password that only the site is passed, used to reconnect
+        value = "/socket/{siteID}", // TODO: add a password that only the site is passed, used to reconnect
         encoders = MessageSerializer.MessageEncoder.class,
         decoders = MessageSerializer.MessageDecoder.class)
-public class WebSocket {
+public class Socket {
     private Session session;
     private UUID siteID;
 
@@ -47,11 +48,6 @@ public class WebSocket {
     public void onClose() {
         synchronized (lock) {
             Logger.debug("WebSocket closed for site {}", siteID);
-            // TODO: users are not logged out here by default. That means users are indefinitely
-            // maintained if they do not properly leave a collaborative session. They should
-            // be removed and kernel-GC'ed after a timeout has passed, allowing some offline
-            // editing period, and while they are offline, shown as "inactive" in the UI.
-            // UPDATE: changed this for the meantime, does not allow offline editing at all
             CollaboratorManager.getInstance().unregister(siteID);
         }
     }
@@ -89,7 +85,7 @@ public class WebSocket {
                 // If this is triggered by the user closing their browser ignore it. Else, close the socket.
                 if (!(root instanceof EOFException)) {
                     Logger.debug("closing WebSocket due to unexpected error");
-                    session.close(new CloseReason(CloseReason.CloseCodes.CLOSED_ABNORMALLY, t.toString()));
+                    session.close();
                 }
             } catch (Throwable t2) {
                 Logger.error(t2);
@@ -97,7 +93,7 @@ public class WebSocket {
         }
     }
 
-    void send(Message.IEncodable message) throws SendException {
+    public void send(Message.IEncodable message) throws SendException {
         try {
             session.getBasicRemote().sendObject(message);
         } catch (Exception e) {
@@ -105,7 +101,7 @@ public class WebSocket {
         }
     }
 
-    static class SendException extends Exception {
+    public static class SendException extends Exception {
         SendException(Throwable cause) {
             super(cause);
         }

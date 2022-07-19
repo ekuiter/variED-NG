@@ -1,8 +1,8 @@
-package de.ovgu.spldev.varied;
+package de.featjar.varied.project;
 
 import com.google.common.io.Resources;
-import de.ovgu.spldev.varied.util.FeatureModelUtils;
-import de.ovgu.spldev.varied.util.StringUtils;
+import de.featjar.varied.util.Strings;
+import de.featjar.varied.util.FeatureModels;
 import org.pmw.tinylog.Logger;
 
 import java.io.IOException;
@@ -17,8 +17,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ProjectManager {
     private static ProjectManager instance;
-    private ConcurrentHashMap<String, Project> projects = new ConcurrentHashMap<>();
-    static String EMPTY = "Empty";
+    private final ConcurrentHashMap<String, Project> projects = new ConcurrentHashMap<>();
+    public static String EMPTY = "Empty";
 
     {
         resetInstance();
@@ -74,10 +74,10 @@ public class ProjectManager {
         return projects.get(name.toLowerCase());
     }
 
-    void addProject(Project project) {
+    public void addProject(Project project) {
         Logger.info("adding project {}", project);
         String name = project.getName().toLowerCase();
-        if (!StringUtils.isPresent(name))
+        if (!Strings.isPresent(name))
             throw new RuntimeException("no name given for project");
         if (projects.containsValue(project))
             throw new RuntimeException("project already registered");
@@ -93,7 +93,7 @@ public class ProjectManager {
                     try {
                         Logger.info("loading remote artifact from " + url);
                         String source = new Scanner(new URL(url).openStream(), "UTF-8").useDelimiter("\\A").next();
-                        return FeatureModelUtils.loadFeatureModel(source, artifactName + ".xml");
+                        return FeatureModels.loadFeatureModel(source, artifactName + ".xml");
                     } catch (IOException e) {
                         throw new RuntimeException("could not add remote artifact at URL " + url);
                     }
@@ -118,11 +118,11 @@ public class ProjectManager {
         projects.remove(project.getName().toLowerCase());
     }
 
-    Project getProject(Artifact.Path artifactPath) {
+    public Project getProject(Artifact.Path artifactPath) {
         return getProject(artifactPath.getProjectName());
     }
 
-    Artifact getArtifact(Artifact.Path artifactPath) {
+    public Artifact getArtifact(Artifact.Path artifactPath) {
         Project project = getProject(artifactPath);
         if (project == null)
             return null;
@@ -140,7 +140,7 @@ public class ProjectManager {
         return artifacts;
     }
 
-    Collection<Artifact.Path> getArtifactPaths() {
+    public Collection<Artifact.Path> getArtifactPaths() {
         Collection<Artifact.Path> artifactPaths = new HashSet<>();
         for (Project project : getProjects())
             for (Artifact artifact : project.getArtifacts())

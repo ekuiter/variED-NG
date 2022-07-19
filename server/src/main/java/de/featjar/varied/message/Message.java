@@ -1,9 +1,9 @@
-package de.ovgu.spldev.varied.messaging;
+package de.featjar.varied.message;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
-import de.ovgu.spldev.varied.Artifact;
-import de.ovgu.spldev.varied.util.StringUtils;
+import de.featjar.varied.util.Strings;
+import de.featjar.varied.project.Artifact;
 
 import java.util.stream.Stream;
 
@@ -12,7 +12,7 @@ import java.util.stream.Stream;
  */
 abstract public class Message {
     public static class Type {
-        private Api.TypeEnum typeEnum;
+        private final Api.TypeEnum typeEnum;
 
         private Type(Api.TypeEnum typeEnum) {
             this.typeEnum = typeEnum;
@@ -31,13 +31,15 @@ abstract public class Message {
         }
 
         private static String[] getTypes() {
-            return Stream.of(Api.TypeEnum.values()).map(Api.TypeEnum::toString).toArray(String[]::new);
+            return Stream.of(Api.TypeEnum.values())
+                    .map(Api.TypeEnum::toString)
+                    .toArray(String[]::new);
         }
 
         static RuntimeTypeAdapterFactory<Message> registerSubtypes(RuntimeTypeAdapterFactory<Message> runtimeTypeAdapterFactory) {
             for (String type : getTypes())
                 try {
-                    Class klass = Class.forName(StringUtils.toClassName(Api.class.getName() + "$", type));
+                    Class<Message> klass = (Class<Message>) Class.forName(Strings.toClassName(Api.class.getName() + "$", type));
                     if (IDecodable.class.isAssignableFrom(klass))
                         runtimeTypeAdapterFactory = runtimeTypeAdapterFactory.registerSubtype(klass, type);
                 } catch (ClassNotFoundException ignored) {
