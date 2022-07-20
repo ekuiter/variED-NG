@@ -3,32 +3,22 @@
  */
 
 import constants from '../constants';
-import {Message, MessageType} from '../types';
+import {Message} from '../types';
 import logger from '../helpers/logger';
-import {State} from '../store/types';
 import Sockette from './Sockette';
-import {Persistor} from 'redux-persist';
+import {v4 as uuidv4} from 'uuid';
 
 type HandleMessageFunction = (data: Message) => void;
 
 let handleMessage: HandleMessageFunction;
 const tag = 'socket';
 
-// this is _not_ good code, but it gets the job done >_<
-function getUserID() {
-    const state: State | undefined =
-        (window as any).app && (window as any).app.store && (window as any).app.store.getState();
-    if (!state)
-        logger.warn(() => 'store not accessible, can not obtain site ID');
-    return state && state.myself ? state.myself.userID : 'initialize';
-}
-
 const getWebSocket = ((): () => Promise<Sockette> => {
     let promise: Promise<Sockette> | undefined;
 
     function connect(): Promise<Sockette> {
         return promise = new Promise((resolve, reject) => {
-            const url = constants.server.webSocket("123e4567-e89b-12d3-a456-426614174000");
+            const url = constants.server.webSocket(uuidv4());
             logger.logTagged({tag}, () => `connecting to ${url}`);
 
             const sockette = new Sockette(url, {
@@ -58,20 +48,7 @@ const getWebSocket = ((): () => Promise<Sockette> => {
                 onmessage(message) {
                     const data: Message = JSON.parse(message.data);
                     logger.logTagged({tag: 'receive'}, () => data);
-                    // TODO: when we have better error handling, revise this
-                    if (data.type === MessageType.ERROR && data.error.indexOf('not registered') !== -1) {
-                        logger.warn(() => `can not register with site ID ${getUserID()}, will try to obtain new site ID`);
-                        // TODO: this is a duplicate (see CommandPalette)
-                        const persistor: Persistor | undefined =
-                            (window as any).app && (window as any).app.persistor;
-                        if (!persistor)
-                            logger.warn(() => 'can not obtain persistor');
-                        else {
-                            persistor.pause();
-                            persistor.purge();
-                            window.location.reload();
-                        }
-                    } else if (handleMessage)
+                    if (handleMessage)
                         handleMessage(data);
                 }
             });

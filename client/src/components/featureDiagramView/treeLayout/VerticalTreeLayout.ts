@@ -7,7 +7,7 @@ import VerticalTreeLink from './VerticalTreeLink';
 import VerticalTreeNode from './VerticalTreeNode';
 import {estimateXOffset, estimateYOffset} from './estimation';
 import {FeatureDiagramLayoutType} from '../../../types';
-import {FeatureNode} from '../../../modeling/types';
+import {FeatureNode} from '../../../model/types';
 
 export default class extends AbstractTreeLayout {
     constructor(props: AbstractTreeLayoutProps) {

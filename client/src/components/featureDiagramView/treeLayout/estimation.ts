@@ -7,7 +7,7 @@ import {FeatureDiagramLayoutType} from '../../../types';
 import measureTextWidth from '../../../helpers/measureTextWidth';
 import constants from '../../../constants';
 import logger from '../../../helpers/logger';
-import {FeatureNode} from '../../../modeling/types';
+import {FeatureNode} from '../../../model/types';
 
 // estimates the width of a node's rectangle
 export function estimateRectWidth(settings: Settings, estimatedTextWidth: number): number {

@@ -7,7 +7,7 @@ import {Settings} from '../../../store/settings';
 import {attrIfPresent, drawCurve, drawLine, ArcPathFunction} from '../../../helpers/svg';
 import {estimateRectWidth} from './estimation';
 import {Point, D3Selection, Rect} from '../../../types';
-import {FeatureNode, NodePointFunction} from '../../../modeling/types';
+import {FeatureNode, NodePointFunction} from '../../../model/types';
 
 function leftSideX(x: number, rectInfo: Rect): number {
     return x + rectInfo.x;

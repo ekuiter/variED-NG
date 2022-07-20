@@ -1,4 +1,4 @@
-import FeatureDiagram, {getFeatureIDsBelow, hasChildren} from './FeatureModel';
+import FeatureDiagram, {getFeatureIDsBelow, hasChildren} from './FeatureDiagram';
 import {Formula} from './types';
 
 const featureExists = (featureID: string, featureModel: FeatureDiagram): boolean => !!featureModel.getFeatureTree(featureID);

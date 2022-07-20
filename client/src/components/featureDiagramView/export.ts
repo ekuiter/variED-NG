@@ -2,7 +2,7 @@
  * Implementation of feature diagram export algorithms.
  */
 
-import FeatureDiagram from '../../modeling/FeatureModel';
+import FeatureDiagram from '../../model/FeatureDiagram';
 import {saveAs} from 'file-saver';
 import {importSvg2PdfJs, importJspdfYworks, importCanvg} from '../../imports';
 import {FeatureDiagramLayoutType, FormatType, FormatOptions, ArtifactPath, ClientFormatType, ServerFormatType} from '../../types';

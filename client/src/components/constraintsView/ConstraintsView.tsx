@@ -1,5 +1,5 @@
 import React from 'react';
-import FeatureDiagram, {ConstraintNode} from '../../modeling/FeatureModel';
+import FeatureDiagram, {ConstraintNode} from '../../model/FeatureDiagram';
 import {DetailsList, IColumn, SelectionMode} from '@fluentui/react';
 import i18n from '../../i18n';
 import ConstraintView from './ConstraintView';

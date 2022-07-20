@@ -31,7 +31,7 @@ declare var window: any;
 
     initializeIcons('/fonts/');
 
-    const composeEnhancers = (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+    const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
     const substateTransform = createTransform(
         // ignore the state keys whitelisted below
         // (redux-persist white/blacklist does not work for some reason)

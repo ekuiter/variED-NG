@@ -21,7 +21,7 @@ class SplitView extends React.Component<Props> {
         let isDragging = false;
 
         function isTouchEvent(e: MouseEvent | TouchEvent | Touch): e is TouchEvent {
-            return (window as any).TouchEvent && e instanceof TouchEvent;
+            return window.TouchEvent && e instanceof TouchEvent;
         }
 
         const dragStart = () => {
@@ -68,8 +68,8 @@ class SplitView extends React.Component<Props> {
     render() {
         const enableSecondaryView = this.props.enableSecondaryView();
 
-        if (!this.contentRef.current)
-            this.forceUpdate(); // TODO: this is not ideal - instead, pass width/height of view as props?
+        // if (!this.contentRef.current)
+        //     this.forceUpdate(); // TODO: this is not ideal - instead, pass width/height of view as props?
 
         return (
             <div className={'content ' + this.props.settings!.views.splitDirection} ref={this.contentRef}>

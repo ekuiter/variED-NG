@@ -9,7 +9,7 @@ import commands, {makeDivider} from '../commands';
 import {FeatureDiagramLayoutType} from '../../types';
 import FeatureComponent, {FeatureComponentProps, isFeatureOffscreen} from './FeatureComponent';
 import {OnShowOverlayFunction, OnCollapseFeaturesFunction, OnCollapseFeaturesBelowFunction, OnExpandFeaturesFunction, OnExpandFeaturesBelowFunction, OnDeselectAllFeaturesFunction, OnRemoveFeatureFunction, OnCreateFeatureAboveFunction, OnCreateFeatureBelowFunction, OnRemoveFeatureSubtreeFunction, OnSetFeatureAbstractFunction, OnSetFeatureHiddenFunction, OnSetFeatureOptionalFunction, OnSetFeatureAndFunction, OnSetFeatureOrFunction, OnSetFeatureAlternativeFunction} from '../../store/types';
-import {FeatureNode, FeatureTree} from '../../modeling/types';
+import {FeatureNode, FeatureTree} from '../../model/types';
 
 type Props = FeatureComponentProps & {
     onDismiss: () => void,

@@ -4,7 +4,7 @@
 
 import AbstractTreeNode from './AbstractTreeNode';
 import {estimateRectWidth} from './estimation';
-import {FeatureNode} from '../../../modeling/types';
+import {FeatureNode} from '../../../model/types';
 import {StyleDescriptor} from '../../../helpers/svg';
 
 export default class extends AbstractTreeNode {

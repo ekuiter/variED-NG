@@ -17,7 +17,7 @@ import objectPath from 'object-path';
 import * as objectPathImmutable from 'object-path-immutable';
 import logger, {setLogLevel, LogLevel, defaultLogLevel} from '../helpers/logger';
 import {AnyAction, Store as ReduxStore} from 'redux';
-import {FeatureModel} from '../modeling/types';
+import {FeatureModel} from '../model/types';
 import {getCurrentArtifactPath, redirectToArtifactPath} from '../router';
 import {saveAs} from 'file-saver';
 import {getExportFileName} from '../components/featureDiagramView/export';
@@ -187,9 +187,18 @@ function serverReceiveReducer(state: State, action: Action): State {
                 if (!state.myself)
                     throw new Error('no site ID assigned to self');
                 const apiFeatureModel = action.payload.payload;
-                state = getNewState(state,
-                    'sessions', [...state.sessions,
-                        initialFeatureDiagramSessionState(action.payload.artifactPath!, apiFeatureModel)]);
+                try {
+                    state = getNewState(state, 'sessions',
+                    getNewSessions(state, action.payload.artifactPath!,
+                        (session: Session) => {
+                            return {...session, kernelFeatureModel: action.payload.payload};
+                        }));
+                } catch (e) {
+                    state = getNewState(state,
+                        'sessions', [...state.sessions,
+                            initialFeatureDiagramSessionState(action.payload.artifactPath!, apiFeatureModel)]);
+    
+                }
                 if (isEditingFeatureModel(state)) {
                     state = getNewState(state, 'sessions',
                     getNewSessions(state, action.payload.artifactPath!,
@@ -199,6 +208,8 @@ function serverReceiveReducer(state: State, action: Action): State {
                         })));
                     state = updateFeatureModel(state, action.payload.artifactPath!);
                 }
+                return state;
+
                 return state;
 
             default:

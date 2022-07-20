@@ -11,7 +11,7 @@ import {getCurrentSession, isFeatureDiagramSession, getCurrentFeatureModel} from
 import actions from '../store/actions';
 import {State, StateDerivedProps} from '../store/types';
 import logger from '../helpers/logger';
-import {preconditions} from '../modeling/preconditions';
+import {preconditions} from '../model/preconditions';
 import {withRouter} from 'react-router';
 
 const ifFeatureModel = (props: StateDerivedProps) => !!props.featureModel,

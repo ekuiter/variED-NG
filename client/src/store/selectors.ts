@@ -5,11 +5,11 @@
  */
 
 import createCachedSelector from 're-reselect';
-import FeatureDiagram from '../modeling/FeatureModel';
+import FeatureDiagram from '../model/FeatureDiagram';
 import {State, Session, FeatureDiagramSession} from './types';
 import logger from '../helpers/logger';
 import {ArtifactPath, isArtifactPathEqual, artifactPathToString, artifactPathCacheKey} from '../types';
-import {FeatureModel} from '../modeling/types';
+import {FeatureModel} from '../model/types';
 import {getCurrentArtifactPath} from '../router';
 
 export function isFeatureDiagramSession(session?: Session): session is FeatureDiagramSession {

@@ -5,9 +5,9 @@
 
 import {Point, D3Selection, Func} from '../types';
 import logger from './logger';
-import {FeaturePropertyKey, NodeCoordinateFunction, FeatureNode, NodePointFunction} from '../modeling/types';
+import {FeaturePropertyKey, NodeCoordinateFunction, FeatureNode, NodePointFunction} from '../model/types';
 import {select} from 'd3-selection';
-import {getPropertyString} from '../modeling/FeatureModel';
+import {getPropertyString} from '../model/FeatureDiagram';
 
 export interface StyleDescriptor {
     property?: FeaturePropertyKey,

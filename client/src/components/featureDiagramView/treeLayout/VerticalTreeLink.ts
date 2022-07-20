@@ -5,7 +5,7 @@
 import AbstractTreeLink from './AbstractTreeLink';
 import {drawLine, ArcPathFunction} from '../../../helpers/svg';
 import {Rect, Point, D3Selection} from '../../../types';
-import {FeatureNode, NodePointFunction} from '../../../modeling/types';
+import {FeatureNode, NodePointFunction} from '../../../model/types';
 
 function topSide(y: number, rectInfo: Rect): number {
     return y + rectInfo.y;

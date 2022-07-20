@@ -3,7 +3,7 @@ import {sendMessage} from './webSocket';
 import logger from '../helpers/logger';
 
 const tag = 'queue';
-const outgoingMessageQueue: Message[] = []; // TODO: save in localStorage
+const outgoingMessageQueue: Message[] = [];
 const incomingMessageQueue: Message[] = [];
 let isFlushingOutgoingMessageQueue = false;
 

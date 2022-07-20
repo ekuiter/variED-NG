@@ -9,8 +9,8 @@ import styles from './styles';
 import {isCommand} from '../../../helpers/withKeys';
 import {OverlayType, Rect, D3Selection, Point} from '../../../types';
 import {OnShowOverlayFunction, OnExpandFeaturesFunction, OnToggleFeatureGroupTypeFunction} from '../../../store/types';
-import {FeatureNode} from '../../../modeling/types';
-import {getNumberOfFeaturesBelow, isCollapsed} from '../../../modeling/FeatureModel';
+import {FeatureNode} from '../../../model/types';
+import {getNumberOfFeaturesBelow, isCollapsed} from '../../../model/FeatureDiagram';
 
 // declare class AbstractTreeLink {
 //     collapseAnchor(_node: FeatureNode): Partial<Point>;

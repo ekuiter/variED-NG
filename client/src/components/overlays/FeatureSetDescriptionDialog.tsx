@@ -6,9 +6,9 @@ import React from 'react';
 import i18n from '../../i18n';
 import {TextFieldDialog, largeDialogStyle} from '../../helpers/Dialog';
 import FeatureComponent, {FeatureComponentProps} from './FeatureComponent';
-import {FeatureNode, FeatureTree} from '../../modeling/types';
+import {FeatureNode, FeatureTree} from '../../model/types';
 import {OnSetFeatureDescriptionFunction} from '../../store/types';
-import {preconditions} from '../../modeling/preconditions';
+import {preconditions} from '../../model/preconditions';
 
 type Props = FeatureComponentProps & {
     isOpen: boolean,

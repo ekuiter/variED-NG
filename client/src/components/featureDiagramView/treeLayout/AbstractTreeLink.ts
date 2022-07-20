@@ -13,8 +13,8 @@ import {
 import styles from './styles';
 import {Rect, Point, D3Selection} from '../../../types';
 import {OnToggleFeatureOptionalFunction} from '../../../store/types';
-import {FeatureNode, NodeCoordinateForAxisFunction, NodePointFunction} from '../../../modeling/types';
-import {hasChildren} from '../../../modeling/FeatureModel';
+import {FeatureNode, NodeCoordinateForAxisFunction, NodePointFunction} from '../../../model/types';
+import {hasChildren} from '../../../model/FeatureDiagram';
 
 // declare class AbstractTreeNode {
 //     rectInfo: Rect;

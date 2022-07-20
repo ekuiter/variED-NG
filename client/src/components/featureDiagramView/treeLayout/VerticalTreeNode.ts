@@ -4,7 +4,7 @@
 
 import AbstractTreeNode from './AbstractTreeNode';
 import {StyleDescriptor} from '../../../helpers/svg';
-import {FeatureNode} from '../../../modeling/types';
+import {FeatureNode} from '../../../model/types';
 
 export default class extends AbstractTreeNode {
     x(node: FeatureNode): number {

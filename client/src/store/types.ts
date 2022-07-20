@@ -1,7 +1,7 @@
-import FeatureDiagram from '../modeling/FeatureModel';
+import FeatureDiagram from '../model/FeatureDiagram';
 import {defaultSettings, Settings} from './settings';
 import {Message, FeatureDiagramLayoutType, OverlayType, OverlayProps, ArtifactPath} from '../types';
-import {FeatureTree, Formula, FeatureModel} from '../modeling/types';
+import {FeatureTree, Formula, FeatureModel} from '../model/types';
 
 export interface User {
     userID: string,

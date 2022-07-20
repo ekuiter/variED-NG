@@ -12,12 +12,12 @@ import {Settings} from '../../../store/settings';
 import {updateRect} from '../../../helpers/svg';
 import '../../../stylesheets/treeLayout.css';
 import {D3Selection, Bbox, OverlayType, isFloatingFeatureOverlay, OverlayProps} from '../../../types';
-import FeatureDiagram from '../../../modeling/FeatureModel';
+import FeatureDiagram from '../../../model/FeatureDiagram';
 import AbstractTreeNode from './AbstractTreeNode';
 import AbstractTreeLink from './AbstractTreeLink';
 import {OnShowOverlayFunction, OnHideOverlayFunction, OnSetSelectMultipleFeaturesFunction, OnSelectFeatureFunction, OnDeselectFeatureFunction, OnExpandFeaturesFunction, OnDeselectAllFeaturesFunction, OnToggleFeatureGroupTypeFunction, OnToggleFeatureOptionalFunction} from '../../../store/types';
 import logger from '../../../helpers/logger';
-import {FeatureNode, NodeCoordinateForAxisFunction} from '../../../modeling/types';
+import {FeatureNode, NodeCoordinateForAxisFunction} from '../../../model/types';
 import constants from '../../../constants';
 
 const tag = 'feature diagram';
@@ -327,8 +327,8 @@ export default class extends React.Component<any>{ //<AbstractTreeLayoutProps> {
 
     updateSelection(): void {
         const {node} = this.joinData(false, false, true);
-        node.filter(d => this.props.selectedFeatureIDs.includes(d.data.ID)).attr('class', 'node selected');
-        node.filter(d => !this.props.selectedFeatureIDs.includes(d.data.ID)).attr('class', 'node');
-        node.filter(d => this.props.overlayProps.featureID === d.data.ID).attr('class', 'node selected');
+        node.filter(d => this.props.selectedFeatureIDs.includes(d.data.id)).attr('class', 'node selected');
+        node.filter(d => !this.props.selectedFeatureIDs.includes(d.data.id)).attr('class', 'node');
+        node.filter(d => this.props.overlayProps.featureID === d.data.id).attr('class', 'node selected');
     }
 }

@@ -27,7 +27,9 @@ public class Api {
         SET_USER_PROFILE,
         JOIN_REQUEST,
         LEAVE_REQUEST,
-        ARTIFACT_DATA
+        ARTIFACT_DATA,
+        OPERATION_FEATURE_CREATE_BELOW,
+        OPERATION_FEATURE_REMOVE
     }
 
     public static class Error extends Message implements Message.IEncodable {
@@ -114,5 +116,15 @@ public class Api {
             super(TypeEnum.ARTIFACT_DATA, artifactPath);
             this.payload = payload;
         }
+    }
+
+    public static class OperationFeatureCreateBelow extends Message implements Message.IDecodable {
+        @Expose
+        public String featureParentID;
+    }
+
+    public static class OperationFeatureRemove extends Message implements Message.IDecodable {
+        @Expose
+        public String[] featureIDs;
     }
 }

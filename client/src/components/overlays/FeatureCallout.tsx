@@ -9,7 +9,7 @@ import {CommandBar} from '@fluentui/react';
 import {FeatureDiagramLayoutType} from '../../types';
 import FeatureComponent, {FeatureComponentProps, isFeatureOffscreen} from './FeatureComponent';
 import {OnShowOverlayFunction, OnCollapseFeaturesFunction, OnCollapseFeaturesBelowFunction, OnExpandFeaturesFunction, OnExpandFeaturesBelowFunction, OnRemoveFeatureFunction, OnCreateFeatureBelowFunction, OnCreateFeatureAboveFunction, OnRemoveFeatureSubtreeFunction} from '../../store/types';
-import {FeatureNode, FeatureTree} from '../../modeling/types';
+import {FeatureNode, FeatureTree} from '../../model/types';
 
 type Props = FeatureComponentProps & {
     onDismiss: () => void,

@@ -7,7 +7,7 @@ import HorizontalTreeLink from './HorizontalTreeLink';
 import HorizontalTreeNode from './HorizontalTreeNode';
 import {estimateRectHeight, estimateXOffset, estimateYOffset} from './estimation';
 import {FeatureDiagramLayoutType} from '../../../types';
-import {FeatureNode} from '../../../modeling/types';
+import {FeatureNode} from '../../../model/types';
 
 export default class extends AbstractTreeLayout {
     widestTextOnLayer: any = {};

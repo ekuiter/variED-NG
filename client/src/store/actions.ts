@@ -8,7 +8,7 @@ import {Message, MessageType, FeatureDiagramLayoutType, OverlayType, OverlayProp
 import {Dispatch, AnyAction, Action as ReduxAction} from 'redux';
 import {ThunkAction} from 'redux-thunk';
 import {State} from './types';
-import {FeatureTree, Formula} from '../modeling/types';
+import {FeatureTree, Formula} from '../model/types';
 import {enqueueOutgoingMessage, flushOutgoingMessageQueue} from '../server/messageQueue';
 import deferred from '../helpers/deferred';
 import {getCurrentArtifactPath} from '../router';
@@ -34,15 +34,6 @@ function createOperationAction<P>(makePOSequence: (payload: P, kernel: object) =
     return (payload: P) => {
         return async (dispatch: Dispatch<AnyAction>, getState: () => State) => {
             return dispatch(action(KERNEL_GENERATE_OPERATION, {}));
-            // const state = getState(),
-            //     artifactPath = getCurrentArtifactPath(state.sessions);
-            // const [kernelContext, [kernelFeatureModel, operation]] =
-            //     Kernel.run(state, artifactPath, kernel =>
-            //         kernel.generateOperation(makePOSequence(payload, kernel)));
-            // const message: Message = {type: MessageType.KERNEL, message: operation};
-            // enqueueOutgoingMessage(message, artifactPath);
-            // deferred(flushOutgoingMessageQueue)();
-            // return dispatch(action(KERNEL_GENERATE_OPERATION, {artifactPath, kernelFeatureModel, kernelContext}));
         };
     };
 }
@@ -91,11 +82,11 @@ const actions = {
         reset: createMessageAction(() => ({type: MessageType.RESET})),
         featureDiagram: {
             feature: {
-                createBelow: createOperationAction(({featureParentID}: {featureParentID: string}, kernel) => null),
+                createBelow: createMessageAction(({featureParentID}: {featureParentID: string}) => ({type: MessageType.OPERATION_FEATURE_CREATE_BELOW, featureParentID})),
                 
                 createAbove: createOperationAction(({featureIDs}: {featureIDs: string[]}, kernel) => null),
                 
-                remove: createOperationAction(({featureIDs}: {featureIDs: string[]}, kernel) => null),
+                remove: createMessageAction(({featureIDs}: {featureIDs: string[]}) => ({type: MessageType.OPERATION_FEATURE_REMOVE, featureIDs})),
                 
                 removeSubtree: createOperationAction(({featureIDs}: {featureIDs: string[]}, kernel) => null),
 

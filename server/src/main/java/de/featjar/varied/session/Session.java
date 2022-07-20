@@ -1,5 +1,6 @@
 package de.featjar.varied.session;
 
+import de.featjar.model.Feature;
 import de.featjar.varied.api.Api;
 import de.featjar.varied.api.Message;
 import de.featjar.varied.api.Payload;
@@ -86,11 +87,31 @@ public abstract class Session {
                 return true;
             }
 
+            if (message instanceof Api.OperationFeatureCreateBelow) {
+                String featureParentID = ((Api.OperationFeatureCreateBelow) message).featureParentID;
+                Feature feature = featureModel.getFeature(featureModel.getIdentifier().getFactory().parse(featureParentID)).orElseThrow();
+                feature.mutate().createFeatureBelow();
+                Users.broadcast(users, getArtifactData());
+                return true;
+            }
+
+            if (message instanceof Api.OperationFeatureRemove) {
+                Arrays.stream(((Api.OperationFeatureRemove) message).featureIDs)
+                        .map(featureID -> featureModel.getFeature(featureModel.getIdentifier().getFactory().parse(featureID)).orElseThrow())
+                        .forEach(feature -> feature.mutate().remove());
+                Users.broadcast(users, getArtifactData());
+                return true;
+            }
+
             return false;
         }
 
         protected void _join(User newUser) {
-            newUser.send(new Api.ArtifactData(artifactPath, Payload.fromFeatureModel(featureModel)));
+            newUser.send(getArtifactData());
+        }
+
+        private Api.ArtifactData getArtifactData() {
+            return new Api.ArtifactData(artifactPath, Payload.fromFeatureModel(featureModel));
         }
 
         protected void _leave(User oldUser) {

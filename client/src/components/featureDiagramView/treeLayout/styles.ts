@@ -6,7 +6,7 @@
 
 import {Settings} from '../../../store/settings';
 import {StyleDescriptor} from '../../../helpers/svg';
-import {getPropertyString} from '../../../modeling/FeatureModel';
+import {getPropertyString} from '../../../model/FeatureDiagram';
 
 function getLinkStrokeWidth(settings: Settings): string {
     return `${settings.featureDiagram.treeLayout.link.strokeWidth}px`;

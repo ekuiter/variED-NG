@@ -5,14 +5,14 @@ import {getShortcutText} from '../../shortcuts';
 import {OverlayType, Omit, FeatureDiagramLayoutType, ClientFormatType, isArtifactPathEqual, ArtifactPath} from '../../types';
 import Palette, {PaletteItem, PaletteAction, getKey} from '../../helpers/Palette';
 import {canExport} from '../featureDiagramView/export';
-import FeatureDiagram, {ConstraintNode, getFeatureIDsBelow, paletteConstraintRenderer} from '../../modeling/FeatureModel';
+import FeatureDiagram, {ConstraintNode, getFeatureIDsBelow, paletteConstraintRenderer} from '../../model/FeatureDiagram';
 import {arrayUnique} from '../../helpers/array';
 import deferred from '../../helpers/deferred';
 import logger from '../../helpers/logger';
 import {Persistor} from 'redux-persist';
 import {enableConstraintsView} from '../constraintsView/ConstraintsView';
 import {defaultSettings, Settings} from '../../store/settings';
-import {preconditions} from '../../modeling/preconditions';
+import {preconditions} from '../../model/preconditions';
 import {redirectToArtifactPath} from '../../router';
 
 interface Props {

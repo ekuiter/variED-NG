@@ -10,10 +10,10 @@ import {ContextualMenuItemType} from '@fluentui/react';
 import {getShortcutText} from '../shortcuts';
 import {canExport, doExport} from './featureDiagramView/export';
 import {OnShowOverlayFunction, OnCollapseFeaturesFunction, OnExpandFeaturesFunction, OnSetFeatureDiagramLayoutFunction, OnFitToScreenFunction, OnDeselectAllFeaturesFunction, OnCollapseFeaturesBelowFunction, OnExpandFeaturesBelowFunction, OnSetSelectMultipleFeaturesFunction, OnSelectAllFeaturesFunction, OnCollapseAllFeaturesFunction, OnExpandAllFeaturesFunction, OnRemoveFeatureFunction, OnUndoFunction, OnRedoFunction, OnCreateFeatureBelowFunction, OnCreateFeatureAboveFunction, OnRemoveFeatureSubtreeFunction, OnSetFeatureAbstractFunction, OnSetFeatureHiddenFunction, OnSetFeatureOptionalFunction, OnSetFeatureAndFunction, OnSetFeatureOrFunction, OnSetFeatureAlternativeFunction, OnSetSettingFunction} from '../store/types';
-import FeatureDiagram, {hasActualChildren, isCollapsed} from '../modeling/FeatureModel';
-import {FeatureNode, FeatureTree} from '../modeling/types';
+import FeatureDiagram, {hasActualChildren, isCollapsed} from '../model/FeatureDiagram';
+import {FeatureNode, FeatureTree} from '../model/types';
 import {defaultSettings, Settings} from '../store/settings';
-import {preconditions} from '../modeling/preconditions';
+import {preconditions} from '../model/preconditions';
 import logger from '../helpers/logger';
 import {forceFlushMessageQueues} from '../server/messageQueue';
 
@@ -37,7 +37,7 @@ const exportClientFormatItem = (featureDiagramLayout: FeatureDiagramLayoutType,
         : [];
 
 export const makeDivider = () =>
-    ({key: 'divider', itemType: ContextualMenuItemType.Divider});
+    ({key: 'divider', itemType: ContextualMenuItemType.Divider}); // todo: duplicate key sometimes: Encountered two children with the same key, `divider`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
 
 export const collapseCommand = (features: FeatureNode[], onCollapseFeatures: OnCollapseFeaturesFunction,
     onExpandFeatures: OnExpandFeaturesFunction, onClick?: () => void) => ({

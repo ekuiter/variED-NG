@@ -1,5 +1,5 @@
 import React, {ReactNode} from 'react';
-import {ConstraintNode, createConstraintRenderer} from '../../modeling/FeatureModel';
+import {ConstraintNode, createConstraintRenderer} from '../../model/FeatureDiagram';
 import constants from '../../constants';
 
 interface Props {

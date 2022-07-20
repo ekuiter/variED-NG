@@ -4,8 +4,8 @@
 
 import React from 'react';
 import {Settings} from '../../store/settings';
-import FeatureDiagram from '../../modeling/FeatureModel';
-import {FeatureNode, FeatureTree} from '../../modeling/types';
+import FeatureDiagram from '../../model/FeatureDiagram';
+import {FeatureNode, FeatureTree} from '../../model/types';
 
 export interface FeatureComponentProps {
     featureModel: FeatureDiagram,
@@ -49,9 +49,9 @@ export default ({doUpdate = false} = {}) =>
         }
 
         render(): any {
-            let feature = this.getFeatureNode();
-            if (typeof feature === 'undefined')
+            let featureNode = this.getFeatureNode();
+            if (typeof featureNode === 'undefined')
                 return null;
-            return this.renderIfFeatureNode(this.featureNode = feature);
+            return this.renderIfFeatureNode(this.featureNode = featureNode);
         }
     };

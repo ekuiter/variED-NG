@@ -110,7 +110,7 @@ const translationMap = {
         format: 'Format',
         layout: 'Layout',
         delay: 'Delay',
-        switch: 'Switch to session',
+        switch: 'Switch session',
         joinRequest: 'Join session',
         leaveRequest: 'Leave session',
         userProfile: 'User profile',
