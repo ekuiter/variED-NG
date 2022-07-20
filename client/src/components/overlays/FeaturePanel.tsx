@@ -8,7 +8,7 @@ import i18n from '../../i18n';
 import {CommandBar, ICommandBarItemProps} from '@fluentui/react';
 import commands from '../commands';
 import FeatureComponent, {FeatureComponentProps} from './FeatureComponent';
-import {FeatureTree} from '../../modeling/types';
+import {FeatureNode, FeatureTree} from '../../modeling/types';
 import {OnShowOverlayFunction, OnCollapseFeaturesFunction, OnCollapseFeaturesBelowFunction, OnExpandFeaturesFunction, OnExpandFeaturesBelowFunction, OnRemoveFeatureFunction, OnCreateFeatureBelowFunction, OnCreateFeatureAboveFunction, OnSetFeatureAbstractFunction, OnSetFeatureHiddenFunction, OnSetFeatureOptionalFunction, OnSetFeatureAndFunction, OnSetFeatureOrFunction, OnSetFeatureAlternativeFunction, OnRemoveFeatureSubtreeFunction} from '../../store/types';
 
 type Props = FeatureComponentProps & {
@@ -55,7 +55,7 @@ export default class extends FeatureComponent()<Props> {
             styles={{root: {margin: '0 -40px', padding: '0 35px'}}}/>
     );
 
-    renderIfFeature(feature: FeatureTree) {
+    renderIfFeatureNode(feature: FeatureNode) {
         return (
             <Panel
                 isOpen={this.props.isOpen}
@@ -64,10 +64,10 @@ export default class extends FeatureComponent()<Props> {
                 isLightDismiss={true}
                 headerText={
                     <span>
-                        {i18n.t('overlays.featurePanel.title')}: <strong>{feature.name}</strong>
+                        {i18n.t('overlays.featurePanel.title')}: <strong>{feature.data.name}</strong>
                     </span> as any}
                 onRenderFooterContent={this.onRenderFooterContent}>
-                <p>{feature.description || <em>{i18n.t('overlays.featurePanel.noDescriptionSet')}</em>}</p>
+                <p>{feature.data.description || <em>{i18n.t('overlays.featurePanel.noDescriptionSet')}</em>}</p>
             </Panel>
         );
     }

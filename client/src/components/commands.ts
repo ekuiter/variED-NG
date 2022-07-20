@@ -11,7 +11,7 @@ import {getShortcutText} from '../shortcuts';
 import {canExport, doExport} from './featureDiagramView/export';
 import {OnShowOverlayFunction, OnCollapseFeaturesFunction, OnExpandFeaturesFunction, OnSetFeatureDiagramLayoutFunction, OnFitToScreenFunction, OnDeselectAllFeaturesFunction, OnCollapseFeaturesBelowFunction, OnExpandFeaturesBelowFunction, OnSetSelectMultipleFeaturesFunction, OnSelectAllFeaturesFunction, OnCollapseAllFeaturesFunction, OnExpandAllFeaturesFunction, OnRemoveFeatureFunction, OnUndoFunction, OnRedoFunction, OnCreateFeatureBelowFunction, OnCreateFeatureAboveFunction, OnRemoveFeatureSubtreeFunction, OnSetFeatureAbstractFunction, OnSetFeatureHiddenFunction, OnSetFeatureOptionalFunction, OnSetFeatureAndFunction, OnSetFeatureOrFunction, OnSetFeatureAlternativeFunction, OnSetSettingFunction} from '../store/types';
 import FeatureDiagram, {hasActualChildren, isCollapsed} from '../modeling/FeatureModel';
-import {FeatureTree} from '../modeling/types';
+import {FeatureNode, FeatureTree} from '../modeling/types';
 import {defaultSettings, Settings} from '../store/settings';
 import {preconditions} from '../modeling/preconditions';
 import logger from '../helpers/logger';
@@ -39,13 +39,13 @@ const exportClientFormatItem = (featureDiagramLayout: FeatureDiagramLayoutType,
 export const makeDivider = () =>
     ({key: 'divider', itemType: ContextualMenuItemType.Divider});
 
-export const collapseCommand = (features: FeatureTree[], onCollapseFeatures: OnCollapseFeaturesFunction,
+export const collapseCommand = (features: FeatureNode[], onCollapseFeatures: OnCollapseFeaturesFunction,
     onExpandFeatures: OnExpandFeaturesFunction, onClick?: () => void) => ({
-    disabled: features.some(feature => !hasActualChildren(feature.node)),
+    disabled: features.some(feature => !hasActualChildren(feature)),
     action: (fn?: OnCollapseFeaturesFunction | OnExpandFeaturesFunction) => {
         const isSingleFeature = features.length === 1,
-            featureIDs = features.map(feature => feature.id);
-        fn = fn || (isSingleFeature && isCollapsed(features[0].node) ? onExpandFeatures : onCollapseFeatures);
+            featureIDs = features.map(feature => feature.data.id);
+        fn = fn || (isSingleFeature && isCollapsed(features[0]) ? onExpandFeatures : onCollapseFeatures);
         fn({featureIDs});
         onClick && onClick();
     }
@@ -384,7 +384,7 @@ const commands = {
                 onSetFeatureAlternative: OnSetFeatureAlternativeFunction, featureModel: FeatureDiagram) => [
                 commands.featureDiagram.feature.newAbove(selectedFeatureIDs, featureModel, onCreateFeatureAbove, onDeselectAllFeatures),
                 commands.featureDiagram.feature.removeMenu(selectedFeatureIDs, featureModel, onRemoveFeature, onRemoveFeatureSubtree, onDeselectAllFeatures),
-                commands.featureDiagram.feature.collapseMenu(featureModel.getFeatures(selectedFeatureIDs),
+                commands.featureDiagram.feature.collapseMenu(featureModel.getFeatureNodes(selectedFeatureIDs),
                     onCollapseFeatures, onExpandFeatures, onCollapseFeaturesBelow, onExpandFeaturesBelow, onDeselectAllFeatures),
                 makeDivider(),
                 commands.featureDiagram.feature.properties(selectedFeatureIDs, featureModel,
@@ -403,11 +403,11 @@ const commands = {
                 secondaryText: getShortcutText('featureDiagram.feature.deselectAll'),
                 onClick: onDeselectAll
             }),
-            collapseMenu: (features: FeatureTree[], onCollapseFeatures: OnCollapseFeaturesFunction, onExpandFeatures: OnExpandFeaturesFunction,
+            collapseMenu: (features: FeatureNode[], onCollapseFeatures: OnCollapseFeaturesFunction, onExpandFeatures: OnExpandFeaturesFunction,
                 onCollapseFeaturesBelow: OnCollapseFeaturesBelowFunction, onExpandFeaturesBelow: OnExpandFeaturesBelowFunction,
                 onClick: () => void, iconOnly = false) => {
                 const isSingleFeature = features.length === 1,
-                    isCollapsedSingleFeature = isSingleFeature && isCollapsed(features[0].node),
+                    isCollapsedSingleFeature = isSingleFeature && isCollapsed(features[0]),
                     {disabled, action} = collapseCommand(features, onCollapseFeatures, onExpandFeatures, onClick);
                 return {
                     key: 'collapseMenu',
@@ -421,11 +421,11 @@ const commands = {
                         items: [
                             ...((isSingleFeature ? [{
                                 key: 'collapse',
-                                text: i18n.getFunction('commands.featureDiagram.feature.collapseMenu.collapse')(isCollapsed(features[0].node)),
-                                secondaryText: isCollapsed(features[0].node)
+                                text: i18n.getFunction('commands.featureDiagram.feature.collapseMenu.collapse')(isCollapsed(features[0])),
+                                secondaryText: isCollapsed(features[0])
                                     ? getShortcutText('featureDiagram.feature.expand')
                                     : getShortcutText('featureDiagram.feature.collapse'),
-                                iconProps: {iconName: isCollapsed(features[0].node) ? 'ExploreContentSingle' : 'CollapseContentSingle'},
+                                iconProps: {iconName: isCollapsed(features[0]) ? 'ExploreContentSingle' : 'CollapseContentSingle'},
                                 onClick: () => action()
                             }] : [{
                                 key: 'collapse',

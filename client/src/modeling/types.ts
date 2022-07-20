@@ -43,11 +43,10 @@ export interface FeatureTree {
     isOr: boolean,
     isAlternative: boolean,
     isGroup: boolean,
-    children: FeatureTree[],
-    node: FeatureNode
+    children: FeatureTree[]
 };
 
-export type FeatureNode = HierarchyPointNode<FeatureTree>;
+export type FeatureNode = HierarchyPointNode<FeatureTree> & {actualChildren: FeatureNode[]};
 export type FeaturePropertyKey = string | ((node: FeatureNode) => string);
 
 export type NodeCoordinateFunction = (node: FeatureNode) => number;

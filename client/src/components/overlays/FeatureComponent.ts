@@ -5,7 +5,7 @@
 import React from 'react';
 import {Settings} from '../../store/settings';
 import FeatureDiagram from '../../modeling/FeatureModel';
-import {FeatureTree} from '../../modeling/types';
+import {FeatureNode, FeatureTree} from '../../modeling/types';
 
 export interface FeatureComponentProps {
     featureModel: FeatureDiagram,
@@ -27,7 +27,7 @@ export function isFeatureOffscreen(element: Element) {
 export default ({doUpdate = false} = {}) =>
     class <Props extends FeatureComponentProps> extends React.Component<Props> {
         interval?: number;
-        feature?: FeatureTree;
+        featureNode?: FeatureNode;
 
         componentDidMount() {
             if (doUpdate)
@@ -41,17 +41,17 @@ export default ({doUpdate = false} = {}) =>
                 window.clearInterval(this.interval);
         }
 
-        getFeature = () => this.props.featureID && this.props.featureModel &&
-            this.props.featureModel.getFeatureTree(this.props.featureID!);
+        getFeatureNode = () => this.props.featureID && this.props.featureModel &&
+            this.props.featureModel.getFeatureNode(this.props.featureID!);
 
-        renderIfFeature(_feature: FeatureTree) {
+        renderIfFeatureNode(_feature: FeatureNode) {
             throw new Error('abstract method not implemented');
         }
 
         render(): any {
-            let feature = this.getFeature();
+            let feature = this.getFeatureNode();
             if (typeof feature === 'undefined')
                 return null;
-            return this.renderIfFeature(this.feature = feature);
+            return this.renderIfFeatureNode(this.featureNode = feature);
         }
     };

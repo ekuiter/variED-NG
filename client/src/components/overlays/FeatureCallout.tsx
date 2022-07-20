@@ -9,7 +9,7 @@ import {CommandBar} from '@fluentui/react';
 import {FeatureDiagramLayoutType} from '../../types';
 import FeatureComponent, {FeatureComponentProps, isFeatureOffscreen} from './FeatureComponent';
 import {OnShowOverlayFunction, OnCollapseFeaturesFunction, OnCollapseFeaturesBelowFunction, OnExpandFeaturesFunction, OnExpandFeaturesBelowFunction, OnRemoveFeatureFunction, OnCreateFeatureBelowFunction, OnCreateFeatureAboveFunction, OnRemoveFeatureSubtreeFunction} from '../../store/types';
-import {FeatureTree} from '../../modeling/types';
+import {FeatureNode, FeatureTree} from '../../modeling/types';
 
 type Props = FeatureComponentProps & {
     onDismiss: () => void,
@@ -27,12 +27,12 @@ type Props = FeatureComponentProps & {
 };
 
 export default class extends FeatureComponent({doUpdate: true})<Props> {
-    renderIfFeature(feature: FeatureTree) {
+    renderIfFeatureNode(feature: FeatureNode) {
         const {onDismiss, featureModel} = this.props,
             {gapSpace, width} = this.props.settings.featureDiagram.overlay;
-        if (!featureModel.hasElement(feature.id))
+        if (!featureModel.hasElement(feature.data.id))
             return null;
-        const element = featureModel.getElement(feature.id)!;
+        const element = featureModel.getElement(feature.data.id)!;
         return (
             <Callout target={element.querySelector('.rectAndText')}
                 onDismiss={onDismiss}
@@ -45,23 +45,23 @@ export default class extends FeatureComponent({doUpdate: true})<Props> {
                         : DirectionalHint.rightCenter}>
                 <div className="callout">
                     <div className="header">
-                        <p>{feature.name}</p>
+                        <p>{feature.data.name}</p>
                     </div>
-                    {feature.description
+                    {feature.data.description
                         ? <div className="inner">
-                            <p>{feature.description}</p>
+                            <p>{feature.data.description}</p>
                         </div>
                         : <div className="inner empty"/>}
                     <CommandBar
                         items={[
-                            commands.featureDiagram.feature.newMenu(feature.id, this.props.featureModel, this.props.onCreateFeatureBelow, this.props.onCreateFeatureAbove, onDismiss, true),
-                            commands.featureDiagram.feature.removeMenu([feature.id], this.props.featureModel, this.props.onRemoveFeature, this.props.onRemoveFeatureSubtree, onDismiss, true),
+                            commands.featureDiagram.feature.newMenu(feature.data.id, this.props.featureModel, this.props.onCreateFeatureBelow, this.props.onCreateFeatureAbove, onDismiss, true),
+                            commands.featureDiagram.feature.removeMenu([feature.data.id], this.props.featureModel, this.props.onRemoveFeature, this.props.onRemoveFeatureSubtree, onDismiss, true),
                             commands.featureDiagram.feature.collapseMenu(
                                 [feature], this.props.onCollapseFeatures, this.props.onExpandFeatures,
                                 this.props.onCollapseFeaturesBelow, this.props.onExpandFeaturesBelow, onDismiss, true),
                         ]}
                         farItems={[
-                            commands.featureDiagram.feature.details(feature.id, this.props.onShowOverlay)
+                            commands.featureDiagram.feature.details(feature.data.id, this.props.onShowOverlay)
                         ]}/>
                 </div>
             </Callout>

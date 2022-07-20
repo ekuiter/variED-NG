@@ -109,7 +109,7 @@ export default withRouter(<any>connect(
                 return;
             }
             const {disabled, action} = collapseCommand(
-                props.featureModel!.getFeatures(props.selectedFeatureIDs!),
+                props.featureModel!.getFeatureNodes(props.selectedFeatureIDs!),
                 props.onCollapseFeatures!, props.onExpandFeatures!,
                 !ifGlobal(props) ? (() => props.onHideOverlay!({overlay: props.overlay!})) : undefined);
             if (!disabled)
@@ -125,7 +125,7 @@ export default withRouter(<any>connect(
                 return;
             }
             const {disabled, action} = collapseCommand(
-                props.featureModel!.getFeatures(props.selectedFeatureIDs!),
+                props.featureModel!.getFeatureNodes(props.selectedFeatureIDs!),
                 props.onCollapseFeatures!, props.onExpandFeatures!,
                 !ifGlobal(props) ? (() => props.onHideOverlay!({overlay: props.overlay!})) : undefined);
             if (!disabled)

@@ -385,11 +385,11 @@ export default class extends React.Component<Props, State> {
                 }, {
                     title: i18n.t('commandPalette.featureDiagram.feature.moveTarget'),
                     items: moveSourceID => {
-                        const getFeature = (featureID: string) => this.props.featureModel!.getFeatureTree(featureID)!,
-                            featureIDsBelowMoveSource = getFeatureIDsBelow(getFeature(moveSourceID).node);
+                        const getFeatureNode = (featureID: string) => this.props.featureModel!.getFeatureNode(featureID)!,
+                            featureIDsBelowMoveSource = getFeatureIDsBelow(getFeatureNode(moveSourceID));
                         return this.props.featureModel!.getFeatureIDs()
                             .filter(featureID => !featureIDsBelowMoveSource.includes(featureID))
-                            .map(featureID => ({key: featureID, text: getFeature(featureID).name}))
+                            .map(featureID => ({key: featureID, text: getFeatureNode(featureID).data.name}))
                     }
                 }],
                 (featureID, featureParentID) => {

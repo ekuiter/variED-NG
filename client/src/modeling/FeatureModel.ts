@@ -28,7 +28,7 @@ export function isRoot(node: FeatureNode): boolean {
 }
 
 export function isCollapsed(node: FeatureNode): boolean {
-    return (!node.children || node.children.length === 0) && node.data.children.length > 0;
+    return (!node.children || node.children.length === 0) && node.actualChildren.length > 0;
 }
 
 export function hasChildren(node: FeatureNode): boolean {
@@ -36,7 +36,7 @@ export function hasChildren(node: FeatureNode): boolean {
 }
 
 export function hasActualChildren(node: FeatureNode): boolean {
-    return node.data.children.length > 0;
+    return node.actualChildren.length > 0;
 }
 
 export function getPropertyString(node: FeatureNode, key: FeaturePropertyKey): string {
@@ -46,15 +46,15 @@ export function getPropertyString(node: FeatureNode, key: FeaturePropertyKey): s
 }
 
 export function getNumberOfFeaturesBelow(node: FeatureNode): number {
-    return node.data.children.length +
-        node.data.children
-            .map(child => getNumberOfFeaturesBelow(child.node))
+    return node.actualChildren.length +
+        node.actualChildren
+            .map(child => getNumberOfFeaturesBelow(child))
             .reduce((acc, val) => acc + val, 0);
 }
 
 export function getFeatureIDsBelow(node: FeatureNode): string[] {
     return [getID(node)].concat(
-        ...node.data.children.map(child => getFeatureIDsBelow(child.node)));
+        ...node.actualChildren.map(child => getFeatureIDsBelow(child)));
 }
 
 function eachNodeBelow(node: FeatureNode, callback: (node: FeatureNode) => void): void {
@@ -64,9 +64,9 @@ function eachNodeBelow(node: FeatureNode, callback: (node: FeatureNode) => void)
         next = [];
         while ((currentNode = current.pop())) {
             callback(currentNode);
-            children = currentNode.data.children;
+            children = currentNode.actualChildren;
             for (i = 0, n = children.length; i < n; ++i)
-                next.push(children[i].node);
+                next.push(children[i]);
         }
     } while (next.length);
 }
@@ -228,7 +228,7 @@ export class ConstraintNode {
                 sexpr = sexpr.toString();
                 if (featureModel.isValidFeatureID(sexpr))
                     return sexpr;
-                const feature = featureModel.getFeatureByName(sexpr);
+                const feature = featureModel.getFeatureTreeByName(sexpr);
                 return feature ? feature.id : undefined;
             } else
                 throw new Error('invalid constraint s-expression');
@@ -285,7 +285,7 @@ class FeatureDiagram {
         }, (node: FeatureNode) => getID(node));
 
         this.actualFeatureNodes.forEach((node: FeatureNode) => {
-            node.data.node = node;
+            node.actualChildren = node.children || [];
 
             if (this.collapsedFeatureIDs.find(featureID => getID(node) === featureID))
                 node.children = undefined;
@@ -325,19 +325,19 @@ class FeatureDiagram {
     }
 
     // inefficient for large models and can not guarantee uniqueness
-    getFeatureByName(featureName: string): FeatureTree | undefined {
+    getFeatureTreeByName(featureName: string): FeatureTree | undefined {
         const results = this.actualFeatureNodes.filter(node =>
             node.data.name.toLowerCase() === featureName.toLowerCase());
         return results.length === 1 ? results[0].data : undefined;
     }
 
-    getNodes(featureIDs: string[]): FeatureNode[] {
+    getFeatureNodes(featureIDs: string[]): FeatureNode[] {
         return featureIDs
             .map(featureID => this.getFeatureNode(featureID))
             .filter(present);
     }
 
-    getFeatures(featureIDs: string[]): FeatureTree[] {
+    getFeatureTrees(featureIDs: string[]): FeatureTree[] {
         return featureIDs
             .map(featureID => this.getFeatureTree(featureID))
             .filter(present);
@@ -399,7 +399,7 @@ class FeatureDiagram {
 
     areSiblingFeatures(featureIDs: string[]): boolean {
         const parents = this
-            .getNodes(featureIDs)
+            .getFeatureNodes(featureIDs)
             .map(node => node.parent);
         return parents.every(parent => parent === parents[0]);
     }
