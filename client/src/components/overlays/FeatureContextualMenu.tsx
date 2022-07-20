@@ -9,7 +9,7 @@ import commands, {makeDivider} from '../commands';
 import {FeatureDiagramLayoutType} from '../../types';
 import FeatureComponent, {FeatureComponentProps, isFeatureOffscreen} from './FeatureComponent';
 import {OnShowOverlayFunction, OnCollapseFeaturesFunction, OnCollapseFeaturesBelowFunction, OnExpandFeaturesFunction, OnExpandFeaturesBelowFunction, OnDeselectAllFeaturesFunction, OnRemoveFeatureFunction, OnCreateFeatureAboveFunction, OnCreateFeatureBelowFunction, OnRemoveFeatureSubtreeFunction, OnSetFeatureAbstractFunction, OnSetFeatureHiddenFunction, OnSetFeatureOptionalFunction, OnSetFeatureAndFunction, OnSetFeatureOrFunction, OnSetFeatureAlternativeFunction} from '../../store/types';
-import {Feature} from '../../modeling/types';
+import {FeatureTree} from '../../modeling/types';
 
 type Props = FeatureComponentProps & {
     onDismiss: () => void,
@@ -36,14 +36,14 @@ type Props = FeatureComponentProps & {
 };
 
 export default class extends FeatureComponent({doUpdate: true})<Props> {
-    renderIfFeature(feature: Feature) {
+    renderIfFeature(feature: FeatureTree) {
         const {
                 onDismiss, onDeselectAllFeatures, isSelectMultipleFeatures, selectedFeatureIDs, featureModel
             } = this.props,
             {gapSpace} = this.props.settings.featureDiagram.overlay;
-        if (!featureModel.hasElement(feature.ID))
+        if (!featureModel.hasElement(feature.id))
             return null;
-        const element = featureModel.getElement(feature.ID)!;
+        const element = featureModel.getElement(feature.id)!;
         return (
             <ContextualMenu
                 target={element.querySelector('.rectAndText')}
@@ -63,19 +63,19 @@ export default class extends FeatureComponent({doUpdate: true})<Props> {
                         this.props.onSetFeatureOptional, this.props.onSetFeatureAnd, this.props.onSetFeatureOr,
                         this.props.onSetFeatureAlternative, featureModel!)
                     : [
-                        commands.featureDiagram.feature.newMenu(feature.ID, this.props.featureModel, this.props.onCreateFeatureBelow, this.props.onCreateFeatureAbove, onDismiss),
-                        commands.featureDiagram.feature.removeMenu([feature.ID], this.props.featureModel, this.props.onRemoveFeature, this.props.onRemoveFeatureSubtree, onDismiss),
+                        commands.featureDiagram.feature.newMenu(feature.id, this.props.featureModel, this.props.onCreateFeatureBelow, this.props.onCreateFeatureAbove, onDismiss),
+                        commands.featureDiagram.feature.removeMenu([feature.id], this.props.featureModel, this.props.onRemoveFeature, this.props.onRemoveFeatureSubtree, onDismiss),
                         commands.featureDiagram.feature.collapseMenu(
                             [feature], this.props.onCollapseFeatures, this.props.onExpandFeatures,
                             this.props.onCollapseFeaturesBelow, this.props.onExpandFeaturesBelow, onDismiss),
                         makeDivider(),
-                        commands.featureDiagram.feature.rename(feature.ID, this.props.featureModel, this.props.onShowOverlay),
-                        commands.featureDiagram.feature.setDescription(feature.ID, this.props.featureModel, this.props.onShowOverlay),
-                        commands.featureDiagram.feature.properties([feature.ID], this.props.featureModel, this.props.onSetFeatureAbstract,
+                        commands.featureDiagram.feature.rename(feature.id, this.props.featureModel, this.props.onShowOverlay),
+                        commands.featureDiagram.feature.setDescription(feature.id, this.props.featureModel, this.props.onShowOverlay),
+                        commands.featureDiagram.feature.properties([feature.id], this.props.featureModel, this.props.onSetFeatureAbstract,
                             this.props.onSetFeatureHidden, this.props.onSetFeatureOptional, this.props.onSetFeatureAnd,
                             this.props.onSetFeatureOr, this.props.onSetFeatureAlternative, onDismiss),
                         makeDivider(),
-                        commands.featureDiagram.feature.details(feature.ID, this.props.onShowOverlay)
+                        commands.featureDiagram.feature.details(feature.id, this.props.onShowOverlay)
                     ]
                 }/>
         );

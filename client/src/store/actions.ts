@@ -8,7 +8,7 @@ import {Message, MessageType, FeatureDiagramLayoutType, OverlayType, OverlayProp
 import {Dispatch, AnyAction, Action as ReduxAction} from 'redux';
 import {ThunkAction} from 'redux-thunk';
 import {State} from './types';
-import {Feature, ApiConstraintFormula} from '../modeling/types';
+import {FeatureTree, Formula} from '../modeling/types';
 import {enqueueOutgoingMessage, flushOutgoingMessageQueue} from '../server/messageQueue';
 import deferred from '../helpers/deferred';
 import {getCurrentArtifactPath} from '../router';
@@ -112,7 +112,7 @@ const actions = {
 
                     setOptional: createOperationAction(({featureIDs, value}: {featureIDs: string[], value: boolean}, kernel) => null),
 
-                    toggleOptional: createOperationAction(({feature}: {feature: Feature}, kernel) => null),
+                    toggleOptional: createOperationAction(({feature}: {feature: FeatureTree}, kernel) => null),
                         
                     setAnd: createOperationAction(({featureIDs}: {featureIDs: string[]}, kernel) => null),
 
@@ -120,14 +120,14 @@ const actions = {
 
                     setAlternative: createOperationAction(({featureIDs}: {featureIDs: string[]}, kernel) => null),
                     
-                    toggleGroup: createOperationAction(({feature}: {feature: Feature}, kernel) => null),
+                    toggleGroup: createOperationAction(({feature}: {feature: FeatureTree}, kernel) => null),
                 }
             },
 
             constraint: {
-                create: createOperationAction(({formula}: {formula: ApiConstraintFormula}, kernel) => null),
+                create: createOperationAction(({formula}: {formula: Formula}, kernel) => null),
                 
-                set: createOperationAction(({constraintID, formula}: {constraintID: string, formula: ApiConstraintFormula}, kernel) => null),
+                set: createOperationAction(({constraintID, formula}: {constraintID: string, formula: Formula}, kernel) => null),
 
                 remove: createOperationAction(({constraintID}: {constraintID: string}, kernel) => null),
             }

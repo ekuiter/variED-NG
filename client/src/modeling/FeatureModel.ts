@@ -13,29 +13,48 @@ import {Settings} from '../store/settings';
 import {FeatureDiagramLayoutType} from '../types';
 import {present} from '../helpers/present';
 import logger from '../helpers/logger';
-import {FeatureNode, Feature, ApiFeatureModel, DESCRIPTION, ABSTRACT, HIDDEN, OPTIONAL, NAME, ApiFeature, ApiConstraint, CONSTRAINTS, ConstraintType, FEATURES, CHILDREN_CACHE, ApiConstraintFormula, FORMULA, ID_KEY, ApiConstraintFormulaAtom, GROUP_TYPE, GroupType, NIL} from './types';
+import {FeatureNode, FeatureTree, FeatureModel, Constraint, ConstraintType, Formula, FormulaAtom, GroupType, FeaturePropertyKey} from './types';
 import {getViewportWidth, getViewportHeight} from '../helpers/withDimensions';
 // @ts-ignore: no declarations available for s-expression
 import SParse from 's-expression';
+import nodeTest from 'node:test';
 
 export function getID(node: FeatureNode): string {
-    return node.data[ID_KEY]!;
+    return node.data.id;
 }
 
-function isRoot(node: FeatureNode): boolean {
+export function isRoot(node: FeatureNode): boolean {
     return !node.parent;
 }
 
-function isCollapsed(node: FeatureNode): boolean {
-    return !!(!node.children && node.actualChildren);
+export function isCollapsed(node: FeatureNode): boolean {
+    return (!node.children || node.children.length === 0) && node.data.children.length > 0;
 }
 
-function hasChildren(node: FeatureNode): boolean {
-    return !!(node.children && node.children.length > 0);
+export function hasChildren(node: FeatureNode): boolean {
+    return !!node.children && node.children.length > 0;
 }
 
-function hasActualChildren(node: FeatureNode): boolean {
-    return !!(node.actualChildren && node.actualChildren.length > 0);
+export function hasActualChildren(node: FeatureNode): boolean {
+    return node.data.children.length > 0;
+}
+
+export function getPropertyString(node: FeatureNode, key: FeaturePropertyKey): string {
+    if (typeof key === 'function')
+        return key(node);
+    return (node as any).data[key] ? 'yes' : 'no';
+}
+
+export function getNumberOfFeaturesBelow(node: FeatureNode): number {
+    return node.data.children.length +
+        node.data.children
+            .map(child => getNumberOfFeaturesBelow(child.node))
+            .reduce((acc, val) => acc + val, 0);
+}
+
+export function getFeatureIDsBelow(node: FeatureNode): string[] {
+    return [getID(node)].concat(
+        ...node.data.children.map(child => getFeatureIDsBelow(child.node)));
 }
 
 function eachNodeBelow(node: FeatureNode, callback: (node: FeatureNode) => void): void {
@@ -45,10 +64,9 @@ function eachNodeBelow(node: FeatureNode, callback: (node: FeatureNode) => void)
         next = [];
         while ((currentNode = current.pop())) {
             callback(currentNode);
-            children = currentNode.actualChildren;
-            if (children)
-                for (i = 0, n = children.length; i < n; ++i)
-                    next.push(children[i]);
+            children = currentNode.data.children;
+            for (i = 0, n = children.length; i < n; ++i)
+                next.push(children[i].node);
         }
     } while (next.length);
 }
@@ -59,82 +77,41 @@ function getNodesBelow(node: FeatureNode): FeatureNode[] {
     return nodes;
 }
 
-d3Hierarchy.prototype.feature = function(this: FeatureNode): Feature {
-    return this._feature || (this._feature = {
-        node: this,
-        ID: getID(this),
-        name: this.data[NAME],
-        description: this.data[DESCRIPTION] || undefined,
-        isRoot: isRoot(this),
-        isAbstract: !!this.data[ABSTRACT],
-        isHidden: !!this.data[HIDDEN],
-        isOptional: !!this.data[OPTIONAL],
-        isAnd: this.data[GROUP_TYPE] === GroupType.and,
-        isOr: this.data[GROUP_TYPE] === GroupType.or,
-        isAlternative: this.data[GROUP_TYPE] === GroupType.alternative,
-        isGroup:
-            this.data[GROUP_TYPE] === GroupType.or ||
-            this.data[GROUP_TYPE] === GroupType.alternative,
-        isCollapsed: isCollapsed(this),
-        hasChildren: hasChildren(this),
-        hasActualChildren: hasActualChildren(this),
-        getPropertyString: key => {
-            if (typeof key === 'function')
-                return key(this);
-            return (this as any)._feature[key] ? 'yes' : 'no';
-        },
-        getNumberOfFeaturesBelow: () => {
-            if (!this.actualChildren)
-                return 0;
-            return this.actualChildren.length +
-                this.actualChildren
-                    .map(child => child.feature().getNumberOfFeaturesBelow())
-                    .reduce((acc, val) => acc + val);
-        },
-        getFeatureIDsBelow: () => {
-            if (!this.actualChildren)
-                return [getID(this)];
-            return [getID(this)].concat(
-                ...this.actualChildren.map(child => child.feature().getFeatureIDsBelow()));
-        }
-    });
-};
-
-type ConstraintRenderer<T> = ((featureModel: FeatureModel, formula: ApiConstraintFormula) => T) & {cacheKey: string};
+type ConstraintRenderer<T> = ((featureModel: FeatureDiagram, formula: Formula) => T) & {cacheKey: string};
 
 // adapted from FeatureIDE fm.core's org/prop4j/NodeWriter.java
 export function createConstraintRenderer<T>({neutral, _return, returnFeature, join, cacheKey}: {
         neutral: T,
         _return: (s: string) => T,
-        returnFeature: (f: Feature | undefined, idx: number) => T,
+        returnFeature: (f: FeatureTree | undefined, idx: number) => T,
         join: (ts: T[], t: T) => T,
         cacheKey: string
     }): ConstraintRenderer<T> {
     const operatorMap: {[x: string]: string} = {
         [ConstraintType.not]: '\u00AC',
-        [ConstraintType.disj]: '\u2228',
-        [ConstraintType.eq]: '\u21D4',
-        [ConstraintType.imp]: '\u21D2',
-        [ConstraintType.conj]: '\u2227'
+        [ConstraintType.or]: '\u2228',
+        [ConstraintType.biimplies]: '\u21D4',
+        [ConstraintType.implies]: '\u21D2',
+        [ConstraintType.and]: '\u2227'
     };
 
     const orderMap: {[x: string]: number} = {
-        [ConstraintType.unknown]: -1,
+        [ConstraintType.error]: -1,
         [ConstraintType.not]: 0,
-        [ConstraintType.disj]: 3,
-        [ConstraintType.eq]: 1,
-        [ConstraintType.imp]: 2,
-        [ConstraintType.conj]: 4
+        [ConstraintType.or]: 3,
+        [ConstraintType.biimplies]: 1,
+        [ConstraintType.implies]: 2,
+        [ConstraintType.and]: 4
     };
 
     let i = 0;
 
-    const isAtom = (formula: ApiConstraintFormula): formula is ApiConstraintFormulaAtom => !Array.isArray(formula),
-            renderLiteral = (featureModel: FeatureModel, atom: ApiConstraintFormulaAtom): T => {
-            const feature = featureModel.getFeature(atom);
+    const isAtom = (formula: Formula): formula is FormulaAtom => !Array.isArray(formula),
+            renderLiteral = (featureModel: FeatureDiagram, atom: FormulaAtom): T => {
+            const feature = featureModel.getFeatureTree(atom);
             return returnFeature(feature, i++);
         },
-        renderFormula = (featureModel: FeatureModel, formula: ApiConstraintFormula, parentType: ConstraintType): T => {
+        renderFormula = (featureModel: FeatureDiagram, formula: Formula, parentType: ConstraintType): T => {
         if (isAtom(formula))
             return renderLiteral(featureModel, formula);
         const nodeType = formula[0] as ConstraintType;
@@ -158,22 +135,22 @@ export function createConstraintRenderer<T>({neutral, _return, returnFeature, jo
             (nodeType !== ConstraintType.not && operands.length !== 2))
             throw new Error(`invalid number of operations ${operands.length}`);
 
-        if (nodeType === ConstraintType.conj || nodeType === ConstraintType.disj ||
-            nodeType === ConstraintType.imp || nodeType === ConstraintType.eq) {
+        if (nodeType === ConstraintType.and || nodeType === ConstraintType.or ||
+            nodeType === ConstraintType.implies || nodeType === ConstraintType.biimplies) {
             const result = join(operands, _return(` ${operator} `)),
                 orderParent = orderMap[parentType],
                 orderChild = orderMap[nodeType];
             return orderParent > orderChild ||
-                (orderParent === orderChild && orderParent === orderMap[ConstraintType.imp])
+                (orderParent === orderChild && orderParent === orderMap[ConstraintType.implies])
                 ? join([_return('('), result, _return(')')], neutral)
                 : result;
         } else
             return join([_return(operator), _return('('), join(operands, _return(', ')), _return(')')], neutral);
     }
 
-    const constraintRenderer = (featureModel: FeatureModel, root: ApiConstraintFormula) => {
+    const constraintRenderer = (featureModel: FeatureDiagram, root: Formula) => {
         i = 0;
-        return renderFormula(featureModel, root, ConstraintType.unknown);
+        return renderFormula(featureModel, root, ConstraintType.error);
     };
     constraintRenderer.cacheKey = cacheKey;
     return constraintRenderer;
@@ -195,19 +172,18 @@ export const paletteConstraintRenderer = createConstraintRenderer({
     cacheKey: 'palette'
 });
 
-export class Constraint {
+export class ConstraintNode {
     _renderCache: {[x: string]: any} = {};
-    _element: any;
 
-    constructor(public apiConstraint: ApiConstraint,
-        public featureModel: FeatureModel) {}
+    constructor(public constraintData: Constraint,
+        public featureModel: FeatureDiagram) {}
 
-    get ID(): string {
-        return this.apiConstraint[ID_KEY]!;
+    get id(): string {
+        return this.constraintData.id;
     }
 
-    get formula(): ApiConstraintFormula {
-        return this.apiConstraint[FORMULA];
+    get formula(): Formula {
+        return this.constraintData.formula;
     }
 
     render<T>(constraintRenderer: ConstraintRenderer<T>): T {
@@ -221,32 +197,28 @@ export class Constraint {
     }
 
     getKey(): string {
-        return this.ID.toString();
+        return this.id.toString();
     }
 
-    static readFormulaFromString<T>(formulaString: string, featureModel: FeatureModel,
-        constraintRenderer: ConstraintRenderer<T>): {formula?: ApiConstraintFormula, preview?: T} {
+    static readFormulaFromString<T>(formulaString: string, featureModel: FeatureDiagram,
+        constraintRenderer: ConstraintRenderer<T>): {formula?: Formula, preview?: T} {
         const operatorMap: {[x: string]: string} = {
             "not": ConstraintType.not,
-            "disj": ConstraintType.disj,
-            "eq": ConstraintType.eq,
-            "imp": ConstraintType.imp,
-            "conj": ConstraintType.conj,
-            "or": ConstraintType.disj,
-            "equals": ConstraintType.eq,
-            "implies": ConstraintType.imp,
-            "and": ConstraintType.conj,
+            "or": ConstraintType.or,
+            "biimplies": ConstraintType.biimplies,
+            "implies": ConstraintType.implies,
+            "and": ConstraintType.and,
             "!": ConstraintType.not,
             "~": ConstraintType.not,
             "-": ConstraintType.not,
-            "|": ConstraintType.disj,
-            "||": ConstraintType.disj,
-            "<=>": ConstraintType.eq,
-            "<->": ConstraintType.eq,
-            "=>": ConstraintType.imp,
-            "->": ConstraintType.imp,
-            "&": ConstraintType.conj,
-            "&&": ConstraintType.conj
+            "|": ConstraintType.or,
+            "||": ConstraintType.or,
+            "<=>": ConstraintType.biimplies,
+            "<->": ConstraintType.biimplies,
+            "=>": ConstraintType.implies,
+            "->": ConstraintType.implies,
+            "&": ConstraintType.and,
+            "&&": ConstraintType.and
         };
 
         function recurse(sexpr: any): any {
@@ -257,7 +229,7 @@ export class Constraint {
                 if (featureModel.isValidFeatureID(sexpr))
                     return sexpr;
                 const feature = featureModel.getFeatureByName(sexpr);
-                return feature ? feature.ID : undefined;
+                return feature ? feature.id : undefined;
             } else
                 throw new Error('invalid constraint s-expression');
         }
@@ -271,8 +243,9 @@ export class Constraint {
                     return {};
                 }
                 sexpr = recurse(sexpr);
-                const constraint = new Constraint({
-                    [FORMULA]: sexpr
+                const constraint = new ConstraintNode({
+                    id: "", // todo!
+                    formula: sexpr
                 }, featureModel);
                 return {
                     formula: sexpr,
@@ -287,156 +260,86 @@ export class Constraint {
     }
 }
 
-class FeatureModel {
-    apiFeatureModel: any;
+class FeatureDiagram {
     collapsedFeatureIDs: string[] = [];
-    _hierarchy: any;
-    _actualNodes: any;
-    _visibleNodes: any;
-    _constraints: any;
-    // apiFeatureModel: apiFeatureModel;
-    // collapsedFeatureIDs: string[] = [];
-    // _hierarchy: FeatureNode;
-    // _actualNodes: FeatureNode[];
-    // _visibleNodes: FeatureNode[];
-    // _constraints: Constraint[];
-    _IDsToFeatureNodes: {[x: string]: FeatureNode} = {};
-    _IDsToConstraints: {[x: string]: Constraint} = {};
+    rootFeatureNode: FeatureNode;
+    featureNodes: FeatureNode[];
+    actualFeatureNodes: FeatureNode[];
+    constraintNodes: ConstraintNode[];
+    IDsToFeatureNodes: {[x: string]: FeatureNode} = {};
+    IDsToConstraintNodes: {[x: string]: ConstraintNode} = {};
 
     // feature model as supplied by feature model messages from the server
-    static fromApi(apiFeatureModel: ApiFeatureModel): FeatureModel {
-        const featureModel = new FeatureModel();
-        featureModel.apiFeatureModel = apiFeatureModel;
-        return featureModel;
+    constructor(public featureModel: FeatureModel) {
+        const {featureTree, constraints} = this.featureModel;
+        this.rootFeatureNode = d3Hierarchy(featureTree) as FeatureNode; // todo: does this have x and y? also, add node, isCollapsed, visibleChildren
+        this.actualFeatureNodes = this.rootFeatureNode.descendants();
+        this.featureNodes = [];
+
+        const isVisible: (node: FeatureNode) => boolean = memoize(node => {
+            if (isRoot(node))
+                return true;
+            if (isCollapsed(node.parent!))
+                return false;
+            return isVisible(node.parent!);
+        }, (node: FeatureNode) => getID(node));
+
+        this.actualFeatureNodes.forEach((node: FeatureNode) => {
+            node.data.node = node;
+
+            if (this.collapsedFeatureIDs.find(featureID => getID(node) === featureID))
+                node.children = undefined;
+
+            if (isVisible(node))
+                this.featureNodes.push(node);
+
+            this.IDsToFeatureNodes[getID(node)] = node;
+        });
+
+        this.constraintNodes = constraints.map(constraint => new ConstraintNode(constraint, this));
+
+        this.constraintNodes.forEach((constraintNode: ConstraintNode) =>
+            this.IDsToConstraintNodes[constraintNode.id] = constraintNode);
     }
 
-    toApi(): ApiFeatureModel {
-        return this.apiFeatureModel;
-    }
-
-    collapse(collapsedFeatureIDs: string[]): FeatureModel {
-        if (this._hierarchy)
-            throw new Error('feature model already initialized');
+    collapse(collapsedFeatureIDs: string[]): FeatureDiagram {
         this.collapsedFeatureIDs = collapsedFeatureIDs;
         return this;
     }
 
-    prepare(): void {
-        if (!this._hierarchy) {
-            const features = this.apiFeatureModel[FEATURES],
-                constraints = this.apiFeatureModel[CONSTRAINTS],
-                childrenCache = this.apiFeatureModel[CHILDREN_CACHE];
-            Object.keys(features).forEach(ID => features[ID][ID_KEY] = ID);
-            Object.keys(constraints).forEach(ID => constraints[ID][ID_KEY] = ID);
-
-            const children = (apiFeature: ApiFeature) =>
-                (childrenCache[apiFeature[ID_KEY]!] || [])
-                    // sort features by ID as the api uses an arbitrary order (to avoid "jumping" features)
-                    // in the future, we may introduce a better ordering criterion
-                    // further, this may be inefficient for large models
-                    .sort()
-                    .map((ID: any) => features[ID]);
-
-            if (childrenCache[NIL].length !== 1)
-                throw new Error('feature model does not have a single root');
-            const rootFeature = features[childrenCache[NIL][0]];
-
-            this._hierarchy = d3Hierarchy(rootFeature, children) as FeatureNode;
-            this._actualNodes = this._hierarchy.descendants();
-            this._visibleNodes = [];
-
-            const isVisible: (node: FeatureNode) => boolean = memoize(node => {
-                if (isRoot(node))
-                    return true;
-                if (isCollapsed(node.parent!))
-                    return false;
-                return isVisible(node.parent!);
-            }, (node: FeatureNode) => getID(node));
-
-            this._actualNodes.forEach((node: any) => {
-                // store children nodes (because they are changed on collapse)
-                node.actualChildren = node.children;
-
-                if (this.collapsedFeatureIDs.find(featureID => getID(node) === featureID))
-                    node.children = undefined;
-
-                if (isVisible(node))
-                    this._visibleNodes.push(node);
-
-                this._IDsToFeatureNodes[getID(node)] = node;
-            });
-
-            // TODO: this might be inefficient for large models
-            // TODO: do we need to sort the constraints as well? do they "jump"?
-            this._constraints = Object.values(constraints)
-                .map(apiConstraint => new Constraint(apiConstraint as any, this));
-
-            this._constraints.forEach((constraint: any) =>
-                this._IDsToConstraints[constraint.ID] = constraint);
-        }
+    getFeatureNode(featureID: string): FeatureNode | undefined {
+        return this.IDsToFeatureNodes[featureID];
     }
 
-    get hierarchy(): FeatureNode {
-        this.prepare();
-        return this._hierarchy;
+    getFeatureTree(featureID: string): FeatureTree | undefined {
+        const node = this.getFeatureNode(featureID);
+        return node ? node.data : undefined;
     }
 
-    get visibleNodes(): FeatureNode[] {
-        this.prepare();
-        return this._visibleNodes;
-    }
-
-    get actualNodes(): FeatureNode[] {
-        this.prepare();
-        return this._actualNodes;
-    }
-
-    get constraints(): Constraint[] {
-        this.prepare();
-        return this._constraints;
-    }
-
-    getNode(featureID: string): FeatureNode | undefined {
-        this.prepare();
-        return this._IDsToFeatureNodes[featureID];
-    }
-
-    getFeature(featureID: string): Feature | undefined {
-        const node = this.getNode(featureID);
-        return node ? node.feature() : undefined;
-    }
-
-    getConstraint(constraintID: string): Constraint | undefined {
-        this.prepare();
-        return this._IDsToConstraints[constraintID];
-    }
-
-    get rootFeature(): Feature {
-        this.prepare();
-        return this.hierarchy.feature();
+    getConstraintNode(constraintID: string): ConstraintNode | undefined {
+        return this.IDsToConstraintNodes[constraintID];
     }
 
     isValidFeatureID(featureID: string): boolean {
-        return !!this.getNode(featureID);
+        return !!this.getFeatureNode(featureID);
     }
 
     // inefficient for large models and can not guarantee uniqueness
-    getFeatureByName(featureName: string): Feature | undefined {
-        this.prepare();
-        const results = this.actualNodes.filter(node =>
-            node.feature().name.toLowerCase() === featureName.toLowerCase());
-        return results.length === 1 ? results[0].feature() : undefined;
+    getFeatureByName(featureName: string): FeatureTree | undefined {
+        const results = this.actualFeatureNodes.filter(node =>
+            node.data.name.toLowerCase() === featureName.toLowerCase());
+        return results.length === 1 ? results[0].data : undefined;
     }
 
     getNodes(featureIDs: string[]): FeatureNode[] {
         return featureIDs
-            .map(featureID => this.getNode(featureID))
+            .map(featureID => this.getFeatureNode(featureID))
             .filter(present);
     }
 
-    getFeatures(featureIDs: string[]): Feature[] {
+    getFeatures(featureIDs: string[]): FeatureTree[] {
         return featureIDs
-            .map(featureID => this.getFeature(featureID))
+            .map(featureID => this.getFeatureTree(featureID))
             .filter(present);
     }
 
@@ -477,24 +380,24 @@ class FeatureModel {
             (settings.views.splitDirection === 'vertical' ? settings.views.splitAt : 1);
     }
 
-    getVisibleFeatureIDs(): string[] {
-        return this.visibleNodes.map(getID);
+    getFeatureIDs(): string[] {
+        return this.featureNodes.map(getID);
     }
 
     getActualFeatureIDs(): string[] {
-        return this.actualNodes.map(getID);
+        return this.actualFeatureNodes.map(getID);
     }
 
     getFeatureIDsWithActualChildren(): string[] {
-        return this.actualNodes.filter(hasActualChildren).map(getID);
+        return this.actualFeatureNodes.filter(hasActualChildren).map(getID);
     }
 
     getFeatureIDsBelowWithActualChildren(featureID: string): string[] {
-        const node = this.getNode(featureID);
+        const node = this.getFeatureNode(featureID);
         return node ? getNodesBelow(node).filter(hasActualChildren).map(getID) : [];
     }
 
-    isSiblingFeatures(featureIDs: string[]): boolean {
+    areSiblingFeatures(featureIDs: string[]): boolean {
         const parents = this
             .getNodes(featureIDs)
             .map(node => node.parent);
@@ -503,7 +406,7 @@ class FeatureModel {
 
     // returns features which, when collapsed, make the feature model fit to the given screen size
     getFittingFeatureIDs(settings: Settings, featureDiagramLayout: FeatureDiagramLayoutType,
-        width = FeatureModel.getWidth(settings), height = FeatureModel.getHeight(settings),
+        width = FeatureDiagram.getWidth(settings), height = FeatureDiagram.getHeight(settings),
         scale = 0.5): string[] {
         const fontFamily = settings.featureDiagram.font.family,
             fontSize = settings.featureDiagram.font.size,
@@ -513,7 +416,7 @@ class FeatureModel {
                 2 * settings.featureDiagram.treeLayout.node.paddingY +
                 2 * settings.featureDiagram.treeLayout.node.strokeWidth,
             estimatedDimension = featureDiagramLayout === FeatureDiagramLayoutType.verticalTree ? 'width' : 'height';
-        let nodes = this.actualNodes, collapsedFeatureIDs: string[] = [];
+        let nodes = this.actualFeatureNodes, collapsedFeatureIDs: string[] = [];
         width = Math.max(width, constants.featureDiagram.fitToScreen.minWidth);
         height = Math.max(height, constants.featureDiagram.fitToScreen.minHeight);
         logger.infoBeginCollapsed(() => `[fit to screen] fitting feature model to ${estimatedDimension} ${FeatureDiagramLayoutType.verticalTree ? width : height}px`);
@@ -542,8 +445,8 @@ class FeatureModel {
     }
 
     toString() {
-        return `FeatureModel ${JSON.stringify(this.getVisibleFeatureIDs())}`;
+        return `FeatureModel ${JSON.stringify(this.getFeatureIDs())}`;
     }
 }
 
-export default FeatureModel;
+export default FeatureDiagram;

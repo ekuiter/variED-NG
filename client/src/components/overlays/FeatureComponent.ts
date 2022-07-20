@@ -4,11 +4,11 @@
 
 import React from 'react';
 import {Settings} from '../../store/settings';
-import FeatureModel from '../../modeling/FeatureModel';
-import {Feature} from '../../modeling/types';
+import FeatureDiagram from '../../modeling/FeatureModel';
+import {FeatureTree} from '../../modeling/types';
 
 export interface FeatureComponentProps {
-    featureModel: FeatureModel,
+    featureModel: FeatureDiagram,
     featureID?: string,
     settings: Settings
 };
@@ -19,7 +19,7 @@ function contains(a: DOMRect, b: DOMRect): boolean {
 }
 
 export function isFeatureOffscreen(element: Element) {
-    const svgRect = FeatureModel.getSvg().getBoundingClientRect() as DOMRect,
+    const svgRect = FeatureDiagram.getSvg().getBoundingClientRect() as DOMRect,
             elementRect = element.getBoundingClientRect() as DOMRect;
     return !contains(svgRect, elementRect);
 }
@@ -27,7 +27,7 @@ export function isFeatureOffscreen(element: Element) {
 export default ({doUpdate = false} = {}) =>
     class <Props extends FeatureComponentProps> extends React.Component<Props> {
         interval?: number;
-        feature?: Feature;
+        feature?: FeatureTree;
 
         componentDidMount() {
             if (doUpdate)
@@ -42,9 +42,9 @@ export default ({doUpdate = false} = {}) =>
         }
 
         getFeature = () => this.props.featureID && this.props.featureModel &&
-            this.props.featureModel.getFeature(this.props.featureID!);
+            this.props.featureModel.getFeatureTree(this.props.featureID!);
 
-        renderIfFeature(_feature: Feature) {
+        renderIfFeature(_feature: FeatureTree) {
             throw new Error('abstract method not implemented');
         }
 

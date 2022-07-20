@@ -9,7 +9,7 @@ import {CommandBar} from '@fluentui/react';
 import {FeatureDiagramLayoutType} from '../../types';
 import FeatureComponent, {FeatureComponentProps, isFeatureOffscreen} from './FeatureComponent';
 import {OnShowOverlayFunction, OnCollapseFeaturesFunction, OnCollapseFeaturesBelowFunction, OnExpandFeaturesFunction, OnExpandFeaturesBelowFunction, OnRemoveFeatureFunction, OnCreateFeatureBelowFunction, OnCreateFeatureAboveFunction, OnRemoveFeatureSubtreeFunction} from '../../store/types';
-import {Feature} from '../../modeling/types';
+import {FeatureTree} from '../../modeling/types';
 
 type Props = FeatureComponentProps & {
     onDismiss: () => void,
@@ -27,12 +27,12 @@ type Props = FeatureComponentProps & {
 };
 
 export default class extends FeatureComponent({doUpdate: true})<Props> {
-    renderIfFeature(feature: Feature) {
+    renderIfFeature(feature: FeatureTree) {
         const {onDismiss, featureModel} = this.props,
             {gapSpace, width} = this.props.settings.featureDiagram.overlay;
-        if (!featureModel.hasElement(feature.ID))
+        if (!featureModel.hasElement(feature.id))
             return null;
-        const element = featureModel.getElement(feature.ID)!;
+        const element = featureModel.getElement(feature.id)!;
         return (
             <Callout target={element.querySelector('.rectAndText')}
                 onDismiss={onDismiss}
@@ -54,14 +54,14 @@ export default class extends FeatureComponent({doUpdate: true})<Props> {
                         : <div className="inner empty"/>}
                     <CommandBar
                         items={[
-                            commands.featureDiagram.feature.newMenu(feature.ID, this.props.featureModel, this.props.onCreateFeatureBelow, this.props.onCreateFeatureAbove, onDismiss, true),
-                            commands.featureDiagram.feature.removeMenu([feature.ID], this.props.featureModel, this.props.onRemoveFeature, this.props.onRemoveFeatureSubtree, onDismiss, true),
+                            commands.featureDiagram.feature.newMenu(feature.id, this.props.featureModel, this.props.onCreateFeatureBelow, this.props.onCreateFeatureAbove, onDismiss, true),
+                            commands.featureDiagram.feature.removeMenu([feature.id], this.props.featureModel, this.props.onRemoveFeature, this.props.onRemoveFeatureSubtree, onDismiss, true),
                             commands.featureDiagram.feature.collapseMenu(
                                 [feature], this.props.onCollapseFeatures, this.props.onExpandFeatures,
                                 this.props.onCollapseFeaturesBelow, this.props.onExpandFeaturesBelow, onDismiss, true),
                         ]}
                         farItems={[
-                            commands.featureDiagram.feature.details(feature.ID, this.props.onShowOverlay)
+                            commands.featureDiagram.feature.details(feature.id, this.props.onShowOverlay)
                         ]}/>
                 </div>
             </Callout>

@@ -6,6 +6,7 @@
 
 import {Settings} from '../../../store/settings';
 import {StyleDescriptor} from '../../../helpers/svg';
+import {getPropertyString} from '../../../modeling/FeatureModel';
 
 function getLinkStrokeWidth(settings: Settings): string {
     return `${settings.featureDiagram.treeLayout.link.strokeWidth}px`;
@@ -61,7 +62,7 @@ export default {
         }),
         optional: (settings: Settings) => <StyleDescriptor>({ // style applied to a link's circle to distinguish mandatory and optional features
             property: node =>
-                node.parent!.feature().isGroup ? 'none' : node.feature().getPropertyString('isOptional'),
+                node.parent!.data.isGroup ? 'none' : getPropertyString(node, 'isOptional'),
             yes: {
                 stroke: settings.featureDiagram.treeLayout.link.stroke,
                 'stroke-width': getLinkStrokeWidth(settings),

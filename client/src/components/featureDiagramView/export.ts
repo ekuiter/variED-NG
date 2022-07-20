@@ -2,7 +2,7 @@
  * Implementation of feature diagram export algorithms.
  */
 
-import FeatureModel from '../../modeling/FeatureModel';
+import FeatureDiagram from '../../modeling/FeatureModel';
 import {saveAs} from 'file-saver';
 import {importSvg2PdfJs, importJspdfYworks, importCanvg} from '../../imports';
 import {FeatureDiagramLayoutType, FormatType, FormatOptions, ArtifactPath, ClientFormatType, ServerFormatType} from '../../types';
@@ -13,7 +13,7 @@ type BlobPromise = Promise<Blob | null>;
 const BlobPromise = Promise; // see https://github.com/Microsoft/TypeScript/issues/12776
 
 function svgData(scale = 1): {svg: SVGElement, string: string, width: number, height: number} {
-    const svg = FeatureModel.getSvg().cloneNode(true) as SVGElement,
+    const svg = FeatureDiagram.getSvg().cloneNode(true) as SVGElement,
         estimatedBbox = JSON.parse(svg.getAttribute('data-estimated-bbox')!),
         estimatedBboxWidth = estimatedBbox[1][0] - estimatedBbox[0][0],
         estimatedBboxHeight = estimatedBbox[1][1] - estimatedBbox[0][1];

@@ -7,6 +7,7 @@ import {Point, D3Selection, Func} from '../types';
 import logger from './logger';
 import {FeaturePropertyKey, NodeCoordinateFunction, FeatureNode, NodePointFunction} from '../modeling/types';
 import {select} from 'd3-selection';
+import {getPropertyString} from '../modeling/FeatureModel';
 
 export interface StyleDescriptor {
     property?: FeaturePropertyKey,
@@ -157,7 +158,7 @@ export function addStyle(selection: D3Selection, ...styleDescriptors: StyleDescr
         if (typeof property !== 'undefined')
             Object.keys(styles).forEach(key =>
                 selection
-                    .filter((node: FeatureNode) => node.feature().getPropertyString(property!) === key)
+                    .filter((node: FeatureNode) => getPropertyString(node, property!) === key)
                     .call(selection => attrs(selection, styles[key])));
         else
             attrs(selection, styleDescriptor);

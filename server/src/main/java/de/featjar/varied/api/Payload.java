@@ -13,12 +13,12 @@ public class Payload {
     public static JsonObject fromFeatureModel(FeatureModel featureModel) {
         JsonObject root = new JsonObject();
         root.add("featureTree", fromFeatureTree(featureModel.getFeatureTree()));
-        JsonObject constraints = new JsonObject();
+        JsonArray constraints = new JsonArray();
         featureModel.getConstraints().forEach(constraint -> {
             JsonObject o = new JsonObject();
-            o.addProperty("ID", constraint.getIdentifier().toString());
+            o.addProperty("id", constraint.getIdentifier().toString());
             o.add("formula", fromFormula(constraint.getFormula()));
-            constraints.add(constraint.getIdentifier().toString(), o);
+            constraints.add(o);
         });
         root.add("constraints", constraints);
         return root;
@@ -31,10 +31,14 @@ public class Payload {
         o.addProperty("parentId", featureTree.getParent().map(parent -> parent.getFeature().getIdentifier().toString()).orElse(null));
         o.addProperty("name", feature.getName());
         o.addProperty("description", feature.getDescription().orElse(null));
-        o.addProperty("groupType", featureTree.isAnd() ? "and" : featureTree.isOr() ? "or" : "alternative");
-        o.addProperty("optional", !featureTree.isMandatory());
-        o.addProperty("hidden", feature.isHidden());
-        o.addProperty("abstract", feature.isAbstract());
+        o.addProperty("isRoot", !featureTree.hasParent());
+        o.addProperty("isAbstract", feature.isAbstract());
+        o.addProperty("isHidden", feature.isHidden());
+        o.addProperty("isOptional", !featureTree.isMandatory());
+        o.addProperty("isAnd", featureTree.isAnd());
+        o.addProperty("isOr", featureTree.isOr());
+        o.addProperty("isAlternative", featureTree.isAlternative());
+        o.addProperty("isGroup", featureTree.isGroup());
         JsonArray c = new JsonArray();
         featureTree.getChildren().stream().map(Payload::fromFeatureTree).forEach(c::add);
         o.add("children", c);
@@ -68,7 +72,7 @@ public class Payload {
         else if (formula instanceof Not)
             a.add("not");
         else {
-            a.add("error:" + formula.getName());
+            a.add("error");
             return a;
         }
 

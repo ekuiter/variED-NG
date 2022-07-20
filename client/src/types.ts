@@ -15,7 +15,7 @@ export enum MessageType {
     SET_USER_PROFILE = 'SET_USER_PROFILE',
     JOIN_REQUEST = 'JOIN_REQUEST',
     LEAVE_REQUEST = 'LEAVE_REQUEST',
-    INITIALIZE = 'INITIALIZE'
+    ARTIFACT_DATA = 'ARTIFACT_DATA'
 };
 
 export enum FeatureDiagramLayoutType {

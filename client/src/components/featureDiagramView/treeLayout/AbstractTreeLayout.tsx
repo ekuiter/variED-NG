@@ -12,7 +12,7 @@ import {Settings} from '../../../store/settings';
 import {updateRect} from '../../../helpers/svg';
 import '../../../stylesheets/treeLayout.css';
 import {D3Selection, Bbox, OverlayType, isFloatingFeatureOverlay, OverlayProps} from '../../../types';
-import FeatureModel from '../../../modeling/FeatureModel';
+import FeatureDiagram from '../../../modeling/FeatureModel';
 import AbstractTreeNode from './AbstractTreeNode';
 import AbstractTreeLink from './AbstractTreeLink';
 import {OnShowOverlayFunction, OnHideOverlayFunction, OnSetSelectMultipleFeaturesFunction, OnSelectFeatureFunction, OnDeselectFeatureFunction, OnExpandFeaturesFunction, OnDeselectAllFeaturesFunction, OnToggleFeatureGroupTypeFunction, OnToggleFeatureOptionalFunction} from '../../../store/types';
@@ -23,7 +23,7 @@ import constants from '../../../constants';
 const tag = 'feature diagram';
 
 export interface AbstractTreeLayoutProps {
-    featureModel: FeatureModel,
+    featureModel: FeatureDiagram,
     debug: boolean,
     width?: number,
     height?: number,
@@ -102,18 +102,18 @@ export default class extends React.Component<any>{ //<AbstractTreeLayoutProps> {
     }
     
     getKeyFn(kind: string): (d: FeatureNode) => string {
-        return d => `${kind}_${d.feature().ID}_${d.feature().name}`;
+        return d => `${kind}_${d.data.id}_${d.data.name}`;
     }
 
     toggleSelectedNode(node: FeatureNode): void {
-        if (this.props.selectedFeatureIDs.includes(node.feature().ID))
-            this.props.onDeselectFeature({featureID: node.feature().ID});
+        if (this.props.selectedFeatureIDs.includes(node.data.id))
+            this.props.onDeselectFeature({featureID: node.data.id});
         else
-            this.props.onSelectFeature({featureID: node.feature().ID});
+            this.props.onSelectFeature({featureID: node.data.id});
     }
 
     setActiveNode(overlay: OverlayType | 'select', activeNode: FeatureNode): void {
-        const featureID = activeNode.feature().ID;
+        const featureID = activeNode.data.id;
         if (this.props.isSelectMultipleFeatures) {
             if (overlay === OverlayType.featureCallout || overlay === 'select') {
                 this.toggleSelectedNode(activeNode);
@@ -136,13 +136,13 @@ export default class extends React.Component<any>{ //<AbstractTreeLayoutProps> {
 
     updateCoordinates(key: string, nodes: FeatureNode[]): void {
         (this as any)[key] = {};
-        nodes.forEach(node => (this as any)[key][node.feature().ID] = {x: this.treeNode.x(node), y: this.treeNode.y(node)});
+        nodes.forEach(node => (this as any)[key][node.data.id] = {x: this.treeNode.x(node), y: this.treeNode.y(node)});
     }
 
     getParentCoordinateFn(key: string): NodeCoordinateForAxisFunction {
         return (node, axis) => {
-            if (!node.feature().isRoot) {
-                const coords = (this as any)[key][node.parent!.feature().ID];
+            if (!node.data.isRoot) {
+                const coords = (this as any)[key][node.parent!.data.id];
                 return coords ? coords[axis] : (this as any).treeNode[axis](node.parent);
             } else
                 return (this as any).treeNode[axis](node);
@@ -165,14 +165,14 @@ export default class extends React.Component<any>{ //<AbstractTreeLayoutProps> {
     createLayoutHook(_nodes: FeatureNode[]): void {
     }
 
-    createLayout({featureModel, settings}: {featureModel: FeatureModel, settings: Settings}, isSelectionChange: boolean):
+    createLayout({featureModel, settings}: {featureModel: FeatureDiagram, settings: Settings}, isSelectionChange: boolean):
         {nodes: FeatureNode[], estimatedBbox?: Bbox} {
         const estimateTextWidth = this.treeNode.estimateTextWidth.bind(this.treeNode),
-            hierarchy = featureModel.hierarchy,
+            hierarchy = featureModel.rootFeatureNode,
             tree = d3Tree()
                 .nodeSize(settings.featureDiagram.treeLayout.node.size)
                 .separation((this as any).getSeparationFn(estimateTextWidth)),
-            nodes = featureModel.visibleNodes;
+            nodes = featureModel.featureNodes;
 
         if (isSelectionChange)
             return {nodes};
@@ -327,8 +327,8 @@ export default class extends React.Component<any>{ //<AbstractTreeLayoutProps> {
 
     updateSelection(): void {
         const {node} = this.joinData(false, false, true);
-        node.filter(d => this.props.selectedFeatureIDs.includes(d.feature().ID)).attr('class', 'node selected');
-        node.filter(d => !this.props.selectedFeatureIDs.includes(d.feature().ID)).attr('class', 'node');
-        node.filter(d => this.props.overlayProps.featureID === d.feature().ID).attr('class', 'node selected');
+        node.filter(d => this.props.selectedFeatureIDs.includes(d.data.ID)).attr('class', 'node selected');
+        node.filter(d => !this.props.selectedFeatureIDs.includes(d.data.ID)).attr('class', 'node');
+        node.filter(d => this.props.overlayProps.featureID === d.data.ID).attr('class', 'node selected');
     }
 }

@@ -14,6 +14,7 @@ import styles from './styles';
 import {Rect, Point, D3Selection} from '../../../types';
 import {OnToggleFeatureOptionalFunction} from '../../../store/types';
 import {FeatureNode, NodeCoordinateForAxisFunction, NodePointFunction} from '../../../modeling/types';
+import {hasChildren} from '../../../modeling/FeatureModel';
 
 // declare class AbstractTreeNode {
 //     rectInfo: Rect;
@@ -81,14 +82,14 @@ export default class {
 
     drawGroup(arcSegment: D3Selection, arcSlice: D3Selection, arcClick: D3Selection): void {
         const drawArc = (node: D3Selection, arcPathFn: ArcPathFunction, checkType = (d: FeatureNode): boolean | string => true) =>
-            node.attr('opacity', (d: FeatureNode) => d.feature().isGroup && d.feature().hasChildren && checkType(d) ? 1 : 0)
+            node.attr('opacity', (d: FeatureNode) => d.data.isGroup && hasChildren(d) && checkType(d) ? 1 : 0)
                 .attr('d', (d: FeatureNode) => {
                     const relativeGroupAnchor = this.groupAnchor(d),
                         absoluteGroupAnchor = {
                             x: relativeGroupAnchor.x + this.nodeX(d),
                             y: relativeGroupAnchor.y + this.nodeY(d)
                         };
-                    if ((checkType(d) !== 'always' && !d.feature().isGroup) || !d.feature().hasChildren || !checkType(d))
+                    if ((checkType(d) !== 'always' && !d.data.isGroup) || !hasChildren(d) || !checkType(d))
                         return this.emptyArcPath(relativeGroupAnchor, arcPathFn);
                     const firstChild = d.children![0],
                         lastChild = d.children![d.children!.length - 1],
@@ -98,7 +99,7 @@ export default class {
                         startAngle, endAngle, this.sweepFlag());
                 });
         drawArc(arcSegment, arcSegmentPath);
-        drawArc(arcSlice, arcSlicePath, d => d.feature().isOr);
+        drawArc(arcSlice, arcSlicePath, d => d.data.isOr);
         drawArc(arcClick, arcSlicePath, () => 'always');
     }
 
@@ -118,7 +119,7 @@ export default class {
                 center: from,
                 radius: 0,
                 style: styles.link.optional(this.settings),
-                fn: (circle: D3Selection) => circle.on('dblclick', d => this.onToggleFeatureOptional({feature: d.feature()}))
+                fn: (circle: D3Selection) => circle.on('dblclick', d => this.onToggleFeatureOptional({feature: d.data}))
             });
 
         return linkEnter;

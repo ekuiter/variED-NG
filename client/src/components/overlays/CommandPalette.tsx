@@ -5,7 +5,7 @@ import {getShortcutText} from '../../shortcuts';
 import {OverlayType, Omit, FeatureDiagramLayoutType, ClientFormatType, isArtifactPathEqual, ArtifactPath} from '../../types';
 import Palette, {PaletteItem, PaletteAction, getKey} from '../../helpers/Palette';
 import {canExport} from '../featureDiagramView/export';
-import FeatureModel, {Constraint, paletteConstraintRenderer} from '../../modeling/FeatureModel';
+import FeatureDiagram, {ConstraintNode, getFeatureIDsBelow, paletteConstraintRenderer} from '../../modeling/FeatureModel';
 import {arrayUnique} from '../../helpers/array';
 import deferred from '../../helpers/deferred';
 import logger from '../../helpers/logger';
@@ -20,7 +20,7 @@ interface Props {
     sessions: Session[],
     isOpen: boolean,
     featureDiagramLayout?: FeatureDiagramLayoutType,
-    featureModel?: FeatureModel,
+    featureModel?: FeatureDiagram,
     settings: Settings,
     onDismiss: () => void,
     onShowOverlay: OnShowOverlayFunction,
@@ -163,8 +163,8 @@ export default class extends React.Component<Props, State> {
             action: this.actionWithArguments(
                 [{
                     title: i18n.t('commandPalette.feature'),
-                    items: () => this.props.featureModel!.getVisibleFeatureIDs().map(featureID => ({
-                        key: featureID, text: this.props.featureModel!.getFeature(featureID)!.name
+                    items: () => this.props.featureModel!.getFeatureIDs().map(featureID => ({
+                        key: featureID, text: this.props.featureModel!.getFeatureTree(featureID)!.name
                     }))
                 }],
                 action),
@@ -379,15 +379,15 @@ export default class extends React.Component<Props, State> {
             action: this.actionWithArguments(
                 [{
                     title: i18n.t('commandPalette.featureDiagram.feature.moveSource'),
-                    items: () => this.props.featureModel!.getVisibleFeatureIDs().map(featureID => ({
-                        key: featureID, text: this.props.featureModel!.getFeature(featureID)!.name
+                    items: () => this.props.featureModel!.getFeatureIDs().map(featureID => ({
+                        key: featureID, text: this.props.featureModel!.getFeatureTree(featureID)!.name
                     }))
                 }, {
                     title: i18n.t('commandPalette.featureDiagram.feature.moveTarget'),
                     items: moveSourceID => {
-                        const getFeature = (featureID: string) => this.props.featureModel!.getFeature(featureID)!,
-                            featureIDsBelowMoveSource = getFeature(moveSourceID).getFeatureIDsBelow();
-                        return this.props.featureModel!.getVisibleFeatureIDs()
+                        const getFeature = (featureID: string) => this.props.featureModel!.getFeatureTree(featureID)!,
+                            featureIDsBelowMoveSource = getFeatureIDsBelow(getFeature(moveSourceID).node);
+                        return this.props.featureModel!.getFeatureIDs()
                             .filter(featureID => !featureIDsBelowMoveSource.includes(featureID))
                             .map(featureID => ({key: featureID, text: getFeature(featureID).name}))
                     }
@@ -441,7 +441,7 @@ export default class extends React.Component<Props, State> {
             {text: i18n.t('commandPalette.featureDiagram.feature.propertiesMenu.hidden')},
             featureID => {
                 if (preconditions.featureDiagram.feature.properties.setHidden([featureID], this.props.featureModel!))
-                    this.props.onSetFeatureHidden({featureIDs: [featureID], value: !this.props.featureModel!.getFeature(featureID)!.isHidden});
+                    this.props.onSetFeatureHidden({featureIDs: [featureID], value: !this.props.featureModel!.getFeatureTree(featureID)!.isHidden});
                 else
                     logger.warn(() => `feature ${featureID} vanished`);
             }),
@@ -500,12 +500,12 @@ export default class extends React.Component<Props, State> {
                     title: i18n.t('commandPalette.constraint'),
                     allowFreeform: true,
                     transformFreeform: value =>
-                        Constraint.readFormulaFromString(value,
+                        ConstraintNode.readFormulaFromString(value,
                             this.props.featureModel!, paletteConstraintRenderer).preview ||
                         i18n.t('commandPalette.featureDiagram.constraint.invalid')
                 }],
                 formulaString => {
-                    const {formula} = Constraint.readFormulaFromString(formulaString,
+                    const {formula} = ConstraintNode.readFormulaFromString(formulaString,
                         this.props.featureModel!, paletteConstraintRenderer);
                     if (!formula || !preconditions.featureDiagram.constraint.create(formula, this.props.featureModel!))
                         logger.warn(() => 'invalid formula given'); // TODO: better error reporting UI
@@ -519,19 +519,19 @@ export default class extends React.Component<Props, State> {
             action: this.actionWithArguments(
                 [{
                     title: i18n.t('commandPalette.oldConstraint'),
-                    items: () => this.props.featureModel!.constraints.map(constraint => ({
-                        key: constraint.ID, text: constraint.render(paletteConstraintRenderer)
+                    items: () => this.props.featureModel!.constraintNodes.map(constraint => ({
+                        key: constraint.id, text: constraint.render(paletteConstraintRenderer)
                     }))
                 }, {
                     title: i18n.t('commandPalette.newConstraint'),
                     allowFreeform: true,
                     transformFreeform: value =>
-                        Constraint.readFormulaFromString(value,
+                        ConstraintNode.readFormulaFromString(value,
                             this.props.featureModel!, paletteConstraintRenderer).preview ||
                         i18n.t('commandPalette.featureDiagram.constraint.invalid')
                 }],
                 (constraintID, formulaString) => {
-                    const {formula} = Constraint.readFormulaFromString(formulaString,
+                    const {formula} = ConstraintNode.readFormulaFromString(formulaString,
                         this.props.featureModel!, paletteConstraintRenderer);
                     if (!formula || !preconditions.featureDiagram.constraint.set(constraintID, formula, this.props.featureModel!))
                         logger.warn(() => `invalid formula given or constraint ${constraintID} vanished`); // TODO: better error reporting UI
@@ -545,8 +545,8 @@ export default class extends React.Component<Props, State> {
             action: this.actionWithArguments(
                 [{
                     title: i18n.t('commandPalette.constraint'),
-                    items: () => this.props.featureModel!.constraints.map(constraint => ({
-                        key: constraint.ID, text: constraint.render(paletteConstraintRenderer)
+                    items: () => this.props.featureModel!.constraintNodes.map(constraint => ({
+                        key: constraint.id, text: constraint.render(paletteConstraintRenderer)
                     }))
                 }],
                 constraintID => {

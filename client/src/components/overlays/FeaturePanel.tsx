@@ -8,7 +8,7 @@ import i18n from '../../i18n';
 import {CommandBar, ICommandBarItemProps} from '@fluentui/react';
 import commands from '../commands';
 import FeatureComponent, {FeatureComponentProps} from './FeatureComponent';
-import {Feature} from '../../modeling/types';
+import {FeatureTree} from '../../modeling/types';
 import {OnShowOverlayFunction, OnCollapseFeaturesFunction, OnCollapseFeaturesBelowFunction, OnExpandFeaturesFunction, OnExpandFeaturesBelowFunction, OnRemoveFeatureFunction, OnCreateFeatureBelowFunction, OnCreateFeatureAboveFunction, OnSetFeatureAbstractFunction, OnSetFeatureHiddenFunction, OnSetFeatureOptionalFunction, OnSetFeatureAndFunction, OnSetFeatureOrFunction, OnSetFeatureAlternativeFunction, OnRemoveFeatureSubtreeFunction} from '../../store/types';
 
 type Props = FeatureComponentProps & {
@@ -55,7 +55,7 @@ export default class extends FeatureComponent()<Props> {
             styles={{root: {margin: '0 -40px', padding: '0 35px'}}}/>
     );
 
-    renderIfFeature(feature: Feature) {
+    renderIfFeature(feature: FeatureTree) {
         return (
             <Panel
                 isOpen={this.props.isOpen}

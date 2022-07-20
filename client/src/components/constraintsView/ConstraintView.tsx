@@ -1,10 +1,10 @@
 import React, {ReactNode} from 'react';
-import {Constraint, createConstraintRenderer} from '../../modeling/FeatureModel';
+import {ConstraintNode, createConstraintRenderer} from '../../modeling/FeatureModel';
 import constants from '../../constants';
 
 interface Props {
     key: string
-    constraint: Constraint
+    constraint: ConstraintNode
 };
 
 const reactConstraintRenderer = createConstraintRenderer<ReactNode>({

@@ -1,28 +1,13 @@
 import {HierarchyPointNode} from 'd3-hierarchy';
 import {Point} from '../types';
 
-// keys and attributes used in api feature models
-export const FEATURES = 'features';
-export const CONSTRAINTS = 'constraints';
-export const CHILDREN_CACHE = 'children-cache';
-export const NIL = 'nil';
-export const ID_KEY = 'ID';
-export const NAME = 'name';
-export const DESCRIPTION = 'description';
-export const OPTIONAL = 'optional?';
-export const ABSTRACT = 'abstract?';
-export const HIDDEN = 'hidden?';
-export const PARENT_ID = 'parent-ID';
-export const GROUP_TYPE = 'group-type';
-export const FORMULA = 'formula';
-
 export enum ConstraintType {
-    unknown = 'unknown',
+    error = 'error',
     not = 'not',
-    disj = 'disj',
-    eq = 'eq',
-    imp = 'imp',
-    conj = 'conj'
+    or = 'or',
+    biimplies = 'biimplies',
+    implies = 'implies',
+    and = 'and'
 };
 
 export enum GroupType {
@@ -31,44 +16,23 @@ export enum GroupType {
     alternative = 'alternative'
 };
 
-export enum PropertyType {
-    abstract = 'abstract?',
-    hidden = 'hidden?',
-    name = 'name',
-    description = 'description'
+export type FormulaAtom = ConstraintType | string;
+export interface NestedFormula extends Array<NestedFormula | FormulaAtom> {}
+export type Formula = FormulaAtom | NestedFormula;
+
+export interface Constraint {
+    id: string,
+    formula: Formula
 };
 
-export interface ApiFeature {
-    [ID_KEY]?: string, // added dynamically by FeatureModel class
-    [NAME]: string,
-    [DESCRIPTION]: string | null,
-    [HIDDEN]: boolean,
-    [OPTIONAL]: boolean,
-    [ABSTRACT]: boolean,
-    [PARENT_ID]?: string | null,
-    [GROUP_TYPE]: GroupType
+export interface FeatureModel {
+    featureTree: FeatureTree,
+    constraints: Constraint[]
 };
 
-export type ApiConstraintFormulaAtom = ConstraintType | string;
-export interface ApiConstraintNestedFormula extends Array<ApiConstraintNestedFormula | ApiConstraintFormulaAtom> {}
-export type ApiConstraintFormula = ApiConstraintFormulaAtom | ApiConstraintNestedFormula;
-
-export interface ApiConstraint {
-    [ID_KEY]?: string, // added dynamically, see ApiFeature
-    [FORMULA]: ApiConstraintFormula
-};
-
-export interface ApiFeatureModel {
-    [FEATURES]: {[ID: string]: ApiFeature},
-    [CONSTRAINTS]: {[ID: string]: ApiConstraint},
-    [CHILDREN_CACHE]: {[ID: string]: string[]}
-};
-
-export type FeaturePropertyKey = string | ((node: FeatureNode) => string);
-
-export interface Feature {
-    node: FeatureNode,
-    ID: string,
+export interface FeatureTree {
+    id: string,
+    parentId?: string,
     name: string,
     description?: string,
     isRoot: boolean,
@@ -79,22 +43,12 @@ export interface Feature {
     isOr: boolean,
     isAlternative: boolean,
     isGroup: boolean,
-    isCollapsed: boolean,
-    hasChildren: boolean,
-    hasActualChildren: boolean,
-    getPropertyString: (key: FeaturePropertyKey) => string,
-    getNumberOfFeaturesBelow: () => number,
-    getFeatureIDsBelow: () => string[]
+    children: FeatureTree[],
+    node: FeatureNode
 };
 
-type Datum = ApiFeature; // accessible as node.data
-
-export type FeatureNode = HierarchyPointNode<Datum> & {
-    children?: FeatureNode[];
-    actualChildren?: FeatureNode[];
-    _feature: Feature;
-    feature: () => Feature;
-}
+export type FeatureNode = HierarchyPointNode<FeatureTree>;
+export type FeaturePropertyKey = string | ((node: FeatureNode) => string);
 
 export type NodeCoordinateFunction = (node: FeatureNode) => number;
 export type NodeCoordinateForAxisFunction = (node: FeatureNode, axis: string) => number;

@@ -5,11 +5,11 @@
  */
 
 import createCachedSelector from 're-reselect';
-import FeatureModel from '../modeling/FeatureModel';
+import FeatureDiagram from '../modeling/FeatureModel';
 import {State, Session, FeatureDiagramSession} from './types';
 import logger from '../helpers/logger';
 import {ArtifactPath, isArtifactPathEqual, artifactPathToString, artifactPathCacheKey} from '../types';
-import {ApiFeatureModel} from '../modeling/types';
+import {FeatureModel} from '../modeling/types';
 import {getCurrentArtifactPath} from '../router';
 
 export function isFeatureDiagramSession(session?: Session): session is FeatureDiagramSession {
@@ -53,15 +53,15 @@ const featureModelSessionKeySelector = <T>(key: string) => (state: State, artifa
 export const getFeatureModel = createCachedSelector(
     featureModelSessionKeySelector('kernelFeatureModel'),
     featureModelSessionKeySelector('collapsedFeatureIDs'),
-    (kernelFeatureModel?: ApiFeatureModel, collapsedFeatureIDs?: string[]): FeatureModel | undefined => {
+    (kernelFeatureModel?: FeatureModel, collapsedFeatureIDs?: string[]): FeatureDiagram | undefined => {
         logger.infoTagged({tag: 'redux'}, () => 'updating feature model selector');
         if (!kernelFeatureModel || !collapsedFeatureIDs)
             return undefined;
-        return FeatureModel.fromApi(kernelFeatureModel).collapse(collapsedFeatureIDs);
+        return new FeatureDiagram(kernelFeatureModel).collapse(collapsedFeatureIDs);
     }
 )((_state: State, artifactPath: ArtifactPath) => artifactPathCacheKey(artifactPath));
 
-export function getCurrentFeatureModel(state: State): FeatureModel | undefined {
+export function getCurrentFeatureModel(state: State): FeatureDiagram | undefined {
     const currentArtifactPath = getCurrentArtifactPath(state.sessions);
     return currentArtifactPath ? getFeatureModel(state, currentArtifactPath) : undefined;
 }

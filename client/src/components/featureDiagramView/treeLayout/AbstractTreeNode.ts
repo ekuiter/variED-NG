@@ -10,6 +10,7 @@ import {isCommand} from '../../../helpers/withKeys';
 import {OverlayType, Rect, D3Selection, Point} from '../../../types';
 import {OnShowOverlayFunction, OnExpandFeaturesFunction, OnToggleFeatureGroupTypeFunction} from '../../../store/types';
 import {FeatureNode} from '../../../modeling/types';
+import {getNumberOfFeaturesBelow, isCollapsed} from '../../../modeling/FeatureModel';
 
 // declare class AbstractTreeLink {
 //     collapseAnchor(_node: FeatureNode): Partial<Point>;
@@ -48,7 +49,7 @@ function makeText(settings: Settings, selection: D3Selection, isGettingRectInfo:
         const bboxes: Rect[] = [];
         selection.append('text')
             .call(addFontStyle, settings)
-            .text((d: FeatureNode) => d.feature().name)
+            .text((d: FeatureNode) => d.data.name)
             .call(addStyle, textStyle, styles.node.hidden(settings))
             .each(function(this: SVGGraphicsElement) {
                 bboxes.push(this.getBBox());
@@ -89,7 +90,7 @@ export default class {
     enter(node: D3Selection): D3Selection {
         const nodeEnter = node.append('g')
                 .attr('class', 'node')
-                .attr('data-feature-id', (d: FeatureNode) => d.feature().ID)
+                .attr('data-feature-id', (d: FeatureNode) => d.data.id)
                 .call(translateTransform, (d: FeatureNode) => this.x(d), (d: FeatureNode) => this.y(d))
                 .attr('opacity', 0),
             rectAndText = nodeEnter.append('g')
@@ -101,7 +102,7 @@ export default class {
                 })
                 .on('dblclick', (d: FeatureNode) => {
                     if (!this.isSelectMultipleFeatures)
-                        this.onShowOverlay({overlay: OverlayType.featurePanel, overlayProps: {featureID: d.feature().ID}});
+                        this.onShowOverlay({overlay: OverlayType.featurePanel, overlayProps: {featureID: d.data.id}});
                 });
 
         let bboxes = makeText(this.settings, rectAndText, false, this.getTextStyle()) as Rect[];
@@ -120,10 +121,10 @@ export default class {
             arcClick = nodeEnter.append('path')
                 .attr('class', 'arcClick')
                 .call(addStyle, styles.node.arcClick(this.settings))
-                .on('dblclick', (d: FeatureNode) => this.onToggleFeatureGroupType({feature: d.feature()}));
+                .on('dblclick', (d: FeatureNode) => this.onToggleFeatureGroupType({feature: d.data}));
         this.treeLink.drawGroup(arcSegment, arcSlice, arcClick);
 
-        const expandFeature = (d: FeatureNode) => d.feature().isCollapsed && this.onExpandFeatures({featureIDs: [d.feature().ID]});
+        const expandFeature = (d: FeatureNode) => isCollapsed(d) && this.onExpandFeatures({featureIDs: [d.data.id]});
         i = 0;
         bboxes = [];
         attrs(nodeEnter.insert('text', 'path.arcClick')
@@ -132,7 +133,7 @@ export default class {
             .attr('class', 'collapse')
             .attr('text-anchor', 'middle'), (d: FeatureNode) => this.treeLink.collapseAnchor(d))
             .call(addStyle, styles.node.collapseText(this.settings))
-            .text((d: FeatureNode) => d.feature().getNumberOfFeaturesBelow())
+            .text((d: FeatureNode) => getNumberOfFeaturesBelow(d))
             .attr('opacity', 0)
             .each(function(this: SVGGraphicsElement) {
                 bboxes.push(this.getBBox());
@@ -160,8 +161,8 @@ export default class {
                     .attr('opacity', 0.5)
                     .attr('y', y);
             };
-            addDebugText(d => d.feature().ID.substr(0, 19), 6);
-            addDebugText(d => d.feature().ID.substr(19), 11);
+            addDebugText(d => d.data.id.substr(0, 19), 6);
+            addDebugText(d => d.data.id.substr(19), 11);
         }
 
         return nodeEnter;
@@ -173,11 +174,11 @@ export default class {
         node.select('g.rectAndText rect').call(addStyle, styles.node.abstract(this.settings));
         node.select('g.rectAndText text').call(addStyle, styles.node.hidden(this.settings));
         node.select('text.collapse')
-            .text((d: FeatureNode) => d.feature().getNumberOfFeaturesBelow())
-            .attr('cursor', (d: FeatureNode) => d.feature().isCollapsed ? 'pointer' : null)
-            .attr('opacity', (d: FeatureNode) => d.feature().isCollapsed ? 1 : 0);
+            .text((d: FeatureNode) => getNumberOfFeaturesBelow(d))
+            .attr('cursor', (d: FeatureNode) => isCollapsed(d) ? 'pointer' : null)
+            .attr('opacity', (d: FeatureNode) => isCollapsed(d) ? 1 : 0);
         node.select('circle').attr('r', (d: FeatureNode) =>
-            d.feature().isCollapsed ? this.settings.featureDiagram.font.size : 0);
+            isCollapsed(d) ? this.settings.featureDiagram.font.size : 0);
         this.treeLink.drawGroup(node.select('path.arcSegment'), node.select('path.arcSlice'), node.select('path.arcClick'));
     }
 
@@ -189,6 +190,6 @@ export default class {
         return measureTextWidth(
             this.settings.featureDiagram.font.family,
             this.settings.featureDiagram.font.size,
-            node.feature().name);
+            node.data.name);
     }
 }

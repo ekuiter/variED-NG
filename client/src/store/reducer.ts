@@ -12,12 +12,12 @@ import {setAdd, setRemove, SetOperationFunction, arrayReplace} from '../helpers/
 import {getFeatureModel, isEditingFeatureModel, getSession, getCurrentFeatureModel, getCurrentSession, isFeatureDiagramSession} from './selectors';
 import actions, {Action, SERVER_SEND_MESSAGE, KERNEL_GENERATE_OPERATION} from './actions';
 import {getType, isActionOf} from 'typesafe-actions';
-import {State, initialState, Session, FeatureDiagramSession} from './types';
+import {State, initialState, Session, FeatureDiagramSession, initialFeatureDiagramSessionState} from './types';
 import objectPath from 'object-path';
 import * as objectPathImmutable from 'object-path-immutable';
 import logger, {setLogLevel, LogLevel, defaultLogLevel} from '../helpers/logger';
 import {AnyAction, Store as ReduxStore} from 'redux';
-import {ApiFeatureModel} from '../modeling/types';
+import {FeatureModel} from '../modeling/types';
 import {getCurrentArtifactPath, redirectToArtifactPath} from '../router';
 import {saveAs} from 'file-saver';
 import {getExportFileName} from '../components/featureDiagramView/export';
@@ -58,7 +58,7 @@ function removeObsoleteFeaturesFromFeatureList(state: State, artifactPath: Artif
 function hideOverlayForObsoleteFeature(state: State): State {
     if (!isEditingFeatureModel(state))
         return state;
-    const visibleFeatureIDs = getCurrentFeatureModel(state)!.getVisibleFeatureIDs();
+    const visibleFeatureIDs = getCurrentFeatureModel(state)!.getFeatureIDs();
     return state.overlay !== OverlayType.none && state.overlayProps.featureID &&
         !visibleFeatureIDs.includes(state.overlayProps.featureID)
         ? updateOverlay(state, OverlayType.none, {})
@@ -104,7 +104,7 @@ function fitToScreen(state: State, session: Session): string[] {
 function kernelReducer(state: State, action: AnyAction): State {
     if (action.type === KERNEL_GENERATE_OPERATION) {
         const {kernelFeatureModel, artifactPath}:
-            {kernelFeatureModel: ApiFeatureModel, artifactPath: ArtifactPath} = action.payload;
+            {kernelFeatureModel: FeatureModel, artifactPath: ArtifactPath} = action.payload;
         state = getNewState(state, 'sessions',
             getNewSessions(state, artifactPath,
                 (session: Session) =>
@@ -183,24 +183,22 @@ function serverReceiveReducer(state: State, action: Action): State {
                     getExportFileName(action.payload.format));
                 return state;
 
-            case MessageType.INITIALIZE:
-                // if (!state.myself)
-                //     throw new Error('no site ID assigned to self');
-                // const [kernelContext, kernelCombinedEffect] = 
-                //     Kernel.initialize(action.payload.artifactPath!, state.myself.userID, action.payload.context);
-                // state = getNewState(state,
-                //     'sessions', [...state.sessions,
-                //         initialFeatureDiagramSessionState(
-                //             action.payload.artifactPath!, kernelContext, kernelCombinedEffect)]);
-                // if (isEditingFeatureModel(state)) {
-                //     state = getNewState(state, 'sessions',
-                //     getNewSessions(state, action.payload.artifactPath!,
-                //         (session: Session) => ({
-                //             ...session,
-                //             collapsedFeatureIDs: fitToScreen(state, getSession(state, action.payload.artifactPath!))
-                //         })));
-                //     state = updateFeatureModel(state, action.payload.artifactPath!);
-                // }
+            case MessageType.ARTIFACT_DATA:
+                if (!state.myself)
+                    throw new Error('no site ID assigned to self');
+                const apiFeatureModel = action.payload.payload;
+                state = getNewState(state,
+                    'sessions', [...state.sessions,
+                        initialFeatureDiagramSessionState(action.payload.artifactPath!, apiFeatureModel)]);
+                if (isEditingFeatureModel(state)) {
+                    state = getNewState(state, 'sessions',
+                    getNewSessions(state, action.payload.artifactPath!,
+                        (session: Session) => ({
+                            ...session,
+                            collapsedFeatureIDs: fitToScreen(state, getSession(state, action.payload.artifactPath!))
+                        })));
+                    state = updateFeatureModel(state, action.payload.artifactPath!);
+                }
                 return state;
 
             default:
@@ -290,7 +288,7 @@ function uiReducer(state: State, action: Action): State {
                 ? getNewState(state, 'sessions',
                     getNewSessions(state, currentArtifactPath!, (session: Session) => ({
                         ...session,
-                        selectedFeatureIDs: getCurrentFeatureModel(state)!.getVisibleFeatureIDs(),
+                        selectedFeatureIDs: getCurrentFeatureModel(state)!.getFeatureIDs(),
                         isSelectMultipleFeatures: true
                     })))
                 : state;
