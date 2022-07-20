@@ -5,6 +5,7 @@ import de.featjar.varied.session.Session;
 import de.featjar.varied.util.FeatureModels;
 import de.featjar.varied.util.Strings;
 
+import java.net.URL;
 import java.util.Objects;
 import java.util.function.Supplier;
 
@@ -83,8 +84,8 @@ public abstract class Artifact {
             this(project, name, () -> FeatureModels.load(source, fileName));
         }
 
-        public FeatureModel(Project project, String name, java.nio.file.Path path) {
-            this(project, name, () -> FeatureModels.load(path));
+        public FeatureModel(Project project, String name, URL url) {
+            this(project, name, () -> FeatureModels.load(url));
         }
 
         public FeatureModel(Project project, String name, Supplier<de.featjar.model.FeatureModel> featureModelSupplier) {

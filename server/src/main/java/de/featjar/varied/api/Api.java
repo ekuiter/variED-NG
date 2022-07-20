@@ -19,6 +19,7 @@ public class Api {
     public enum TypeEnum {
         ERROR,
         RESET,
+        EXIT,
         ADD_ARTIFACT,
         REMOVE_ARTIFACT,
         EXPORT_ARTIFACT,
@@ -44,6 +45,9 @@ public class Api {
     }
 
     public static class Reset extends Message implements Message.IDecodable {
+    }
+
+    public static class Exit extends Message implements Message.IDecodable {
     }
 
     public static class AddArtifact extends Message implements Message.IEncodable, Message.IDecodable {

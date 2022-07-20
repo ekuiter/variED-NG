@@ -158,7 +158,9 @@ const translationMap = {
             reset: 'Developer: Reset entire system',
             confirmReset: 'WARNING: This will interrupt all modeling activities and discard all changes. ' +
                 'Each connected user will have to run "Developer: Clear local storage".'
-        }
+        },
+        exit: 'Exit',
+        exitAlert: 'You can close the browser window now.'
     },
     overlays: {
         palette: {

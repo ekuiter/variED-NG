@@ -27,6 +27,8 @@ import ShareDialog from './ShareDialog';
 import {getCurrentArtifactPath} from '../../router';
 import {withRouter} from 'react-router';
 import UserProfilePanel from './UserProfilePanel';
+import deferred from '../../helpers/deferred';
+import i18n from '../../i18n';
 
 const OverlayContainer = (props: StateDerivedProps & RouteProps) => (
     <React.Fragment>
@@ -66,7 +68,8 @@ const OverlayContainer = (props: StateDerivedProps & RouteProps) => (
             onSetConstraint={props.onSetConstraint!}
             onRemoveConstraint={props.onRemoveConstraint!}
             onSetSetting={props.onSetSetting!}
-            onReset={props.onReset!}/>
+            onReset={props.onReset!}
+            onExit={props.onExit!}/>
 
         <SettingsPanel
             isOpen={props.overlay === OverlayType.settingsPanel}
@@ -260,6 +263,10 @@ export default withRouter(connect(
         onSetFeatureName: payload => dispatch<any>(actions.server.featureDiagram.feature.setName(payload)),
         onSetFeatureDescription: payload => dispatch<any>(actions.server.featureDiagram.feature.setDescription(payload)),
         onSetUserProfile: payload => dispatch<any>(actions.server.setUserProfile(payload)),
-        onReset: () => dispatch<any>(actions.server.reset({}))
+        onReset: () => dispatch<any>(actions.server.reset({})),
+        onExit: () => {
+            dispatch<any>(actions.server.exit({}));
+            deferred(() => window.alert(i18n.t('commandPalette.exitAlert')))();
+        }
     })
 )(OverlayContainer));

@@ -24,11 +24,6 @@ import i18n from './i18n';
 declare var window: any;
 
 (() => {
-    window.addEventListener('beforeunload', (e: BeforeUnloadEvent) => {
-        if (numberofUnflushedOutgoingMessages() > 0)
-            e.returnValue = i18n.getFunction('hasUnflushedOutgoingMessages')(numberofUnflushedOutgoingMessages());
-    });
-
     initializeIcons('/fonts/');
 
     const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;

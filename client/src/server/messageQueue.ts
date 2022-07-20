@@ -23,11 +23,6 @@ export function numberofUnflushedOutgoingMessages(): number {
 }
 
 export async function flushOutgoingMessageQueue(forceFlush = false): Promise<void> {
-    if (numberofUnflushedOutgoingMessages() > 0) {
-        if (!document.title.startsWith('(*) '))
-            document.title = '(*) ' + document.title;
-    }
-    
     if (isFlushingOutgoingMessageQueue) {
         logger.warnTagged({tag}, () => 'already flushing message queue, abort');
         return;
@@ -47,9 +42,6 @@ export async function flushOutgoingMessageQueue(forceFlush = false): Promise<voi
         }
         outgoingMessageQueue.shift();
     }
-
-    if (document.title.startsWith('(*) '))
-        document.title = document.title.substr(4);
 
     if (numberOfMessages > 0)
         logger.infoTagged({tag}, () => `successfully sent ${numberOfMessages} messages`);

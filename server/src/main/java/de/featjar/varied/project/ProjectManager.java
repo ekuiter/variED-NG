@@ -1,6 +1,7 @@
 package de.featjar.varied.project;
 
 import de.featjar.util.extension.ExtensionLoader;
+import de.featjar.varied.Main;
 import de.featjar.varied.util.Strings;
 import de.featjar.varied.util.FeatureModels;
 import org.pmw.tinylog.Logger;
@@ -102,17 +103,9 @@ public class ProjectManager {
                 }));
     }
 
-    public static Path getResourcePath(String fileName) {
-        try {
-            return Paths.get(ProjectManager.class.getClassLoader().getResource(fileName).toURI());
-        } catch (URISyntaxException e) {
-            throw new RuntimeException("invalid resource path given");
-        }
-    }
-
     void addExampleArtifact(Project project, String artifactName) {
             project.addArtifact(new Artifact.FeatureModel(project, artifactName,
-                    getResourcePath("examples/" + artifactName + ".xml")));
+                    Main.getResourceURL("examples/" + artifactName + ".xml").orElseThrow()));
     }
 
     public void removeProject(Project project) {

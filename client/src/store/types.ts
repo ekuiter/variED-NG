@@ -95,6 +95,7 @@ export type OnRemoveConstraintFunction = (payload: {constraintID: string}) => Pr
 export type OnToggleFeatureGroupTypeFunction = (payload: {feature: FeatureTree}) => Promise<void>;
 export type OnSetUserProfileFunction = (payload: {name: string}) => Promise<void>;
 export type OnResetFunction = () => Promise<void>;
+export type OnExitFunction = () => void;
 
 // Props that may derived from the state to use in React components.
 // This enforces the convention that a prop called 'on...' has the same type in all components.
@@ -156,5 +157,6 @@ export type StateDerivedProps = Partial<{
     onRemoveConstraint: OnRemoveConstraintFunction,
     onToggleFeatureGroupType: OnToggleFeatureGroupTypeFunction,
     onSetUserProfile: OnSetUserProfileFunction,
-    onReset: OnResetFunction
+    onReset: OnResetFunction,
+    onExit: OnExitFunction
 }>;

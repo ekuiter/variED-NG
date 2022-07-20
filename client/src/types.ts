@@ -7,6 +7,7 @@ import {Selection} from 'd3-selection';
 export enum MessageType {
     ERROR = 'ERROR',
     RESET = 'RESET',
+    EXIT = 'EXIT',
     ADD_ARTIFACT = 'ADD_ARTIFACT',
     REMOVE_ARTIFACT = 'REMOVE_ARTIFACT',
     EXPORT_ARTIFACT = 'EXPORT_ARTIFACT',

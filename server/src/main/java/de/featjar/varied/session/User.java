@@ -1,6 +1,7 @@
 package de.featjar.varied.session;
 
 import com.google.gson.annotations.Expose;
+import de.featjar.varied.Main;
 import de.featjar.varied.Socket;
 import de.featjar.varied.api.Api;
 import de.featjar.varied.api.Message;
@@ -109,6 +110,12 @@ public class User {
             return;
         }
 
+        if (message.isType(Api.TypeEnum.EXIT)) {
+            Logger.info("exiting server");
+            System.exit(0);
+            return;
+        }
+
         if (message.isType(Api.TypeEnum.SET_USER_PROFILE)) {
             Logger.info("setting user profile of user {}", this);
             this.setName(((Api.SetUserProfile) message).name);
@@ -134,7 +141,7 @@ public class User {
             Artifact artifact;
             if (source == null)
                 artifact = new Artifact.FeatureModel(project, artifactPath.getArtifactName(),
-                        ProjectManager.getResourcePath("examples/" + ProjectManager.EMPTY + ".xml"));
+                        Main.getResourceURL("examples/" + ProjectManager.EMPTY + ".xml").orElseThrow());
             else
                 artifact = new Artifact.FeatureModel(project, artifactPath.getArtifactName(), source);
             project.addArtifact(artifact);

@@ -7,13 +7,14 @@ import de.featjar.util.io.IO;
 import org.pmw.tinylog.Logger;
 
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class FeatureModels {
-    public static FeatureModel load(Path path) {
-        Logger.debug("loading feature model from {}", path);
-        return IO.load(path, FeatureModelFormatManager.getInstance()).orElseThrow();
+    public static FeatureModel load(URL url) {
+        Logger.debug("loading feature model from {}", url);
+        return IO.load(url, FeatureModelFormatManager.getInstance()).orElseThrow();
     }
 
     public static FeatureModel load(String source, String fileName) {

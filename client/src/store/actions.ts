@@ -80,6 +80,7 @@ const actions = {
         redo: createMessageAction(() => ({type: MessageType.ERROR})), // TODO
         setUserProfile: createMessageAction(({name}: {name: string}) => ({type: MessageType.SET_USER_PROFILE, name})),
         reset: createMessageAction(() => ({type: MessageType.RESET})),
+        exit: createMessageAction(() => ({type: MessageType.EXIT})),
         featureDiagram: {
             feature: {
                 createBelow: createMessageAction(({featureParentID}: {featureParentID: string}) => ({type: MessageType.OPERATION_FEATURE_CREATE_BELOW, featureParentID})),
