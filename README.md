@@ -12,12 +12,8 @@
 
 ## Getting Started
 
-The only dependency required for building is [JDK
-1.8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
-[Gradle](https://gradle.org/) and [npm](https://nodejs.org/)
-are downloaded and set up automatically by the build process.
-
-- As a prerequisite, set up [FeatJAR](https://github.com/FeatJAR/FeatJAR) in the local Maven repository.
+As a prerequisite, set up [FeatJAR](https://github.com/FeatJAR/FeatJAR) in the local Maven repository.
+ 
 - `./gradlew build` builds a JAR file that can be run with a double-click (on Windows) or with `java -jar variED.jar`.
   To stop the server, click `Tools > Command Palette > Exit`  (if run via double-click) or press `Ctrl+C` (on a shell).
 - `npm start` inside the `client` directory runs the client on
