@@ -27,4 +27,4 @@ The client makes use of the [React](https://reactjs.org/),
 [Redux](https://redux.js.org/), [Fluent UI](https://developer.microsoft.com/en-us/fluentui) and
 [D3.js](https://d3js.org/) libraries to provide a user interface for feature
 modeling.
-The server relies on [FeatJAR](https://github.com/FeatJAR/FeatJAR) as a backend for feature-model IO, editing, and analysis.
+The server relies on [FeatJAR](https://github.com/FeatJAR) as a backend for feature-model IO, editing, and analysis.
