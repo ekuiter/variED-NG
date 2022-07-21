@@ -17,11 +17,12 @@ The only dependency required for building is [JDK
 [Gradle](https://gradle.org/) and [npm](https://nodejs.org/)
 are downloaded and set up automatically by the build process.
 
+- As a prerequisite, set up [FeatJAR](https://github.com/FeatJAR/FeatJAR) in the local Maven repository.
 - `./gradlew build` builds a JAR file that can be run with a double-click (on Windows) or with `java -jar variED.jar`.
-  To stop the server, press `Ctrl+C` or (if run via double-click) run `Tools > Command Palette > Exit`.
+  To stop the server, click `Tools > Command Palette > Exit`  (if run via double-click) or press `Ctrl+C` (on a shell).
 - `npm start` inside the `client` directory runs the client on
   `http://localhost:3000`.
-- `./gradlew server:run` runs the server on `http://localhost:8080`, which provides a web socket and serves the client at `/`, if it already has been built.
+- `./gradlew server:run` runs the server on `http://localhost:8080`, which also serves the client at `/`, if it already has been built.
 
 ## Implementation
 
