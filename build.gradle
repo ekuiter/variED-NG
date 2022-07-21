@@ -1,0 +1,14 @@
+tasks.getByPath(':server:build').mustRunAfter ':client:build'
+
+task build {
+    dependsOn ':client:build'
+    dependsOn ':server:build'
+    doLast() {
+        copy {
+            from 'server/build/libs'
+            into 'build'
+            include 'server-all.jar'
+            rename 'server-all.jar', 'variED.jar'
+        }
+    }
+}

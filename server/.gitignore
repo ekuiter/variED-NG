@@ -2,7 +2,3 @@
 /build
 /.idea
 *.iml
-/.git_private
-/src/main/webapp/*
-!/src/main/webapp/WEB-INF
-/lib/kernel-SNAPSHOT-standalone.jar

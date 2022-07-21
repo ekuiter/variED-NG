@@ -1,0 +1,11 @@
+plugins {
+    id 'com.github.node-gradle.node' version '3.4.0'
+}
+
+node {
+    download = true
+    version = '16.14.0'
+}
+
+npm_run_build.dependsOn 'npmInstall'
+task build(dependsOn: 'npm_run_build')
