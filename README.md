@@ -14,7 +14,7 @@
 
 As a prerequisite, set up [FeatJAR](https://github.com/FeatJAR/FeatJAR) in the local Maven repository.
  
-- `./gradlew build` builds a JAR file that can be run with a double-click (on Windows) or with `java -jar variED.jar`.
+- `./gradlew build` builds a JAR file that can be run with a double click (on Windows) or with `java -jar variED.jar`.
   To stop the server, click `Tools > Command Palette > Exit`  (if run via double-click) or press `Ctrl+C` (on a shell).
 - `npm start` inside the `client` directory runs the client on
   `http://localhost:3000`.
